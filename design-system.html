@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline · Design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Chrome de la page (neutre, hors design systems) ---------- */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #e9e9ec;
+    color: #1c1c1f;
+    font: 14px/1.5 system-ui, -apple-system, sans-serif;
+  }
+  header.page {
+    max-width: 1440px; margin: 0 auto; padding: 32px 16px 8px;
+  }
+  header.page h1 { margin: 0 0 4px; font-size: 22px; }
+  header.page p { margin: 0; color: #5d5d66; max-width: 70ch; }
+  .grid {
+    max-width: 1440px; margin: 0 auto; padding: 16px;
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    align-items: start;
+  }
+  .grid:not(.both) { max-width: 680px; }
+  .grid.both { grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); max-width: 1200px; }
+  .seg { display: inline-flex; margin-top: 14px; background: #d7d7dc; border-radius: 9px; padding: 3px; gap: 2px; }
+  .seg button { font: inherit; font-size: 13px; border: 0; background: transparent; padding: 6px 12px; border-radius: 7px; cursor: pointer; color: #3b3b42; }
+  .seg button[aria-pressed="true"] { background: #fff; color: #111; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
+  .ds-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .mode {
+    flex: none; font: inherit; font-size: 12px; font-family: var(--font-mono);
+    background: var(--muted); color: var(--muted-foreground);
+    border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; cursor: pointer;
+  }
+
+  /* ---------- Tokens (noms alignés sur shadcn, valeurs = src/app/globals.css) ----------
+     Clair = .ds-b   ·   Sombre = .ds-b.dark */
+
+  .ds-b {
+    --background: oklch(0.965 0.014 85);
+    --card: oklch(0.99 0.006 85);
+    --foreground: oklch(0.26 0.025 50);
+    --muted: oklch(0.935 0.018 80);
+    --muted-foreground: oklch(0.5 0.03 60);
+    --border: oklch(0.86 0.025 75);
+    --input: oklch(0.78 0.03 70);
+    --input-bg: var(--card);
+    --primary: oklch(0.57 0.15 40);
+    --primary-foreground: oklch(0.985 0.01 85);
+    --primary-border: oklch(0.45 0.13 40);
+    --secondary: oklch(0.92 0.03 70);
+    --secondary-foreground: oklch(0.32 0.04 50);
+    --destructive: oklch(0.5 0.17 25);
+    --destructive-foreground: oklch(0.985 0.01 85);
+    --ring: oklch(0.57 0.15 40);
+    --ring-halo: oklch(0.57 0.15 40 / 0.3);
+    --radius: 0.25rem;
+    --font-heading: "Fraunces", Georgia, serif;
+    --font-body: "Source Sans 3", system-ui, sans-serif;
+    --font-mono: "Source Sans 3", system-ui, sans-serif;
+    --h-weight: 600; --h-tracking: -0.01em;
+    --stage-new: oklch(0.55 0.03 60);
+    --stage-contacted: oklch(0.5 0.08 230);
+    --stage-meeting: oklch(0.58 0.12 70);
+    --stage-won: oklch(0.5 0.1 145);
+    --stage-lost: oklch(0.5 0.15 25);
+    --today: oklch(0.57 0.15 40);
+    --today-foreground: oklch(0.48 0.14 40);
+    --btn-shadow: none;
+    --card-border: var(--border);
+    --card-shadow: 3px 3px 0 oklch(0.86 0.025 75);
+  }
+  .ds-b.dark {
+    --background: oklch(0.2 0.015 55);
+    --card: oklch(0.24 0.016 55);
+    --foreground: oklch(0.93 0.02 85);
+    --muted: oklch(0.27 0.018 55);
+    --muted-foreground: oklch(0.72 0.03 70);
+    --border: oklch(0.34 0.02 60);
+    --input: oklch(0.44 0.025 60);
+    --primary: oklch(0.68 0.14 42);
+    --primary-foreground: oklch(0.18 0.02 50);
+    --primary-border: oklch(0.76 0.11 45);
+    --secondary: oklch(0.31 0.025 60);
+    --secondary-foreground: oklch(0.9 0.02 85);
+    --destructive: oklch(0.65 0.17 25);
+    --destructive-foreground: oklch(0.16 0.02 25);
+    --ring: oklch(0.72 0.13 42);
+    --ring-halo: oklch(0.68 0.14 42 / 0.35);
+    --stage-new: oklch(0.72 0.03 70);
+    --stage-contacted: oklch(0.74 0.08 230);
+    --stage-meeting: oklch(0.8 0.12 80);
+    --stage-won: oklch(0.74 0.1 145);
+    --stage-lost: oklch(0.7 0.15 25);
+    --today: oklch(0.68 0.14 42);
+    --today-foreground: oklch(0.8 0.11 48);
+    --card-shadow: 3px 3px 0 oklch(0.14 0.015 55);
+  }
+
+  /* ---------- Composants (partagés, pilotés par les tokens) ---------- */
+  .ds {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
+    border-radius: 14px;
+    padding: 24px;
+    min-width: 0;
+  }
+  .ds h2, .ds h3, .ds .h { font-family: var(--font-heading); font-weight: var(--h-weight); letter-spacing: var(--h-tracking); }
+  .ds .label {
+    font-family: var(--font-mono);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted-foreground); margin: 28px 0 10px;
+  }
+  .ds .name { margin: 0; font-size: 28px; line-height: 1.15; }
+  .ds .pitch { margin: 6px 0 0; color: var(--muted-foreground); }
+
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sw { min-width: 0; }
+  .sw i { display: block; height: 44px; border-radius: calc(var(--radius) * 0.75); border: 1px solid var(--border); }
+  .sw b { display: block; font-size: 11px; font-weight: 500; margin-top: 4px; }
+  .sw code { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .stages { display: flex; flex-wrap: wrap; gap: 6px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; line-height: 1;
+    padding: 5px 9px; border-radius: 999px;
+    color: var(--c);
+    background: color-mix(in oklch, var(--c) 14%, transparent);
+  }
+  .ds-b .badge { border-radius: var(--radius); border: 1px solid color-mix(in oklch, var(--c) 40%, transparent); background: transparent; }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+
+  .type > * { margin: 0 0 8px; }
+  .type .t1 { font-size: 30px; line-height: 1.15; }
+  .type .t2 { font-size: 20px; line-height: 1.25; }
+  .type .t3 { font-size: 15px; line-height: 1.6; }
+  .type .t4 { font-size: 13px; color: var(--muted-foreground); }
+  .type .t5 { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
+  .type .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted-foreground); margin-left: 6px; letter-spacing: 0; font-weight: 400; }
+
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn {
+    font: inherit; font-size: 14px; font-weight: 500;
+    height: 36px; padding: 0 14px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer; box-shadow: var(--btn-shadow);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary-border); }
+  .btn.secondary { background: var(--secondary); color: var(--secondary-foreground); }
+  .btn.outline { background: var(--card); color: var(--foreground); border-color: var(--input); }
+  .btn.ghost { background: transparent; color: var(--foreground); box-shadow: none; }
+  .btn.destructive { background: var(--destructive); color: var(--destructive-foreground); }
+  .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+  .btn.sm { height: 30px; padding: 0 10px; font-size: 13px; }
+
+  .fields { display: grid; gap: 14px; }
+  .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .field .input {
+    width: 100%; height: 38px; padding: 0 12px;
+    font: inherit; font-size: 14px;
+    color: var(--foreground); background: var(--input-bg);
+    border: 1px solid var(--input); border-radius: var(--radius);
+    outline: none;
+  }
+  .field .input::placeholder { color: var(--muted-foreground); }
+  .field .input:focus, .field .input.focus { border-color: var(--ring); box-shadow: 0 0 0 3px var(--ring-halo); }
+  .field.error .input { border-color: var(--destructive); box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent); }
+  .field .hint { font-size: 12px; color: var(--muted-foreground); margin-top: 5px; }
+  .field.error .hint { color: var(--destructive); }
+  .field select.input { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%), linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%); background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px; background-size: 5px 5px; background-repeat: no-repeat; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: calc(var(--radius) * 1.5);
+    box-shadow: var(--card-shadow);
+    padding: 18px;
+  }
+  .card-head { display: flex; gap: 12px; align-items: flex-start; }
+  .avatar {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: var(--font-heading); font-weight: 600; font-size: 15px;
+    background: var(--secondary); color: var(--secondary-foreground);
+  }
+  .ds-b .avatar { border-radius: var(--radius); }
+  .card-head .who { flex: 1; min-width: 0; }
+  .card-head h3 { margin: 0; font-size: 17px; line-height: 1.3; }
+  .card-head .role { margin: 2px 0 0; font-size: 13px; color: var(--muted-foreground); }
+  .followup {
+    margin: 14px 0 0; padding: 10px 12px;
+    border-radius: var(--radius);
+    background: color-mix(in oklch, var(--today) 12%, transparent);
+    color: var(--foreground);
+    font-size: 13px; display: flex; justify-content: space-between; gap: 8px; align-items: center;
+  }
+  .followup strong { color: var(--today-foreground); font-weight: 600; }
+  .followup span { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
+  .meta-list { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 14px 0 0; font-size: 13px; }
+  .meta-list dt { color: var(--muted-foreground); }
+  .meta-list dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .meta-list .mono { font-family: var(--font-mono); font-size: 12px; }
+  .card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .card-actions .spacer { flex: 1; }
+
+  .mini { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .mini:last-child { border-bottom: 0; }
+  .mini .n { font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini .d { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
+
+  .tokens { font-family: var(--font-mono); font-size: 11px; line-height: 1.7; color: var(--muted-foreground); background: var(--muted); border-radius: var(--radius); padding: 10px 12px; overflow-x: auto; white-space: pre; margin: 0; }
+</style>
+</head>
+<body>
+<header class="page">
+  <h1>Pipeline : design system « Papier »</h1>
+  <p>Référence visuelle du thème de l'app. Les variables portent les noms du thème shadcn (<code>--primary</code>, <code>--border</code>, <code>--radius</code>…) et reprennent les valeurs de <code>src/app/globals.css</code>, en oklch. En plus de shadcn : les cinq couleurs d'étape (<code>--stage-*</code>), <code>--today</code> / <code>--today-foreground</code>, <code>--primary-border</code>, <code>--destructive-foreground</code> et l'ombre des cartes. Dans l'app, le mode sombre suit la préférence du système.</p>
+  <div class="seg" role="group" aria-label="Mode">
+    <button data-mode="light">Clair</button>
+    <button data-mode="dark">Sombre</button>
+    <button data-mode="both">Côte à côte</button>
+  </div>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<template id="tpl">
+  <section class="ds">
+    <div class="ds-top">
+      <h2 class="name" data-slot="name"></h2>
+      <button class="mode" data-slot="mode" title="Basculer clair / sombre"></button>
+    </div>
+    <p class="pitch" data-slot="pitch"></p>
+
+    <div class="label">Couleurs</div>
+    <div class="swatches">
+      <div class="sw"><i style="background:var(--background)"></i><b>background</b><code data-tok="--background"></code></div>
+      <div class="sw"><i style="background:var(--card)"></i><b>card</b><code data-tok="--card"></code></div>
+      <div class="sw"><i style="background:var(--foreground)"></i><b>foreground</b><code data-tok="--foreground"></code></div>
+      <div class="sw"><i style="background:var(--muted-foreground)"></i><b>muted-fg</b><code data-tok="--muted-foreground"></code></div>
+      <div class="sw"><i style="background:var(--border)"></i><b>border</b><code data-tok="--border"></code></div>
+      <div class="sw"><i style="background:var(--primary)"></i><b>primary</b><code data-tok="--primary"></code></div>
+      <div class="sw"><i style="background:var(--secondary)"></i><b>secondary</b><code data-tok="--secondary"></code></div>
+      <div class="sw"><i style="background:var(--destructive)"></i><b>destructive</b><code data-tok="--destructive"></code></div>
+    </div>
+
+    <div class="label">Étapes du pipeline</div>
+    <div class="stages">
+      <span class="badge" style="--c:var(--stage-new)">Nouveau</span>
+      <span class="badge" style="--c:var(--stage-contacted)">Contacté</span>
+      <span class="badge" style="--c:var(--stage-meeting)">RDV</span>
+      <span class="badge" style="--c:var(--stage-won)">Gagné</span>
+      <span class="badge" style="--c:var(--stage-lost)">Perdu</span>
+    </div>
+
+    <div class="label">Typographie</div>
+    <div class="type">
+      <p class="t1 h">À relancer aujourd'hui<span class="meta" data-slot="f-head"></span></p>
+      <p class="t2 h">Atelier Lumen</p>
+      <p class="t3">Premier échange très positif, souhaite une démo avant la fin du mois.<span class="meta" data-slot="f-body"></span></p>
+      <p class="t4">Dernier contact il y a 6 jours</p>
+      <p class="t5">20/11/2026 · 06 12 34 56 78<span class="meta" data-slot="f-mono"></span></p>
+    </div>
+
+    <div class="label">Boutons</div>
+    <div class="row">
+      <button class="btn primary">Ajouter un contact</button>
+      <button class="btn secondary">Relancer</button>
+      <button class="btn outline">Modifier</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn ghost">Annuler</button>
+      <button class="btn destructive">Supprimer</button>
+      <button class="btn primary" disabled>Désactivé</button>
+    </div>
+
+    <div class="label">Champs</div>
+    <div class="fields">
+      <div class="field">
+        <label>Nom</label>
+        <input class="input" placeholder="Camille Martin">
+      </div>
+      <div class="field">
+        <label>Entreprise <span style="color:var(--muted-foreground);font-weight:400">(focus)</span></label>
+        <input class="input focus" value="Atelier Lumen">
+      </div>
+      <div class="field error">
+        <label>E-mail</label>
+        <input class="input" value="camille@lumen">
+        <div class="hint">Adresse e-mail invalide.</div>
+      </div>
+      <div class="field">
+        <label>Étape</label>
+        <select class="input"><option>RDV</option><option>Contacté</option></select>
+      </div>
+    </div>
+
+    <div class="label">Carte de contact</div>
+    <article class="card">
+      <div class="card-head">
+        <div class="avatar">CM</div>
+        <div class="who">
+          <h3 class="h">Camille Martin</h3>
+          <p class="role">Directrice marketing · Atelier Lumen</p>
+        </div>
+        <span class="badge" style="--c:var(--stage-meeting)">RDV</span>
+      </div>
+      <div class="followup"><strong>Relance aujourd'hui</strong><span>20 nov.</span></div>
+      <dl class="meta-list">
+        <dt>E-mail</dt><dd class="mono">camille@atelier-lumen.fr</dd>
+        <dt>Téléphone</dt><dd class="mono">06 12 34 56 78</dd>
+        <dt>Dernier contact</dt><dd>14 nov. · appel découverte</dd>
+      </dl>
+      <div class="card-actions">
+        <button class="btn primary sm">Étape suivante</button>
+        <button class="btn outline sm">Noter un échange</button>
+        <span class="spacer"></span>
+        <button class="btn ghost sm">⋯</button>
+      </div>
+    </article>
+
+    <div class="card" style="margin-top:12px;padding:4px 16px">
+      <div class="mini"><span class="n">Hugo Bernard · Kestrel SAS</span><span class="badge" style="--c:var(--stage-contacted)">Contacté</span><span class="d">24 nov.</span></div>
+      <div class="mini"><span class="n">Inès Laurent · Noma Studio</span><span class="badge" style="--c:var(--stage-new)">Nouveau</span><span class="d">—</span></div>
+      <div class="mini"><span class="n">Paul Girard · Vertex</span><span class="badge" style="--c:var(--stage-won)">Gagné</span><span class="d">—</span></div>
+    </div>
+
+    <div class="label">Tokens shadcn principaux</div>
+    <pre class="tokens" data-slot="tokens"></pre>
+  </section>
+</template>
+
+<script>
+  const systems = [
+    {
+      cls: "ds-b", name: "Papier",
+      pitch: "Chaleureux et éditorial, comme un carnet de prospection : fond crème, encre brune, accent terracotta, titres en Fraunces, angles vifs, ombres franches. En sombre : fond brun encre, terracotta éclairci.",
+      fonts: ["Fraunces 600", "Source Sans 3", "Source Sans 3"],
+    },
+  ];
+  const keys = ["--background", "--foreground", "--card", "--primary", "--primary-foreground", "--secondary", "--muted-foreground", "--border", "--input", "--destructive", "--radius"];
+  const grid = document.getElementById("grid");
+  const tpl = document.getElementById("tpl");
+
+  function fill(node) {
+    const cs = getComputedStyle(node);
+    node.querySelectorAll("[data-tok]").forEach(el => el.textContent = cs.getPropertyValue(el.dataset.tok).trim());
+    node.querySelector('[data-slot="tokens"]').textContent =
+      (node.classList.contains("dark") ? ".dark {\n" : ":root {\n") +
+      keys.map(k => `  ${k}: ${cs.getPropertyValue(k).trim()};`).join("\n") + "\n}";
+    node.querySelector('[data-slot="mode"]').textContent = node.classList.contains("dark") ? "☾ sombre" : "☀ clair";
+  }
+
+  function panel(s, dark) {
+    const node = tpl.content.firstElementChild.cloneNode(true);
+    node.classList.add(s.cls);
+    node.classList.toggle("dark", dark);
+    node.querySelector('[data-slot="name"]').textContent = s.name;
+    node.querySelector('[data-slot="pitch"]').textContent = s.pitch;
+    node.querySelector('[data-slot="f-head"]').textContent = s.fonts[0];
+    node.querySelector('[data-slot="f-body"]').textContent = s.fonts[1];
+    node.querySelector('[data-slot="f-mono"]').textContent = s.fonts[2];
+    node.querySelector('[data-slot="mode"]').addEventListener("click", () => { node.classList.toggle("dark"); fill(node); });
+    grid.appendChild(node);
+    fill(node);
+  }
+
+  function render(mode) {
+    grid.replaceChildren();
+    grid.classList.toggle("both", mode === "both");
+    for (const s of systems) {
+      if (mode === "both") { panel(s, false); panel(s, true); }
+      else panel(s, mode === "dark");
+    }
+    document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    try { localStorage.setItem("pipeline-ds-mode-v2", mode); } catch {}
+  }
+
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => render(b.dataset.mode)));
+  let initial = "light";
+  try { initial = localStorage.getItem("pipeline-ds-mode-v2") || initial; } catch {}
+  render(initial);
+</script>
+</body>
+</html>

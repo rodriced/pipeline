@@ -20,12 +20,12 @@ pnpm build                            # build de prod
 pnpm lint                             # ESLint (flat config, eslint.config.mjs)
 pnpm test                             # Vitest, une passe
 pnpm test:watch                       # Vitest en watch
-pnpm test src/chemin/fichier.test.ts  # un seul fichier de test
+pnpm test __tests__/services/status.service.test.ts  # un seul fichier
 pnpm test -t "nom du test"            # un seul test par nom
 pnpm dlx shadcn@latest add <composant>  # ajoute un composant shadcn dans src/components/ui
 ```
 
-Vitest ne ramasse que `src/**/*.test.ts` (environnement `node`, alias `@` → `src`), voir `vitest.config.mts`.
+Les tests sont dans `__tests__/` (racine), qui reproduit l'arborescence de `src/`. Vitest ne ramasse que `__tests__/**/*.test.{ts,tsx}` (environnement `node`, alias `@` → `src`), voir `vitest.config.mts`. Les composants se testent avec `renderToStaticMarkup` (`react-dom/server`), sans jsdom.
 
 ## Stack
 
@@ -34,13 +34,15 @@ Vitest ne ramasse que `src/**/*.test.ts` (environnement `node`, alias `@` → `s
 - shadcn/ui, style `base-nova` sur **Base UI** (`@base-ui/react`), pas Radix. Icônes : `lucide-react`. `cn()` vient du paquet `cn`, réexporté par `src/lib/utils.ts` (pas de dépendance directe à `clsx`/`tailwind-merge`).
 - Déploiement cible : Vercel.
 
-## Architecture (cible, définie par INTENT.md)
+## Architecture (définie par INTENT.md)
 
 Trois couches : présentation → service → données.
-- Seule la couche données accède à la base. Présentation et service n'importent jamais le client de base.
-- Base type SQLite, migrable vers Turso : passer à une base managée ne doit modifier que la couche données.
-- Les règles métier ont des tests unitaires.
-- Attention : sur Vercel le système de fichiers est éphémère, un fichier SQLite local n'y persiste pas.
+- Présentation : `src/app` (routes) et `src/components`. Composants purs, données reçues en props.
+- Service : `src/services`. Règles métier, avec tests unitaires. Le repository est injecté (`createXxxService(repo)`), ce qui permet de tester avec un faux repo.
+- Données : `src/data`. Seule couche qui accède à la base. Elle expose une interface `XxxRepository` (le contrat stable) et son implémentation : passer à Turso ne change que l'implémentation.
+- `src/services/status.service.ts` et les fichiers associés sont un exemple vide qui montre le schéma.
+- `eslint.config.mjs` applique les règles de dépendance (`no-restricted-imports`) : présentation ↛ data, services ↛ présentation, data ↛ services/présentation. Seuls les imports `@/…` sont contrôlés, donc pas d'import relatif entre couches.
+- Base type SQLite, migrable vers Turso. Attention : sur Vercel le système de fichiers est éphémère, un fichier SQLite local n'y persiste pas.
 
 ## Workflow
 

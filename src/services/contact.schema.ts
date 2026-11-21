@@ -24,6 +24,16 @@ export const contactIdSchema = z.union([
 /** Étapes du pipeline, dans l'ordre. Toute étape valide peut succéder à toute autre (lot 3). */
 export const stageSchema = z.enum(["new", "contacted", "meeting", "won", "lost"]);
 
+/** Date seule AAAA-MM-JJ, existante au calendrier (pas de 30 février). */
+export const isoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((value) => {
+    const [y, m, d] = value.split("-").map(Number);
+    const date = new Date(Date.UTC(y, m - 1, d));
+    return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+  });
+
 /** Nom obligatoire : une chaîne non vide une fois les espaces retirés. */
 export const nameSchema = z.string({ error: NAME_REQUIRED }).trim().min(1, NAME_REQUIRED);
 

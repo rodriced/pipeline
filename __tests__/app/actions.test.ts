@@ -6,9 +6,15 @@ vi.mock("next/cache", () => ({ revalidatePath }));
 
 const updateContact = vi.fn();
 const changeStage = vi.fn();
-vi.mock("@/services/contact.service", () => ({ contactService: { updateContact, changeStage } }));
+const scheduleFollowUp = vi.fn();
+const clearFollowUp = vi.fn();
+vi.mock("@/services/contact.service", () => ({
+  contactService: { updateContact, changeStage, scheduleFollowUp, clearFollowUp },
+}));
 
-const { updateContactAction, changeStageAction } = await import("@/app/actions");
+const { updateContactAction, changeStageAction, scheduleFollowUpAction, clearFollowUpAction } = await import(
+  "@/app/actions"
+);
 
 const marie: Contact = {
   id: 1,
@@ -19,6 +25,7 @@ const marie: Contact = {
   email: null,
   phone: null,
   notes: null,
+  nextFollowUp: null,
 };
 
 const emptyState = { values: { name: "", company: "", email: "", phone: "", notes: "" } };
@@ -85,5 +92,46 @@ describe("changeStageAction (lot 3)", () => {
     await changeStageAction(1, form({ stage: "archived" }));
 
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+});
+
+describe("relance (lot 4)", () => {
+  beforeEach(() => {
+    scheduleFollowUp.mockReset();
+    clearFollowUp.mockReset();
+    revalidatePath.mockReset();
+  });
+
+  it("scheduleFollowUpAction transmet l'id lié et la date brute au service, puis rafraîchit", async () => {
+    scheduleFollowUp.mockResolvedValue({ ok: true, contact: { ...marie, nextFollowUp: "2026-11-25" } });
+
+    const state = await scheduleFollowUpAction(1, { value: "" }, form({ date: "2026-11-25" }));
+
+    expect(scheduleFollowUp).toHaveBeenCalledWith(1, "2026-11-25");
+    expect(state).toEqual({ value: "2026-11-25" });
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+    expect(revalidatePath).toHaveBeenCalledWith("/contacts/1");
+  });
+
+  it.each([
+    ["DATE_PAST", "La date de relance ne peut pas être passée."],
+    ["DATE_INVALID", "Date invalide."],
+    ["CONTACT_CLOSED", "Un contact clôturé ne peut pas avoir de relance."],
+  ])("traduit %s en message et conserve la saisie", async (error, message) => {
+    scheduleFollowUp.mockResolvedValue({ ok: false, error });
+
+    const state = await scheduleFollowUpAction(1, { value: "" }, form({ date: "2026-11-20" }));
+
+    expect(state).toEqual({ value: "2026-11-20", error: message });
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("clearFollowUpAction transmet l'id lié au service, puis rafraîchit", async () => {
+    clearFollowUp.mockResolvedValue({ ok: true, contact: marie });
+
+    await clearFollowUpAction(1);
+
+    expect(clearFollowUp).toHaveBeenCalledWith(1);
+    expect(revalidatePath).toHaveBeenCalledWith("/contacts/1");
   });
 });

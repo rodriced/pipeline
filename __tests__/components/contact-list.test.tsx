@@ -12,6 +12,7 @@ const contact = (id: number, name: string, company: string | null = null): Conta
   email: null,
   phone: null,
   notes: null,
+  nextFollowUp: null,
 });
 
 describe("ContactList", () => {
@@ -24,6 +25,17 @@ describe("ContactList", () => {
   it("affiche l'entreprise du contact", () => {
     const html = renderToStaticMarkup(<ContactList contacts={[contact(1, "Marie Durand", "Atelier Lumen")]} />);
     expect(html).toContain("Atelier Lumen");
+  });
+
+  it("affiche la date de relance (lot 4)", () => {
+    const html = renderToStaticMarkup(
+      <ContactList contacts={[{ ...contact(1, "Marie Durand"), nextFollowUp: "2026-11-25" }]} />,
+    );
+    expect(html).toContain("Relance : 25/11");
+  });
+
+  it("n'affiche aucune date sans relance (lot 4)", () => {
+    expect(renderToStaticMarkup(<ContactList contacts={[contact(1, "Marie Durand")]} />)).not.toContain("Relance");
   });
 
   it("chaque contact mène à sa fiche", () => {

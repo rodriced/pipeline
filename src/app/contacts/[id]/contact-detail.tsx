@@ -1,12 +1,19 @@
 // Couche présentation : contenu de la fiche contact (Server Component).
 // Séparé de page.tsx pour être testable ; rendu sous <Suspense> car il lit les params.
 import { notFound } from "next/navigation";
-import { changeStageAction, deleteContactAction, updateContactAction } from "@/app/actions";
+import {
+  changeStageAction,
+  clearFollowUpAction,
+  deleteContactAction,
+  scheduleFollowUpAction,
+  updateContactAction,
+} from "@/app/actions";
 import { ContactForm } from "@/components/contact-form";
 import { DeleteContactDialog } from "@/components/delete-contact-dialog";
+import { FollowUpForm } from "@/components/follow-up-form";
 import { StageBadge } from "@/components/stage-badge";
 import { StageSelector } from "@/components/stage-selector";
-import { contactService } from "@/services/contact.service";
+import { contactService, isClosedStage } from "@/services/contact.service";
 
 export async function ContactDetail({ params }: { params: Promise<{ id: string }> }) {
   // Identifiant de l'URL transmis brut : le service le valide (zod) et renvoie null s'il est invalide.
@@ -28,6 +35,18 @@ export async function ContactDetail({ params }: { params: Promise<{ id: string }
           Étape
         </h2>
         <StageSelector stage={contact.stage} action={changeStageAction.bind(null, contact.id)} />
+      </section>
+
+      <section aria-labelledby="follow-up-heading" className="flex flex-col gap-2">
+        <h2 id="follow-up-heading" className="text-sm font-medium text-muted-foreground">
+          Relance
+        </h2>
+        <FollowUpForm
+          nextFollowUp={contact.nextFollowUp}
+          closed={isClosedStage(contact.stage)}
+          scheduleAction={scheduleFollowUpAction.bind(null, contact.id)}
+          clearAction={clearFollowUpAction.bind(null, contact.id)}
+        />
       </section>
 
       <ContactForm

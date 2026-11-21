@@ -12,6 +12,7 @@ function fakeRepo() {
         email: null,
         phone: null,
         notes: null,
+        nextFollowUp: null,
         ...input,
       };
       contacts.push(contact);
@@ -38,11 +39,18 @@ function fakeRepo() {
       contact.stage = stage;
       return { ...contact };
     }),
+    setFollowUp: vi.fn(async (id: number, date: string | null) => {
+      const contact = contacts.find((c) => c.id === id);
+      if (!contact) return null;
+      contact.nextFollowUp = date;
+      return { ...contact };
+    }),
   };
   return repo;
 }
 
-const fixedNow = () => new Date("2026-11-21T09:00:00Z");
+// Midi, heure locale : « aujourd'hui » vaut 2026-11-21 quel que soit le fuseau de la machine.
+const fixedNow = () => new Date(2026, 10, 21, 12, 0, 0);
 
 async function withMarie() {
   const repo = fakeRepo();
@@ -305,6 +313,85 @@ describe("createContactService", () => {
     it.each([999, "abc", null])("renvoie NOT_FOUND pour un identifiant inexistant ou invalide (%j)", async (bad) => {
       const { service } = await withMarie();
       await expect(service.changeStage(bad, "contacted")).resolves.toEqual({ ok: false, error: "NOT_FOUND" });
+    });
+  });
+
+  describe("relance (lot 4)", () => {
+    it("planifie une relance, visible sur la fiche et dans la liste", async () => {
+      const { service, id } = await withMarie();
+
+      const result = await service.scheduleFollowUp(id, "2026-11-25");
+
+      expect(result).toMatchObject({ ok: true, contact: { nextFollowUp: "2026-11-25" } });
+      await expect(service.getContact(id)).resolves.toMatchObject({ nextFollowUp: "2026-11-25" });
+      await expect(service.listContacts()).resolves.toEqual([expect.objectContaining({ nextFollowUp: "2026-11-25" })]);
+    });
+
+    it("accepte une relance aujourd'hui", async () => {
+      const { service, id } = await withMarie();
+      await expect(service.scheduleFollowUp(id, "2026-11-21")).resolves.toMatchObject({ ok: true });
+    });
+
+    it("refuse une date passée, sans rien modifier", async () => {
+      const { repo, service, id } = await withMarie();
+
+      await expect(service.scheduleFollowUp(id, "2026-11-20")).resolves.toEqual({ ok: false, error: "DATE_PAST" });
+      expect(repo.setFollowUp).not.toHaveBeenCalled();
+    });
+
+    it.each(["25/11/2026", "2026-02-30", "2026-13-01", "2026-11-25T10:00", " 2026-11-25", "", null, 42, {}])(
+      "refuse une date invalide (%j), sans rien modifier",
+      async (date) => {
+        const { repo, service, id } = await withMarie();
+
+        await expect(service.scheduleFollowUp(id, date)).resolves.toEqual({ ok: false, error: "DATE_INVALID" });
+        expect(repo.setFollowUp).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each(["won", "lost"] as const)("refuse de planifier une relance pour un contact « %s »", async (stage) => {
+      const { repo, service, id } = await withMarie();
+      await service.changeStage(id, stage);
+
+      await expect(service.scheduleFollowUp(id, "2026-11-25")).resolves.toEqual({
+        ok: false,
+        error: "CONTACT_CLOSED",
+      });
+      expect(repo.setFollowUp).not.toHaveBeenCalled();
+    });
+
+    it.each([999, "abc"])("renvoie NOT_FOUND pour un identifiant inexistant ou invalide (%j)", async (bad) => {
+      const { service } = await withMarie();
+      await expect(service.scheduleFollowUp(bad, "2026-11-25")).resolves.toEqual({ ok: false, error: "NOT_FOUND" });
+      await expect(service.clearFollowUp(bad)).resolves.toEqual({ ok: false, error: "NOT_FOUND" });
+    });
+
+    it("supprime une relance : plus aucune date", async () => {
+      const { service, id } = await withMarie();
+      await service.scheduleFollowUp(id, "2026-11-25");
+
+      await expect(service.clearFollowUp(id)).resolves.toMatchObject({ ok: true, contact: { nextFollowUp: null } });
+      await expect(service.getContact(id)).resolves.toMatchObject({ nextFollowUp: null });
+    });
+
+    it.each(["won", "lost"] as const)("clôturer un contact (« %s ») efface sa relance", async (stage) => {
+      const { service, id } = await withMarie();
+      await service.scheduleFollowUp(id, "2026-11-25");
+
+      await expect(service.changeStage(id, stage)).resolves.toMatchObject({
+        ok: true,
+        contact: { stage, nextFollowUp: null },
+      });
+      await expect(service.getContact(id)).resolves.toMatchObject({ nextFollowUp: null });
+    });
+
+    it("changer pour une étape active conserve la relance", async () => {
+      const { service, id } = await withMarie();
+      await service.scheduleFollowUp(id, "2026-11-25");
+
+      await service.changeStage(id, "meeting");
+
+      await expect(service.getContact(id)).resolves.toMatchObject({ nextFollowUp: "2026-11-25" });
     });
   });
 

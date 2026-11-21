@@ -19,6 +19,8 @@ const MIGRATIONS = [
    ALTER TABLE contacts ADD COLUMN email   TEXT;
    ALTER TABLE contacts ADD COLUMN phone   TEXT;
    ALTER TABLE contacts ADD COLUMN notes   TEXT;`,
+  // v3 · lot 4 : prochaine relance (date seule, AAAA-MM-JJ)
+  `ALTER TABLE contacts ADD COLUMN next_follow_up TEXT;`,
 ];
 
 function migrate(db: DatabaseSync) {

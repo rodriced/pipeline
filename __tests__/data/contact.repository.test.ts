@@ -60,6 +60,14 @@ describe("SQLite sur fichier", () => {
     await expect(session(file, (repo) => repo.findById(id))).resolves.toMatchObject({ stage: "meeting" });
   });
 
+  it("conserve une relance après redémarrage (lot 4)", async () => {
+    const file = tempDbFile();
+    const { id } = await session(file, (repo) => repo.create(marie));
+    await session(file, (repo) => repo.setFollowUp(id, "2026-11-25"));
+
+    await expect(session(file, (repo) => repo.findById(id))).resolves.toMatchObject({ nextFollowUp: "2026-11-25" });
+  });
+
   it("conserve une suppression après redémarrage", async () => {
     const file = tempDbFile();
     const { id } = await session(file, (repo) => repo.create(marie));
@@ -84,7 +92,14 @@ describe("SQLite sur fichier", () => {
 
     const contacts = await session(file, (repo) => repo.listByMostRecent());
     expect(contacts).toEqual([
-      expect.objectContaining({ name: "Marie Durand", company: null, email: null, phone: null, notes: null }),
+      expect.objectContaining({
+        name: "Marie Durand",
+        company: null,
+        email: null,
+        phone: null,
+        notes: null,
+        nextFollowUp: null,
+      }),
     ]);
     await session(file, (repo) =>
       repo.update(contacts[0].id, { name: "Marie Durand", company: "Atelier Lumen", email: null, phone: null, notes: null }),

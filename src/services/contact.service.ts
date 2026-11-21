@@ -11,6 +11,7 @@ import {
 import {
   contactFieldsSchema,
   contactIdSchema,
+  isoDateSchema,
   nameSchema,
   stageSchema,
   toFieldErrors,
@@ -34,6 +35,23 @@ export type UpdateContactResult =
   | { ok: false; error: "NOT_FOUND" };
 
 export type DeleteContactResult = { ok: true } | { ok: false; error: "NOT_FOUND" };
+
+export type FollowUpError = "NOT_FOUND" | "CONTACT_CLOSED" | "DATE_INVALID" | "DATE_PAST";
+
+export type ScheduleFollowUpResult = { ok: true; contact: Contact } | { ok: false; error: FollowUpError };
+
+export type ClearFollowUpResult = { ok: true; contact: Contact } | { ok: false; error: "NOT_FOUND" };
+
+/** Étapes clôturées : plus de relance possible. */
+const CLOSED_STAGES: readonly Stage[] = ["won", "lost"];
+
+export const isClosedStage = (stage: Stage) => CLOSED_STAGES.includes(stage);
+
+/** Date locale (fuseau du serveur) au format AAAA-MM-JJ. */
+export function toIsoDate(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
 
 export type ChangeStageResult =
   | { ok: true; contact: Contact }
@@ -83,6 +101,37 @@ export function createContactService(repo: ContactRepository, now: () => Date = 
       if (!stage.success) return { ok: false, error: "INVALID_STAGE" };
 
       const contact = await repo.updateStage(id.data, stage.data);
+      if (!contact) return { ok: false, error: "NOT_FOUND" };
+
+      // Un contact clôturé n'a plus de relance (lot 4).
+      if (isClosedStage(contact.stage) && contact.nextFollowUp !== null) {
+        const cleared = await repo.setFollowUp(contact.id, null);
+        return cleared ? { ok: true, contact: cleared } : { ok: false, error: "NOT_FOUND" };
+      }
+      return { ok: true, contact };
+    },
+
+    async scheduleFollowUp(rawId: unknown, rawDate: unknown): Promise<ScheduleFollowUpResult> {
+      const id = contactIdSchema.safeParse(rawId);
+      if (!id.success) return { ok: false, error: "NOT_FOUND" };
+      const contact = await repo.findById(id.data);
+      if (!contact) return { ok: false, error: "NOT_FOUND" };
+      if (isClosedStage(contact.stage)) return { ok: false, error: "CONTACT_CLOSED" };
+
+      const date = isoDateSchema.safeParse(rawDate);
+      if (!date.success) return { ok: false, error: "DATE_INVALID" };
+      // Les dates AAAA-MM-JJ se comparent comme des chaînes.
+      if (date.data < toIsoDate(now())) return { ok: false, error: "DATE_PAST" };
+
+      const updated = await repo.setFollowUp(contact.id, date.data);
+      return updated ? { ok: true, contact: updated } : { ok: false, error: "NOT_FOUND" };
+    },
+
+    async clearFollowUp(rawId: unknown): Promise<ClearFollowUpResult> {
+      const id = contactIdSchema.safeParse(rawId);
+      if (!id.success) return { ok: false, error: "NOT_FOUND" };
+
+      const contact = await repo.setFollowUp(id.data, null);
       return contact ? { ok: true, contact } : { ok: false, error: "NOT_FOUND" };
     },
   };

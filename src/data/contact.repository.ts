@@ -13,6 +13,8 @@ export type Contact = {
   email: string | null;
   phone: string | null;
   notes: string | null;
+  /** Prochaine relance, date seule au format AAAA-MM-JJ. */
+  nextFollowUp: string | null;
 };
 
 /** Ce qu'il faut pour créer un contact ; les champs de la fiche partent à null. */
@@ -31,6 +33,8 @@ export interface ContactRepository {
   delete(id: number): Promise<boolean>;
   /** Renvoie le contact avec sa nouvelle étape, ou null s'il n'existe pas. */
   updateStage(id: number, stage: Stage): Promise<Contact | null>;
+  /** Fixe (date AAAA-MM-JJ) ou efface (null) la prochaine relance ; null si le contact n'existe pas. */
+  setFollowUp(id: number, date: string | null): Promise<Contact | null>;
 }
 
 type ContactRow = {
@@ -42,9 +46,10 @@ type ContactRow = {
   email: string | null;
   phone: string | null;
   notes: string | null;
+  next_follow_up: string | null;
 };
 
-const COLUMNS = "id, name, stage, created_at, company, email, phone, notes";
+const COLUMNS = "id, name, stage, created_at, company, email, phone, notes, next_follow_up";
 
 const toContact = (row: ContactRow): Contact => ({
   id: Number(row.id),
@@ -55,6 +60,7 @@ const toContact = (row: ContactRow): Contact => ({
   email: row.email,
   phone: row.phone,
   notes: row.notes,
+  nextFollowUp: row.next_follow_up,
 });
 
 export function createSqliteContactRepository(db: Database): ContactRepository {
@@ -68,6 +74,7 @@ export function createSqliteContactRepository(db: Database): ContactRepository {
   );
   const deleteById = db.prepare("DELETE FROM contacts WHERE id = ?");
   const updateStageById = db.prepare(`UPDATE contacts SET stage = ? WHERE id = ? RETURNING ${COLUMNS}`);
+  const setFollowUpById = db.prepare(`UPDATE contacts SET next_follow_up = ? WHERE id = ? RETURNING ${COLUMNS}`);
 
   return {
     async create({ name, stage, createdAt }) {
@@ -91,6 +98,10 @@ export function createSqliteContactRepository(db: Database): ContactRepository {
       const row = updateStageById.get(stage, id) as ContactRow | undefined;
       return row ? toContact(row) : null;
     },
+    async setFollowUp(id, date) {
+      const row = setFollowUpById.get(date, id) as ContactRow | undefined;
+      return row ? toContact(row) : null;
+    },
   };
 }
 
@@ -105,4 +116,5 @@ export const contactRepository: ContactRepository = {
   update: (id, fields) => repo().update(id, fields),
   delete: (id) => repo().delete(id),
   updateStage: (id, stage) => repo().updateStage(id, stage),
+  setFollowUp: (id, date) => repo().setFollowUp(id, date),
 };

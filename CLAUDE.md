@@ -20,7 +20,7 @@ pnpm build                            # build de prod
 pnpm lint                             # ESLint (flat config, eslint.config.mjs)
 pnpm test                             # Vitest, une passe
 pnpm test:watch                       # Vitest en watch
-pnpm test __tests__/services/status.service.test.ts  # un seul fichier
+pnpm test __tests__/services/contact.service.test.ts  # un seul fichier
 pnpm test -t "nom du test"            # un seul test par nom
 pnpm dlx shadcn@latest add <composant>  # ajoute un composant shadcn dans src/components/ui
 ```
@@ -42,7 +42,7 @@ Trois couches : présentation → service → données.
 - Présentation : `src/app` (routes) et `src/components`. Composants purs, données reçues en props.
 - Service : `src/services`. Règles métier, avec tests unitaires. Le repository est injecté (`createXxxService(repo)`), ce qui permet de tester avec un faux repo.
 - Données : `src/data`. Seule couche qui accède à la base. Elle expose une interface `XxxRepository` (le contrat stable) et son implémentation : passer à Turso ne change que l'implémentation.
-- `src/services/status.service.ts` et les fichiers associés sont un exemple vide qui montre le schéma.
+- `src/services/contact.service.ts` (et `src/data/contact.repository.ts`) est la référence du schéma.
 - `eslint.config.mjs` applique les règles de dépendance (`no-restricted-imports`) : présentation ↛ data, services ↛ présentation, data ↛ services/présentation. Seuls les imports `@/…` sont contrôlés, donc pas d'import relatif entre couches.
 - Base type SQLite, migrable vers Turso. Attention : sur Vercel le système de fichiers est éphémère, un fichier SQLite local n'y persiste pas.
 

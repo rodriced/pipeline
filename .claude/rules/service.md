@@ -12,7 +12,7 @@ Périmètre : `src/services`.
 - Porte toutes les règles métier : validation d'un contact, passage d'une étape à l'autre, calcul de qui relancer aujourd'hui, etc.
 - Ne parle jamais à la base : passe par une interface `XxxRepository` de `src/data`.
 - Ne dépend pas de la présentation (`@/app`, `@/components`), ni de React/Next.
-- Schéma : `createXxxService(repo: XxxRepository)` qui retourne les fonctions métier, plus une instance câblée `xxxService = createXxxService(xxxRepository)` pour la présentation. Modèle : `status.service.ts`.
+- Schéma : `createXxxService(repo: XxxRepository)` qui retourne les fonctions métier, plus une instance câblée `xxxService = createXxxService(xxxRepository)` pour la présentation. Modèle : `contact.service.ts`.
 - La date du jour (relances) est injectée ou passée en paramètre, pour être testable.
 
 ## Tests d'abord

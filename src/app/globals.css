@@ -21,6 +21,7 @@
   --color-stage-meeting: var(--stage-meeting);
   --color-stage-won: var(--stage-won);
   --color-stage-lost: var(--stage-lost);
+  --color-overlay: var(--overlay);
   --shadow-card: var(--card-shadow);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -106,6 +107,7 @@
   --stage-won: oklch(0.5 0.1 145);
   --stage-lost: oklch(0.5 0.15 25);
   --card-shadow: 3px 3px 0 oklch(0.86 0.025 75);
+  --overlay: oklch(0.2 0.02 60 / 20%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -152,6 +154,7 @@
     --stage-won: oklch(0.74 0.1 145);
     --stage-lost: oklch(0.7 0.15 25);
     --card-shadow: 3px 3px 0 oklch(0.14 0.015 55);
+    --overlay: oklch(0 0 0 / 50%);
   }
 }
 

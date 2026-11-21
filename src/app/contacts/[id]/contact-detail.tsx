@@ -1,10 +1,11 @@
 // Couche présentation : contenu de la fiche contact (Server Component).
 // Séparé de page.tsx pour être testable ; rendu sous <Suspense> car il lit les params.
 import { notFound } from "next/navigation";
-import { deleteContactAction, updateContactAction } from "@/app/actions";
+import { changeStageAction, deleteContactAction, updateContactAction } from "@/app/actions";
 import { ContactForm } from "@/components/contact-form";
 import { DeleteContactDialog } from "@/components/delete-contact-dialog";
 import { StageBadge } from "@/components/stage-badge";
+import { StageSelector } from "@/components/stage-selector";
 import { contactService } from "@/services/contact.service";
 
 export async function ContactDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -21,6 +22,13 @@ export async function ContactDetail({ params }: { params: Promise<{ id: string }
         </div>
         <StageBadge stage={contact.stage} />
       </header>
+
+      <section aria-labelledby="stage-heading" className="flex flex-col gap-2">
+        <h2 id="stage-heading" className="text-sm font-medium text-muted-foreground">
+          Étape
+        </h2>
+        <StageSelector stage={contact.stage} action={changeStageAction.bind(null, contact.id)} />
+      </section>
 
       <ContactForm
         action={updateContactAction.bind(null, contact.id)}

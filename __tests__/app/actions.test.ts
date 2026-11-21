@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Contact } from "@/services/contact.service";
 
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+const revalidatePath = vi.fn();
+vi.mock("next/cache", () => ({ revalidatePath }));
 
 const updateContact = vi.fn();
-vi.mock("@/services/contact.service", () => ({ contactService: { updateContact } }));
+const changeStage = vi.fn();
+vi.mock("@/services/contact.service", () => ({ contactService: { updateContact, changeStage } }));
 
-const { updateContactAction } = await import("@/app/actions");
+const { updateContactAction, changeStageAction } = await import("@/app/actions");
 
 const marie: Contact = {
   id: 1,
@@ -58,5 +60,30 @@ describe("updateContactAction", () => {
       values: { name: "Marie Durand", company: "Atelier Lumen", email: "", phone: "", notes: "" },
       saved: true,
     });
+  });
+});
+
+describe("changeStageAction (lot 3)", () => {
+  beforeEach(() => {
+    changeStage.mockReset();
+    revalidatePath.mockReset();
+  });
+
+  it("transmet l'id lié et l'étape brute au service, puis rafraîchit la liste et la fiche", async () => {
+    changeStage.mockResolvedValue({ ok: true, contact: { ...marie, stage: "contacted" } });
+
+    await changeStageAction(1, form({ stage: "contacted" }));
+
+    expect(changeStage).toHaveBeenCalledWith(1, "contacted");
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+    expect(revalidatePath).toHaveBeenCalledWith("/contacts/1");
+  });
+
+  it("ne rafraîchit rien si le service refuse l'étape", async () => {
+    changeStage.mockResolvedValue({ ok: false, error: "INVALID_STAGE" });
+
+    await changeStageAction(1, form({ stage: "archived" }));
+
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 });

@@ -12,11 +12,15 @@ import {
   contactFieldsSchema,
   contactIdSchema,
   nameSchema,
+  stageSchema,
   toFieldErrors,
   type ContactFieldErrors,
 } from "@/services/contact.schema";
 
 export type { Contact, ContactFieldErrors, Stage };
+
+/** Étapes du pipeline, dans l'ordre. */
+export const STAGES: readonly Stage[] = stageSchema.options;
 
 export type AddContactError = "NAME_REQUIRED";
 
@@ -30,6 +34,10 @@ export type UpdateContactResult =
   | { ok: false; error: "NOT_FOUND" };
 
 export type DeleteContactResult = { ok: true } | { ok: false; error: "NOT_FOUND" };
+
+export type ChangeStageResult =
+  | { ok: true; contact: Contact }
+  | { ok: false; error: "NOT_FOUND" | "INVALID_STAGE" };
 
 export function createContactService(repo: ContactRepository, now: () => Date = () => new Date()) {
   return {
@@ -66,6 +74,16 @@ export function createContactService(repo: ContactRepository, now: () => Date = 
       if (!id.success) return { ok: false, error: "NOT_FOUND" };
 
       return (await repo.delete(id.data)) ? { ok: true } : { ok: false, error: "NOT_FOUND" };
+    },
+
+    async changeStage(rawId: unknown, rawStage: unknown): Promise<ChangeStageResult> {
+      const id = contactIdSchema.safeParse(rawId);
+      if (!id.success) return { ok: false, error: "NOT_FOUND" };
+      const stage = stageSchema.safeParse(rawStage);
+      if (!stage.success) return { ok: false, error: "INVALID_STAGE" };
+
+      const contact = await repo.updateStage(id.data, stage.data);
+      return contact ? { ok: true, contact } : { ok: false, error: "NOT_FOUND" };
     },
   };
 }

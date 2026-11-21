@@ -29,6 +29,8 @@ export interface ContactRepository {
   update(id: number, fields: ContactFields): Promise<Contact | null>;
   /** Renvoie true si un contact a été supprimé. */
   delete(id: number): Promise<boolean>;
+  /** Renvoie le contact avec sa nouvelle étape, ou null s'il n'existe pas. */
+  updateStage(id: number, stage: Stage): Promise<Contact | null>;
 }
 
 type ContactRow = {
@@ -65,6 +67,7 @@ export function createSqliteContactRepository(db: Database): ContactRepository {
     `UPDATE contacts SET name = ?, company = ?, email = ?, phone = ?, notes = ? WHERE id = ? RETURNING ${COLUMNS}`,
   );
   const deleteById = db.prepare("DELETE FROM contacts WHERE id = ?");
+  const updateStageById = db.prepare(`UPDATE contacts SET stage = ? WHERE id = ? RETURNING ${COLUMNS}`);
 
   return {
     async create({ name, stage, createdAt }) {
@@ -84,6 +87,10 @@ export function createSqliteContactRepository(db: Database): ContactRepository {
     async delete(id) {
       return Number(deleteById.run(id).changes) > 0;
     },
+    async updateStage(id, stage) {
+      const row = updateStageById.get(stage, id) as ContactRow | undefined;
+      return row ? toContact(row) : null;
+    },
   };
 }
 
@@ -97,4 +104,5 @@ export const contactRepository: ContactRepository = {
   findById: (id) => repo().findById(id),
   update: (id, fields) => repo().update(id, fields),
   delete: (id) => repo().delete(id),
+  updateStage: (id, stage) => repo().updateStage(id, stage),
 };

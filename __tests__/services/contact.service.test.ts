@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import type { Contact, ContactFields, ContactRepository, NewContact } from "@/data/contact.repository";
-import { createContactService } from "@/services/contact.service";
+import type { Contact, ContactFields, ContactRepository, NewContact, Stage } from "@/data/contact.repository";
+import { createContactService, STAGES } from "@/services/contact.service";
 
 function fakeRepo() {
   const contacts: Contact[] = [];
@@ -31,6 +31,12 @@ function fakeRepo() {
       if (index === -1) return false;
       contacts.splice(index, 1);
       return true;
+    }),
+    updateStage: vi.fn(async (id: number, stage: Stage) => {
+      const contact = contacts.find((c) => c.id === id);
+      if (!contact) return null;
+      contact.stage = stage;
+      return { ...contact };
     }),
   };
   return repo;
@@ -247,6 +253,58 @@ describe("createContactService", () => {
         phone: null,
         notes: null,
       });
+    });
+  });
+
+  describe("changeStage (lot 3)", () => {
+    const ACTIVE = ["new", "contacted", "meeting"] as const;
+    const CLOSED = ["won", "lost"] as const;
+
+    it("expose les cinq étapes, dans l'ordre du pipeline", () => {
+      expect(STAGES).toEqual(["new", "contacted", "meeting", "won", "lost"]);
+    });
+
+    it("passe un contact « Nouveau » à « Contacté », visible sur la fiche et dans la liste", async () => {
+      const { service, id } = await withMarie();
+
+      const result = await service.changeStage(id, "contacted");
+
+      expect(result).toMatchObject({ ok: true, contact: { id, stage: "contacted" } });
+      await expect(service.getContact(id)).resolves.toMatchObject({ stage: "contacted" });
+      await expect(service.listContacts()).resolves.toEqual([expect.objectContaining({ id, stage: "contacted" })]);
+    });
+
+    it.each(ACTIVE)("accepte le passage de « %s » à « Perdu »", async (from) => {
+      const { service, id } = await withMarie();
+      await service.changeStage(id, from);
+
+      await expect(service.changeStage(id, "lost")).resolves.toMatchObject({ ok: true, contact: { stage: "lost" } });
+    });
+
+    it.each(CLOSED.flatMap((from) => ACTIVE.map((to) => [from, to] as const)))(
+      "rouvre un contact « %s » en le remettant à « %s »",
+      async (from, to) => {
+        const { service, id } = await withMarie();
+        await service.changeStage(id, from);
+
+        await expect(service.changeStage(id, to)).resolves.toMatchObject({ ok: true, contact: { stage: to } });
+      },
+    );
+
+    it.each(["archived", "NEW", "", " new", null, undefined, 42, {}])(
+      "rejette une étape qui n'existe pas (%j) sans rien modifier",
+      async (stage) => {
+        const { repo, service, id } = await withMarie();
+
+        await expect(service.changeStage(id, stage)).resolves.toEqual({ ok: false, error: "INVALID_STAGE" });
+        expect(repo.updateStage).not.toHaveBeenCalled();
+        await expect(service.getContact(id)).resolves.toMatchObject({ stage: "new" });
+      },
+    );
+
+    it.each([999, "abc", null])("renvoie NOT_FOUND pour un identifiant inexistant ou invalide (%j)", async (bad) => {
+      const { service } = await withMarie();
+      await expect(service.changeStage(bad, "contacted")).resolves.toEqual({ ok: false, error: "NOT_FOUND" });
     });
   });
 

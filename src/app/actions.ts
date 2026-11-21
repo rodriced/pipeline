@@ -81,3 +81,12 @@ export async function deleteContactAction(id: unknown): Promise<void> {
   revalidatePath("/");
   redirect("/");
 }
+
+export async function changeStageAction(id: unknown, formData: FormData): Promise<void> {
+  // Validation côté serveur par le service (zod) : id lié et étape transmis bruts.
+  const result = await contactService.changeStage(id, formData.get("stage"));
+  if (!result.ok) return; // étape forgée ou contact disparu : rien ne change
+
+  revalidatePath("/");
+  revalidatePath(`/contacts/${result.contact.id}`);
+}

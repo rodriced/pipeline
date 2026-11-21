@@ -21,6 +21,9 @@ export const contactIdSchema = z.union([
     .pipe(positiveId),
 ]);
 
+/** Étapes du pipeline, dans l'ordre. Toute étape valide peut succéder à toute autre (lot 3). */
+export const stageSchema = z.enum(["new", "contacted", "meeting", "won", "lost"]);
+
 /** Nom obligatoire : une chaîne non vide une fois les espaces retirés. */
 export const nameSchema = z.string({ error: NAME_REQUIRED }).trim().min(1, NAME_REQUIRED);
 

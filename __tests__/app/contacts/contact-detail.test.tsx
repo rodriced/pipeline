@@ -38,6 +38,15 @@ describe("Fiche contact", () => {
     expect(html).toContain("Supprimer");
   });
 
+  it("propose de changer l'étape depuis la fiche (lot 3)", async () => {
+    getContact.mockResolvedValue({ ...marie, stage: "meeting" });
+
+    const html = renderToStaticMarkup(await ContactDetail({ params: params("1") }));
+
+    expect(html).toMatch(/name="stage"[^>]*value="lost"|value="lost"[^>]*name="stage"/);
+    expect(html).toContain(">RDV<");
+  });
+
   it("renvoie la page introuvable pour un identifiant inexistant", async () => {
     getContact.mockResolvedValue(null);
 

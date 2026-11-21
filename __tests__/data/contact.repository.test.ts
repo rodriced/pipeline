@@ -52,6 +52,14 @@ describe("SQLite sur fichier", () => {
     await expect(session(file, (repo) => repo.findById(id))).resolves.toMatchObject({ company: "Atelier Lumen" });
   });
 
+  it("conserve un changement d'étape après redémarrage (lot 3)", async () => {
+    const file = tempDbFile();
+    const { id } = await session(file, (repo) => repo.create(marie));
+    await session(file, (repo) => repo.updateStage(id, "meeting"));
+
+    await expect(session(file, (repo) => repo.findById(id))).resolves.toMatchObject({ stage: "meeting" });
+  });
+
   it("conserve une suppression après redémarrage", async () => {
     const file = tempDbFile();
     const { id } = await session(file, (repo) => repo.create(marie));

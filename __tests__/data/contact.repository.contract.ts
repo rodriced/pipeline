@@ -103,6 +103,30 @@ export function describeContactRepositoryContract(
       await expect(repo.update(b.id + 1000, fullFields)).resolves.toBeNull();
     });
 
+    it("change l'étape d'un contact, visible par findById et dans la liste (lot 3)", async () => {
+      const repo = await makeRepo();
+      const created = await repo.create(marie);
+
+      const updated = await repo.updateStage(created.id, "contacted");
+
+      expect(updated).toEqual({ ...created, stage: "contacted" });
+      await expect(repo.findById(created.id)).resolves.toEqual(updated);
+      await expect(repo.listByMostRecent()).resolves.toEqual([updated]);
+    });
+
+    it("changer l'étape ne touche ni aux autres contacts ni aux autres champs ; null si inexistant (lot 3)", async () => {
+      const repo = await makeRepo();
+      const a = await repo.create(marie);
+      await repo.update(a.id, fullFields);
+      const b = await repo.create({ ...marie, name: "Paul Martin" });
+
+      const updated = await repo.updateStage(a.id, "won");
+
+      expect(updated).toMatchObject({ ...fullFields, stage: "won" });
+      await expect(repo.findById(b.id)).resolves.toEqual(b);
+      await expect(repo.updateStage(b.id + 1000, "won")).resolves.toBeNull();
+    });
+
     it("supprime un contact : true, puis introuvable ; false s'il n'existe pas", async () => {
       const repo = await makeRepo();
       const a = await repo.create(marie);

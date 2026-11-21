@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { Stage } from "@/services/contact.service";
 
 // Classes complètes et statiques, pour que Tailwind les détecte.
+// L'ordre des clés est celui du pipeline (utilisé par le sélecteur d'étape).
 const STAGES: Record<Stage, { label: string; className: string }> = {
   new: { label: "Nouveau", className: "text-stage-new bg-stage-new/14" },
   contacted: { label: "Contacté", className: "text-stage-contacted bg-stage-contacted/14" },
@@ -11,6 +12,12 @@ const STAGES: Record<Stage, { label: string; className: string }> = {
   won: { label: "Gagné", className: "text-stage-won bg-stage-won/14" },
   lost: { label: "Perdu", className: "text-stage-lost bg-stage-lost/14" },
 };
+
+/** Étapes dans l'ordre du pipeline, avec leur libellé français. */
+export const STAGE_OPTIONS = (Object.keys(STAGES) as Stage[]).map((stage) => ({
+  stage,
+  label: STAGES[stage].label,
+}));
 
 export function StageBadge({ stage }: { stage: Stage }) {
   const { label, className } = STAGES[stage];

@@ -35,6 +35,8 @@ export interface ContactRepository {
   updateStage(id: number, stage: Stage): Promise<Contact | null>;
   /** Fixe (date AAAA-MM-JJ) ou efface (null) la prochaine relance ; null si le contact n'existe pas. */
   setFollowUp(id: number, date: string | null): Promise<Contact | null>;
+  /** Contacts dont la relance tombe au plus tard à `date` (AAAA-MM-JJ), la plus ancienne d'abord. */
+  listWithFollowUpDueBy(date: string): Promise<Contact[]>;
 }
 
 type ContactRow = {
@@ -75,6 +77,9 @@ export function createSqliteContactRepository(db: Database): ContactRepository {
   const deleteById = db.prepare("DELETE FROM contacts WHERE id = ?");
   const updateStageById = db.prepare(`UPDATE contacts SET stage = ? WHERE id = ? RETURNING ${COLUMNS}`);
   const setFollowUpById = db.prepare(`UPDATE contacts SET next_follow_up = ? WHERE id = ? RETURNING ${COLUMNS}`);
+  const selectDueBy = db.prepare(
+    `SELECT ${COLUMNS} FROM contacts WHERE next_follow_up IS NOT NULL AND next_follow_up <= ? ORDER BY next_follow_up, id`,
+  );
 
   return {
     async create({ name, stage, createdAt }) {
@@ -102,6 +107,9 @@ export function createSqliteContactRepository(db: Database): ContactRepository {
       const row = setFollowUpById.get(date, id) as ContactRow | undefined;
       return row ? toContact(row) : null;
     },
+    async listWithFollowUpDueBy(date) {
+      return (selectDueBy.all(date) as ContactRow[]).map(toContact);
+    },
   };
 }
 
@@ -117,4 +125,5 @@ export const contactRepository: ContactRepository = {
   delete: (id) => repo().delete(id),
   updateStage: (id, stage) => repo().updateStage(id, stage),
   setFollowUp: (id, date) => repo().setFollowUp(id, date),
+  listWithFollowUpDueBy: (date) => repo().listWithFollowUpDueBy(date),
 };

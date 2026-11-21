@@ -143,6 +143,23 @@ export function describeContactRepositoryContract(
       await expect(repo.setFollowUp(other.id + 1000, "2026-11-25")).resolves.toBeNull();
     });
 
+    it("liste les contacts dont la relance est due à une date, la plus ancienne d'abord (lot 5)", async () => {
+      const repo = await makeRepo();
+      const [hier, auj, demain, sans, auj2] = await Promise.all(
+        ["Hier", "Aujourd'hui", "Demain", "Sans relance", "Aujourd'hui bis"].map((name) => repo.create({ ...marie, name })),
+      );
+      await repo.setFollowUp(auj.id, "2026-11-21");
+      await repo.setFollowUp(demain.id, "2026-11-22");
+      await repo.setFollowUp(hier.id, "2026-11-20");
+      await repo.setFollowUp(auj2.id, "2026-11-21");
+
+      const due = await repo.listWithFollowUpDueBy("2026-11-21");
+
+      expect(due.map((c) => c.name)).toEqual(["Hier", "Aujourd'hui", "Aujourd'hui bis"]);
+      expect(due.map((c) => c.id)).not.toContain(sans.id);
+      await expect(repo.listWithFollowUpDueBy("2026-11-19")).resolves.toEqual([]);
+    });
+
     it("supprime un contact : true, puis introuvable ; false s'il n'existe pas", async () => {
       const repo = await makeRepo();
       const a = await repo.create(marie);

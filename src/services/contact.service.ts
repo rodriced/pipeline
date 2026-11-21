@@ -53,12 +53,28 @@ export function toIsoDate(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+const utcDay = (isoDate: string) => {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  return Date.UTC(y, m - 1, d);
+};
+
+/** Nombre de jours de `from` à `to` (dates AAAA-MM-JJ). */
+export const daysBetween = (from: string, to: string) => Math.round((utcDay(to) - utcDay(from)) / DAY_MS);
+
+/** Date AAAA-MM-JJ décalée de `days` jours. */
+export const addDays = (isoDate: string, days: number) =>
+  new Date(utcDay(isoDate) + days * DAY_MS).toISOString().slice(0, 10);
+
+/** Relance due : le contact et son retard en jours (0 = aujourd'hui). */
+export type DueFollowUp = { contact: Contact; daysLate: number };
+
 export type ChangeStageResult =
   | { ok: true; contact: Contact }
   | { ok: false; error: "NOT_FOUND" | "INVALID_STAGE" };
 
 export function createContactService(repo: ContactRepository, now: () => Date = () => new Date()) {
-  return {
+  const service = {
     async addContact(rawName: unknown): Promise<AddContactResult> {
       const parsed = nameSchema.safeParse(rawName);
       if (!parsed.success) return { ok: false, error: "NAME_REQUIRED" };
@@ -127,6 +143,20 @@ export function createContactService(repo: ContactRepository, now: () => Date = 
       return updated ? { ok: true, contact: updated } : { ok: false, error: "NOT_FOUND" };
     },
 
+    /** Relances dues aujourd'hui ou en retard, la plus en retard d'abord (lot 5). */
+    async listDueFollowUps(): Promise<DueFollowUp[]> {
+      const today = toIsoDate(now());
+      const contacts = await repo.listWithFollowUpDueBy(today);
+      return contacts
+        .filter((contact) => !isClosedStage(contact.stage))
+        .map((contact) => ({ contact, daysLate: daysBetween(contact.nextFollowUp!, today) }));
+    },
+
+    /** Reporte la relance au lendemain d'aujourd'hui (mêmes règles que scheduleFollowUp). */
+    postponeFollowUp(rawId: unknown): Promise<ScheduleFollowUpResult> {
+      return service.scheduleFollowUp(rawId, addDays(toIsoDate(now()), 1));
+    },
+
     async clearFollowUp(rawId: unknown): Promise<ClearFollowUpResult> {
       const id = contactIdSchema.safeParse(rawId);
       if (!id.success) return { ok: false, error: "NOT_FOUND" };
@@ -135,6 +165,7 @@ export function createContactService(repo: ContactRepository, now: () => Date = 
       return contact ? { ok: true, contact } : { ok: false, error: "NOT_FOUND" };
     },
   };
+  return service;
 }
 
 // Instance câblée sur l'implémentation réelle, utilisée par la présentation.

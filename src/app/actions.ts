@@ -129,3 +129,23 @@ export async function clearFollowUpAction(id: unknown): Promise<void> {
   revalidatePath("/");
   revalidatePath(`/contacts/${result.contact.id}`);
 }
+
+/** Relance faite (vue « Aujourd'hui ») : le contact n'a plus de relance planifiée. */
+export async function markFollowUpDoneAction(id: unknown): Promise<void> {
+  const result = await contactService.clearFollowUp(id);
+  if (!result.ok) return;
+
+  revalidatePath("/aujourdhui");
+  revalidatePath("/");
+  revalidatePath(`/contacts/${result.contact.id}`);
+}
+
+/** Relance reportée au lendemain (vue « Aujourd'hui »). */
+export async function postponeFollowUpAction(id: unknown): Promise<void> {
+  const result = await contactService.postponeFollowUp(id);
+  if (!result.ok) return;
+
+  revalidatePath("/aujourdhui");
+  revalidatePath("/");
+  revalidatePath(`/contacts/${result.contact.id}`);
+}

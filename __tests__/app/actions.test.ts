@@ -8,13 +8,19 @@ const updateContact = vi.fn();
 const changeStage = vi.fn();
 const scheduleFollowUp = vi.fn();
 const clearFollowUp = vi.fn();
+const postponeFollowUp = vi.fn();
 vi.mock("@/services/contact.service", () => ({
-  contactService: { updateContact, changeStage, scheduleFollowUp, clearFollowUp },
+  contactService: { updateContact, changeStage, scheduleFollowUp, clearFollowUp, postponeFollowUp },
 }));
 
-const { updateContactAction, changeStageAction, scheduleFollowUpAction, clearFollowUpAction } = await import(
-  "@/app/actions"
-);
+const {
+  updateContactAction,
+  changeStageAction,
+  scheduleFollowUpAction,
+  clearFollowUpAction,
+  markFollowUpDoneAction,
+  postponeFollowUpAction,
+} = await import("@/app/actions");
 
 const marie: Contact = {
   id: 1,
@@ -133,5 +139,42 @@ describe("relance (lot 4)", () => {
 
     expect(clearFollowUp).toHaveBeenCalledWith(1);
     expect(revalidatePath).toHaveBeenCalledWith("/contacts/1");
+  });
+});
+
+describe("relances du jour (lot 5)", () => {
+  beforeEach(() => {
+    clearFollowUp.mockReset();
+    postponeFollowUp.mockReset();
+    revalidatePath.mockReset();
+  });
+
+  it("markFollowUpDoneAction efface la relance (id lié transmis brut) et rafraîchit la vue du jour", async () => {
+    clearFollowUp.mockResolvedValue({ ok: true, contact: marie });
+
+    await markFollowUpDoneAction(1);
+
+    expect(clearFollowUp).toHaveBeenCalledWith(1);
+    expect(revalidatePath).toHaveBeenCalledWith("/aujourdhui");
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+  });
+
+  it("postponeFollowUpAction reporte la relance (id lié transmis brut) et rafraîchit la vue du jour", async () => {
+    postponeFollowUp.mockResolvedValue({ ok: true, contact: { ...marie, nextFollowUp: "2026-11-22" } });
+
+    await postponeFollowUpAction(1);
+
+    expect(postponeFollowUp).toHaveBeenCalledWith(1);
+    expect(revalidatePath).toHaveBeenCalledWith("/aujourdhui");
+  });
+
+  it("ne rafraîchit rien si le service refuse", async () => {
+    postponeFollowUp.mockResolvedValue({ ok: false, error: "NOT_FOUND" });
+    clearFollowUp.mockResolvedValue({ ok: false, error: "NOT_FOUND" });
+
+    await postponeFollowUpAction("abc");
+    await markFollowUpDoneAction("abc");
+
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 });

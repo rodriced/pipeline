@@ -45,6 +45,12 @@ function fakeRepo() {
       contact.nextFollowUp = date;
       return { ...contact };
     }),
+    listWithFollowUpDueBy: vi.fn(async (date: string) =>
+      contacts
+        .filter((c) => c.nextFollowUp !== null && c.nextFollowUp <= date)
+        .sort((a, b) => a.nextFollowUp!.localeCompare(b.nextFollowUp!) || a.id - b.id)
+        .map((c) => ({ ...c })),
+    ),
   };
   return repo;
 }
@@ -392,6 +398,112 @@ describe("createContactService", () => {
       await service.changeStage(id, "meeting");
 
       await expect(service.getContact(id)).resolves.toMatchObject({ nextFollowUp: "2026-11-25" });
+    });
+  });
+
+  describe("relances du jour (lot 5)", () => {
+    /** Service dont on peut avancer l'horloge, avec trois contacts : relance hier, aujourd'hui, demain. */
+    async function withThreeFollowUps() {
+      const repo = fakeRepo();
+      let now = new Date(2026, 10, 20, 12); // la veille, pour pouvoir planifier « hier »
+      const service = createContactService(repo, () => now);
+      const ids: Record<string, number> = {};
+      for (const [name, date] of [
+        ["Hier", "2026-11-20"],
+        ["Aujourd'hui", "2026-11-21"],
+        ["Demain", "2026-11-22"],
+      ]) {
+        const added = await service.addContact(name);
+        if (!added.ok) throw new Error("setup");
+        await service.scheduleFollowUp(added.contact.id, date);
+        ids[name] = added.contact.id;
+      }
+      now = new Date(2026, 10, 21, 12); // aujourd'hui = 2026-11-21
+      const setNow = (date: Date) => (now = date);
+      return { repo, service, ids, setNow };
+    }
+
+    it("liste les relances en retard et du jour, pas celles de demain", async () => {
+      const { service } = await withThreeFollowUps();
+
+      const due = await service.listDueFollowUps();
+
+      expect(due.map((d) => d.contact.name)).toEqual(["Hier", "Aujourd'hui"]);
+    });
+
+    it("indique le nombre de jours de retard (0 pour aujourd'hui)", async () => {
+      const { service, setNow } = await withThreeFollowUps();
+      expect((await service.listDueFollowUps()).map((d) => d.daysLate)).toEqual([1, 0]);
+
+      setNow(new Date(2026, 10, 24, 12));
+      expect((await service.listDueFollowUps()).map((d) => [d.contact.name, d.daysLate])).toEqual([
+        ["Hier", 4],
+        ["Aujourd'hui", 3],
+        ["Demain", 2],
+      ]);
+    });
+
+    it("compte les jours de retard d'un mois à l'autre et d'une année à l'autre", async () => {
+      const repo = fakeRepo();
+      let now = new Date(2026, 11, 30, 12);
+      const service = createContactService(repo, () => now);
+      const added = await service.addContact("Marie");
+      if (!added.ok) throw new Error("setup");
+      await service.scheduleFollowUp(added.contact.id, "2026-12-30");
+
+      now = new Date(2027, 0, 2, 12);
+
+      await expect(service.listDueFollowUps()).resolves.toEqual([
+        expect.objectContaining({ daysLate: 3 }),
+      ]);
+    });
+
+    it("marquer une relance faite la retire de la liste : plus de relance planifiée", async () => {
+      const { service, ids } = await withThreeFollowUps();
+
+      await expect(service.clearFollowUp(ids["Aujourd'hui"])).resolves.toMatchObject({ ok: true });
+
+      expect((await service.listDueFollowUps()).map((d) => d.contact.name)).toEqual(["Hier"]);
+      await expect(service.getContact(ids["Aujourd'hui"])).resolves.toMatchObject({ nextFollowUp: null });
+    });
+
+    it("reporter au lendemain la retire aujourd'hui ; elle réapparaît demain", async () => {
+      const { service, ids, setNow } = await withThreeFollowUps();
+
+      await expect(service.postponeFollowUp(ids["Aujourd'hui"])).resolves.toMatchObject({
+        ok: true,
+        contact: { nextFollowUp: "2026-11-22" },
+      });
+      expect((await service.listDueFollowUps()).map((d) => d.contact.name)).toEqual(["Hier"]);
+
+      setNow(new Date(2026, 10, 22, 12));
+      expect((await service.listDueFollowUps()).map((d) => d.contact.name)).toContain("Aujourd'hui");
+    });
+
+    it("reporter une relance en retard la fixe à demain (par rapport à aujourd'hui)", async () => {
+      const { service, ids } = await withThreeFollowUps();
+
+      await expect(service.postponeFollowUp(ids.Hier)).resolves.toMatchObject({
+        contact: { nextFollowUp: "2026-11-22" },
+      });
+    });
+
+    it.each([999, "abc"])("reporter : NOT_FOUND pour un identifiant inexistant ou invalide (%j)", async (bad) => {
+      const { service } = await withThreeFollowUps();
+      await expect(service.postponeFollowUp(bad)).resolves.toEqual({ ok: false, error: "NOT_FOUND" });
+    });
+
+    it("liste vide quand aucune relance n'est due", async () => {
+      const { service, setNow } = await withThreeFollowUps();
+      setNow(new Date(2026, 10, 19, 12));
+
+      await expect(service.listDueFollowUps()).resolves.toEqual([]);
+    });
+
+    it("interroge la base avec la date du jour", async () => {
+      const { repo, service } = await withThreeFollowUps();
+      await service.listDueFollowUps();
+      expect(repo.listWithFollowUpDueBy).toHaveBeenCalledWith("2026-11-21");
     });
   });
 

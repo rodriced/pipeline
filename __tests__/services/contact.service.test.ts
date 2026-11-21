@@ -507,6 +507,76 @@ describe("createContactService", () => {
     });
   });
 
+  describe("recherche et filtre (lot 6)", () => {
+    /** Contacts : [nom, entreprise, étape], créés dans l'ordre (le dernier est le plus récent). */
+    async function withContacts() {
+      let t = Date.parse("2026-11-01T09:00:00Z");
+      const service = createContactService(fakeRepo(), () => new Date((t += 60_000)));
+      for (const [name, company, stage] of [
+        ["Marie Durand", "Atelier Lumen", "meeting"],
+        ["Paul Martin", null, "meeting"],
+        ["Zoé Leroy", "Durandal SA", "contacted"],
+        ["Léo Petit", null, "new"],
+      ] as const) {
+        const added = await service.addContact(name);
+        if (!added.ok) throw new Error("setup");
+        if (company) await service.updateContact(added.contact.id, { name, company });
+        await service.changeStage(added.contact.id, stage);
+      }
+      return service;
+    }
+    const names = (contacts: Contact[]) => contacts.map((c) => c.name);
+
+    it("cherche une partie du nom, sans tenir compte de la casse", async () => {
+      const service = await withContacts();
+      expect(names(await service.searchContacts({ q: "MARTIN" }))).toEqual(["Paul Martin"]);
+    });
+
+    it("cherche aussi dans l'entreprise : « dur » trouve Marie Durand et Durandal SA", async () => {
+      const service = await withContacts();
+      expect(names(await service.searchContacts({ q: "dur" }))).toEqual(["Zoé Leroy", "Marie Durand"]);
+    });
+
+    it("ignore les accents, dans la recherche comme dans les contacts", async () => {
+      const service = await withContacts();
+      expect(names(await service.searchContacts({ q: "zoe" }))).toEqual(["Zoé Leroy"]);
+      expect(names(await service.searchContacts({ q: "LÉO" }))).toEqual(["Léo Petit"]);
+    });
+
+    it("filtre par étape : « RDV » ne garde que les contacts en RDV", async () => {
+      const service = await withContacts();
+      expect(names(await service.searchContacts({ stage: "meeting" }))).toEqual(["Paul Martin", "Marie Durand"]);
+    });
+
+    it("combine recherche et étape", async () => {
+      const service = await withContacts();
+      expect(names(await service.searchContacts({ q: "dur", stage: "meeting" }))).toEqual(["Marie Durand"]);
+    });
+
+    it("renvoie une liste vide quand rien ne correspond", async () => {
+      const service = await withContacts();
+      await expect(service.searchContacts({ q: "dur", stage: "won" })).resolves.toEqual([]);
+    });
+
+    it("sans filtre : tous les contacts, du plus récent au plus ancien", async () => {
+      const service = await withContacts();
+      expect(names(await service.searchContacts({}))).toEqual(["Léo Petit", "Zoé Leroy", "Paul Martin", "Marie Durand"]);
+    });
+
+    it.each([
+      [{}, { q: "", stage: null }],
+      [{ q: "  dur  " }, { q: "dur", stage: null }],
+      [{ q: ["dur", "x"], stage: ["meeting"] }, { q: "dur", stage: "meeting" }],
+      [{ q: 42, stage: "archived" }, { q: "", stage: null }],
+      [{ stage: "" }, { q: "", stage: null }],
+      [null, { q: "", stage: null }],
+      ["texte", { q: "", stage: null }],
+    ])("lit les filtres de l'URL (%j) : valeurs invalides ignorées", (raw, expected) => {
+      const service = createContactService(fakeRepo(), fixedNow);
+      expect(service.parseContactFilters(raw)).toEqual(expected);
+    });
+  });
+
   describe("validation de l'identifiant (URL, argument lié d'une action)", () => {
     const invalidIds = ["abc", "1.5", "0", "-3", "", " 1", "1e2", "0x1", "9007199254740993", 0, -1, 1.5, NaN, null, undefined, {}];
 

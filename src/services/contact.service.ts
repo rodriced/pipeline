@@ -10,6 +10,7 @@ import {
 } from "@/data/contact.repository";
 import {
   contactFieldsSchema,
+  contactFiltersSchema,
   contactIdSchema,
   isoDateSchema,
   nameSchema,
@@ -66,6 +67,12 @@ export const daysBetween = (from: string, to: string) => Math.round((utcDay(to) 
 export const addDays = (isoDate: string, days: number) =>
   new Date(utcDay(isoDate) + days * DAY_MS).toISOString().slice(0, 10);
 
+/** Filtres de la liste (lot 6). */
+export type ContactFilters = { q: string; stage: Stage | null };
+
+/** Texte comparable : sans accents, en minuscules. */
+const normalize = (text: string) => text.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+
 /** Relance due : le contact et son retard en jours (0 = aujourd'hui). */
 export type DueFollowUp = { contact: Contact; daysLate: number };
 
@@ -85,6 +92,24 @@ export function createContactService(repo: ContactRepository, now: () => Date = 
 
     listContacts(): Promise<Contact[]> {
       return repo.listByMostRecent();
+    },
+
+    /** Filtres lus dans l'URL ; valeurs absentes ou invalides ignorées. */
+    parseContactFilters(raw: unknown): ContactFilters {
+      const parsed = contactFiltersSchema.safeParse(raw);
+      return parsed.success ? { q: parsed.data.q ?? "", stage: parsed.data.stage ?? null } : { q: "", stage: null };
+    },
+
+    /** Contacts dont le nom ou l'entreprise contient la recherche (sans casse ni accents), à l'étape choisie. */
+    async searchContacts(raw: unknown): Promise<Contact[]> {
+      const { q, stage } = service.parseContactFilters(raw);
+      const needle = normalize(q);
+      const contacts = await repo.listByMostRecent();
+      return contacts.filter(
+        (contact) =>
+          (stage === null || contact.stage === stage) &&
+          (needle === "" || [contact.name, contact.company ?? ""].some((text) => normalize(text).includes(needle))),
+      );
     },
 
     async getContact(rawId: unknown): Promise<Contact | null> {

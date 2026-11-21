@@ -34,6 +34,21 @@ export const isoDateSchema = z
     return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
   });
 
+/** Première valeur d'un paramètre d'URL (?q=a&q=b → "a"). */
+const firstValue = (value: unknown) => (Array.isArray(value) ? value[0] : value);
+
+/**
+ * Filtres de la liste, lus dans l'URL (searchParams) : recherche et étape (lot 6).
+ * Une valeur absente ou invalide est ignorée (pas d'erreur : c'est un filtre).
+ */
+export const contactFiltersSchema = z.preprocess(
+  (input) => (typeof input === "object" && input !== null ? input : {}),
+  z.object({
+    q: z.preprocess(firstValue, z.string().trim()).catch(""),
+    stage: z.preprocess(firstValue, stageSchema.nullable()).catch(null),
+  }),
+);
+
 /** Nom obligatoire : une chaîne non vide une fois les espaces retirés. */
 export const nameSchema = z.string({ error: NAME_REQUIRED }).trim().min(1, NAME_REQUIRED);
 

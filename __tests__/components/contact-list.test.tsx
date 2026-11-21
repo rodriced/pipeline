@@ -51,6 +51,12 @@ describe("ContactList", () => {
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
   });
 
+  it("affiche « Aucun résultat. » quand une recherche ne trouve rien (lot 6)", () => {
+    const html = renderToStaticMarkup(<ContactList contacts={[]} filtered />);
+    expect(html).toContain("Aucun résultat.");
+    expect(html).not.toContain("Aucun contact pour l’instant");
+  });
+
   it("affiche un message quand la liste est vide", () => {
     expect(renderToStaticMarkup(<ContactList contacts={[]} />)).toContain("Aucun contact pour l’instant");
   });

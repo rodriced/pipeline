@@ -5,9 +5,11 @@ import { StageBadge } from "@/components/stage-badge";
 import { Card } from "@/components/ui/card";
 import type { Contact } from "@/services/contact.service";
 
-export function ContactList({ contacts }: { contacts: Contact[] }) {
+export function ContactList({ contacts, filtered = false }: { contacts: Contact[]; filtered?: boolean }) {
   if (contacts.length === 0) {
-    return <p className="text-sm text-muted-foreground">Aucun contact pour l’instant.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">{filtered ? "Aucun résultat." : "Aucun contact pour l’instant."}</p>
+    );
   }
 
   return (

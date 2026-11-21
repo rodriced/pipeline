@@ -22,6 +22,7 @@ pnpm test                             # Vitest, une passe
 pnpm test:watch                       # Vitest en watch
 pnpm test __tests__/services/contact.service.test.ts  # un seul fichier
 pnpm test -t "nom du test"            # un seul test par nom
+pnpm seed                             # jeu de test dans la base locale (rejouable, n'efface rien)
 pnpm dlx shadcn@latest add <composant>  # ajoute un composant shadcn dans src/components/ui
 ```
 

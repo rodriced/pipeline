@@ -7,18 +7,9 @@ import { DeleteContactDialog } from "@/components/delete-contact-dialog";
 import { StageBadge } from "@/components/stage-badge";
 import { contactService } from "@/services/contact.service";
 
-/** Identifiant de l'URL → entier strictement positif, sinon null. */
-function parseId(raw: string): number | null {
-  if (!/^\d+$/.test(raw)) return null;
-  const id = Number(raw);
-  return Number.isSafeInteger(id) && id > 0 ? id : null;
-}
-
 export async function ContactDetail({ params }: { params: Promise<{ id: string }> }) {
-  const id = parseId((await params).id);
-  if (id === null) notFound();
-
-  const contact = await contactService.getContact(id);
+  // Identifiant de l'URL transmis brut : le service le valide (zod) et renvoie null s'il est invalide.
+  const contact = await contactService.getContact((await params).id);
   if (!contact) notFound();
 
   return (

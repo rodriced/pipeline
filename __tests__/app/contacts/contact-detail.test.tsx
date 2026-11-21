@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Contact } from "@/services/contact.service";
 
-const getContact = vi.fn<(id: number) => Promise<Contact | null>>();
+const getContact = vi.fn<(id: unknown) => Promise<Contact | null>>();
 vi.mock("@/services/contact.service", () => ({ contactService: { getContact } }));
 
 const { ContactDetail } = await import("@/app/contacts/[id]/contact-detail");
@@ -30,7 +30,8 @@ describe("Fiche contact", () => {
 
     const html = renderToStaticMarkup(await ContactDetail({ params: params("1") }));
 
-    expect(getContact).toHaveBeenCalledWith(1);
+    // L'identifiant de l'URL est transmis brut : c'est le service qui le valide (zod).
+    expect(getContact).toHaveBeenCalledWith("1");
     expect(html).toContain("Marie Durand");
     expect(html).toContain('value="Atelier Lumen"');
     expect(html).toContain(">Nouveau<");
@@ -43,9 +44,11 @@ describe("Fiche contact", () => {
     await expect(ContactDetail({ params: params("999") })).rejects.toMatchObject(notFoundError);
   });
 
-  it.each(["abc", "1.5", "0", "-3", ""])("renvoie la page introuvable pour un identifiant invalide (%j)", async (id) => {
-    await expect(ContactDetail({ params: params(id) })).rejects.toMatchObject(notFoundError);
-    expect(getContact).not.toHaveBeenCalled();
+  it("délègue la validation de l'identifiant au service et renvoie la page introuvable s'il le rejette", async () => {
+    getContact.mockResolvedValue(null);
+
+    await expect(ContactDetail({ params: params("abc") })).rejects.toMatchObject(notFoundError);
+    expect(getContact).toHaveBeenCalledWith("abc");
   });
 
   it("la page introuvable l'explique et ramène à la liste", () => {

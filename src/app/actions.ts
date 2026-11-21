@@ -30,12 +30,14 @@ export async function addContactAction(
   return {};
 }
 
+// L'identifiant est un argument lié (.bind) : il vient du client comme le reste, donc `unknown`.
+// prevState n'est pas utilisé : il n'a pas à être validé.
 export async function updateContactAction(
-  id: number,
+  id: unknown,
   _state: ContactFormState,
   formData: FormData,
 ): Promise<ContactFormState> {
-  // Validation côté serveur par le service (zod) : on lui passe les champs bruts du formulaire.
+  // Validation côté serveur par le service (zod) : on lui passe l'id et les champs bruts du formulaire.
   const result = await contactService.updateContact(id, Object.fromEntries(formData));
 
   // Saisie renvoyée au formulaire, pour ne pas la perdre en cas d'erreur.
@@ -59,8 +61,8 @@ export async function updateContactAction(
   }
 
   revalidatePath("/");
-  revalidatePath(`/contacts/${id}`);
   const { contact } = result;
+  revalidatePath(`/contacts/${contact.id}`);
   return {
     values: {
       name: contact.name,
@@ -73,7 +75,8 @@ export async function updateContactAction(
   };
 }
 
-export async function deleteContactAction(id: number): Promise<void> {
+export async function deleteContactAction(id: unknown): Promise<void> {
+  // Validation côté serveur par le service (zod) ; un id invalide ne supprime rien.
   await contactService.deleteContact(id);
   revalidatePath("/");
   redirect("/");

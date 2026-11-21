@@ -19,19 +19,19 @@ function fakeRepo() {
     }),
     listByMostRecent: async () =>
       [...contacts].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || b.id - a.id),
-    findById: async (id) => contacts.find((c) => c.id === id) ?? null,
+    findById: vi.fn(async (id: number) => contacts.find((c) => c.id === id) ?? null),
     update: vi.fn(async (id: number, fields: ContactFields) => {
       const contact = contacts.find((c) => c.id === id);
       if (!contact) return null;
       Object.assign(contact, fields);
       return { ...contact };
     }),
-    delete: async (id) => {
+    delete: vi.fn(async (id: number) => {
       const index = contacts.findIndex((c) => c.id === id);
       if (index === -1) return false;
       contacts.splice(index, 1);
       return true;
-    },
+    }),
   };
   return repo;
 }
@@ -247,6 +247,39 @@ describe("createContactService", () => {
         phone: null,
         notes: null,
       });
+    });
+  });
+
+  describe("validation de l'identifiant (URL, argument lié d'une action)", () => {
+    const invalidIds = ["abc", "1.5", "0", "-3", "", " 1", "1e2", "0x1", "9007199254740993", 0, -1, 1.5, NaN, null, undefined, {}];
+
+    it("accepte un identifiant numérique ou une chaîne de chiffres", async () => {
+      const { service, id } = await withMarie();
+
+      await expect(service.getContact(id)).resolves.toMatchObject({ name: "Marie Durand" });
+      await expect(service.getContact(String(id))).resolves.toMatchObject({ name: "Marie Durand" });
+    });
+
+    it.each(invalidIds)("getContact renvoie null pour un identifiant invalide (%j), sans interroger la base", async (bad) => {
+      const { repo, service } = await withMarie();
+
+      await expect(service.getContact(bad)).resolves.toBeNull();
+      expect(repo.findById).not.toHaveBeenCalled();
+    });
+
+    it.each(invalidIds)("updateContact renvoie NOT_FOUND pour un identifiant invalide (%j), sans rien modifier", async (bad) => {
+      const { repo, service } = await withMarie();
+
+      await expect(service.updateContact(bad, { name: "Paul" })).resolves.toEqual({ ok: false, error: "NOT_FOUND" });
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it.each(invalidIds)("deleteContact renvoie NOT_FOUND pour un identifiant invalide (%j), sans rien supprimer", async (bad) => {
+      const { repo, service } = await withMarie();
+
+      await expect(service.deleteContact(bad)).resolves.toEqual({ ok: false, error: "NOT_FOUND" });
+      expect(repo.delete).not.toHaveBeenCalled();
+      await expect(service.listContacts()).resolves.toHaveLength(1);
     });
   });
 

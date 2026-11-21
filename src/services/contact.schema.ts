@@ -6,6 +6,21 @@ import { z } from "zod";
 const NAME_REQUIRED = "NAME_REQUIRED";
 const EMAIL_INVALID = "EMAIL_INVALID";
 
+const positiveId = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
+
+/**
+ * Identifiant de contact : entier strictement positif, reçu en nombre (argument lié d'une action)
+ * ou en chaîne de chiffres (segment d'URL). Rien d'autre : pas d'espaces, d'exposant ni d'hexadécimal.
+ */
+export const contactIdSchema = z.union([
+  positiveId,
+  z
+    .string()
+    .regex(/^\d+$/)
+    .transform(Number)
+    .pipe(positiveId),
+]);
+
 /** Nom obligatoire : une chaîne non vide une fois les espaces retirés. */
 export const nameSchema = z.string({ error: NAME_REQUIRED }).trim().min(1, NAME_REQUIRED);
 

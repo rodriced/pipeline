@@ -10,6 +10,7 @@ import {
 } from "@/data/contact.repository";
 import {
   contactFieldsSchema,
+  contactIdSchema,
   nameSchema,
   toFieldErrors,
   type ContactFieldErrors,
@@ -44,20 +45,27 @@ export function createContactService(repo: ContactRepository, now: () => Date = 
       return repo.listByMostRecent();
     },
 
-    getContact(id: number): Promise<Contact | null> {
-      return repo.findById(id);
+    async getContact(rawId: unknown): Promise<Contact | null> {
+      const id = contactIdSchema.safeParse(rawId);
+      return id.success ? repo.findById(id.data) : null;
     },
 
-    async updateContact(id: number, input: unknown): Promise<UpdateContactResult> {
+    async updateContact(rawId: unknown, input: unknown): Promise<UpdateContactResult> {
+      const id = contactIdSchema.safeParse(rawId);
+      if (!id.success) return { ok: false, error: "NOT_FOUND" };
+
       const parsed = contactFieldsSchema.safeParse(input);
       if (!parsed.success) return { ok: false, errors: toFieldErrors(parsed.error) };
 
-      const contact = await repo.update(id, parsed.data);
+      const contact = await repo.update(id.data, parsed.data);
       return contact ? { ok: true, contact } : { ok: false, error: "NOT_FOUND" };
     },
 
-    async deleteContact(id: number): Promise<DeleteContactResult> {
-      return (await repo.delete(id)) ? { ok: true } : { ok: false, error: "NOT_FOUND" };
+    async deleteContact(rawId: unknown): Promise<DeleteContactResult> {
+      const id = contactIdSchema.safeParse(rawId);
+      if (!id.success) return { ok: false, error: "NOT_FOUND" };
+
+      return (await repo.delete(id.data)) ? { ok: true } : { ok: false, error: "NOT_FOUND" };
     },
   };
 }

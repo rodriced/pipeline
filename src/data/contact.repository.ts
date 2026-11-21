@@ -9,31 +9,62 @@ export type Contact = {
   name: string;
   stage: Stage;
   createdAt: Date;
+  company: string | null;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
 };
 
-export type NewContact = Omit<Contact, "id">;
+/** Ce qu'il faut pour créer un contact ; les champs de la fiche partent à null. */
+export type NewContact = Pick<Contact, "name" | "stage" | "createdAt">;
+
+/** Champs modifiables depuis la fiche. */
+export type ContactFields = Pick<Contact, "name" | "company" | "email" | "phone" | "notes">;
 
 export interface ContactRepository {
   create(input: NewContact): Promise<Contact>;
   listByMostRecent(): Promise<Contact[]>;
+  findById(id: number): Promise<Contact | null>;
+  /** Renvoie le contact modifié, ou null s'il n'existe pas. */
+  update(id: number, fields: ContactFields): Promise<Contact | null>;
+  /** Renvoie true si un contact a été supprimé. */
+  delete(id: number): Promise<boolean>;
 }
 
-type ContactRow = { id: number; name: string; stage: string; created_at: string };
+type ContactRow = {
+  id: number;
+  name: string;
+  stage: string;
+  created_at: string;
+  company: string | null;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
+};
+
+const COLUMNS = "id, name, stage, created_at, company, email, phone, notes";
 
 const toContact = (row: ContactRow): Contact => ({
   id: Number(row.id),
   name: row.name,
   stage: row.stage as Stage,
   createdAt: new Date(row.created_at),
+  company: row.company,
+  email: row.email,
+  phone: row.phone,
+  notes: row.notes,
 });
 
 export function createSqliteContactRepository(db: Database): ContactRepository {
   const insert = db.prepare(
-    "INSERT INTO contacts (name, stage, created_at) VALUES (?, ?, ?) RETURNING id, name, stage, created_at",
+    `INSERT INTO contacts (name, stage, created_at) VALUES (?, ?, ?) RETURNING ${COLUMNS}`,
   );
-  const selectAll = db.prepare(
-    "SELECT id, name, stage, created_at FROM contacts ORDER BY created_at DESC, id DESC",
+  const selectAll = db.prepare(`SELECT ${COLUMNS} FROM contacts ORDER BY created_at DESC, id DESC`);
+  const selectById = db.prepare(`SELECT ${COLUMNS} FROM contacts WHERE id = ?`);
+  const updateById = db.prepare(
+    `UPDATE contacts SET name = ?, company = ?, email = ?, phone = ?, notes = ? WHERE id = ? RETURNING ${COLUMNS}`,
   );
+  const deleteById = db.prepare("DELETE FROM contacts WHERE id = ?");
 
   return {
     async create({ name, stage, createdAt }) {
@@ -41,6 +72,17 @@ export function createSqliteContactRepository(db: Database): ContactRepository {
     },
     async listByMostRecent() {
       return (selectAll.all() as ContactRow[]).map(toContact);
+    },
+    async findById(id) {
+      const row = selectById.get(id) as ContactRow | undefined;
+      return row ? toContact(row) : null;
+    },
+    async update(id, { name, company, email, phone, notes }) {
+      const row = updateById.get(name, company, email, phone, notes, id) as ContactRow | undefined;
+      return row ? toContact(row) : null;
+    },
+    async delete(id) {
+      return Number(deleteById.run(id).changes) > 0;
     },
   };
 }
@@ -52,4 +94,7 @@ const repo = () => (appRepo ??= createSqliteContactRepository(getDb()));
 export const contactRepository: ContactRepository = {
   create: (input) => repo().create(input),
   listByMostRecent: () => repo().listByMostRecent(),
+  findById: (id) => repo().findById(id),
+  update: (id, fields) => repo().update(id, fields),
+  delete: (id) => repo().delete(id),
 };

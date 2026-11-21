@@ -3,11 +3,15 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ContactList } from "@/components/contact-list";
 import type { Contact } from "@/services/contact.service";
 
-const contact = (id: number, name: string): Contact => ({
+const contact = (id: number, name: string, company: string | null = null): Contact => ({
   id,
   name,
   stage: "new",
   createdAt: new Date("2026-11-21T09:00:00Z"),
+  company,
+  email: null,
+  phone: null,
+  notes: null,
 });
 
 describe("ContactList", () => {
@@ -15,6 +19,16 @@ describe("ContactList", () => {
     const html = renderToStaticMarkup(<ContactList contacts={[contact(1, "Marie Durand")]} />);
     expect(html).toContain("Marie Durand");
     expect(html).toContain(">Nouveau<");
+  });
+
+  it("affiche l'entreprise du contact", () => {
+    const html = renderToStaticMarkup(<ContactList contacts={[contact(1, "Marie Durand", "Atelier Lumen")]} />);
+    expect(html).toContain("Atelier Lumen");
+  });
+
+  it("chaque contact mène à sa fiche", () => {
+    const html = renderToStaticMarkup(<ContactList contacts={[contact(7, "Marie Durand")]} />);
+    expect(html).toContain('href="/contacts/7"');
   });
 
   it("respecte l'ordre reçu", () => {

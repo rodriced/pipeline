@@ -198,6 +198,58 @@ describe("createContactService", () => {
     });
   });
 
+  describe("validation des données reçues (entrée non typée)", () => {
+    it.each([undefined, null, 42, {}])("addContact refuse un nom qui n'est pas une chaîne (%j)", async (name) => {
+      const repo = fakeRepo();
+      const service = createContactService(repo, fixedNow);
+
+      await expect(service.addContact(name)).resolves.toEqual({ ok: false, error: "NAME_REQUIRED" });
+      expect(repo.create).not.toHaveBeenCalled();
+    });
+
+    it.each([undefined, null, "texte", 42])("updateContact refuse une saisie qui n'est pas un objet (%j)", async (input) => {
+      const { repo, service, id } = await withMarie();
+
+      await expect(service.updateContact(id, input)).resolves.toEqual({ ok: false, errors: { name: "NAME_REQUIRED" } });
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it("updateContact refuse un nom absent ou non textuel", async () => {
+      const { service, id } = await withMarie();
+
+      await expect(service.updateContact(id, { company: "Atelier Lumen" })).resolves.toEqual({
+        ok: false,
+        errors: { name: "NAME_REQUIRED" },
+      });
+      await expect(service.updateContact(id, { name: 42 })).resolves.toEqual({
+        ok: false,
+        errors: { name: "NAME_REQUIRED" },
+      });
+    });
+
+    it("updateContact refuse un email non textuel", async () => {
+      const { service, id } = await withMarie();
+      await expect(service.updateContact(id, { name: "Marie Durand", email: 42 })).resolves.toEqual({
+        ok: false,
+        errors: { email: "EMAIL_INVALID" },
+      });
+    });
+
+    it("updateContact ignore les champs inconnus (ex. champs techniques du formulaire)", async () => {
+      const { repo, service, id } = await withMarie();
+
+      await service.updateContact(id, { name: "Marie Durand", $ACTION_REF_1: "", stage: "won", id: 999 });
+
+      expect(repo.update).toHaveBeenCalledWith(id, {
+        name: "Marie Durand",
+        company: null,
+        email: null,
+        phone: null,
+        notes: null,
+      });
+    });
+  });
+
   describe("deleteContact", () => {
     it("supprime le contact, qui disparaît de la liste", async () => {
       const { service, id } = await withMarie();

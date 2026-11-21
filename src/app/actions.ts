@@ -21,7 +21,8 @@ export async function addContactAction(
   _state: AddContactState,
   formData: FormData,
 ): Promise<AddContactState> {
-  const result = await contactService.addContact(text(formData, "name"));
+  // Validation côté serveur par le service (zod) : on lui passe la donnée brute.
+  const result = await contactService.addContact(formData.get("name"));
 
   if (!result.ok) return { error: MESSAGES[result.error] };
 
@@ -34,6 +35,10 @@ export async function updateContactAction(
   _state: ContactFormState,
   formData: FormData,
 ): Promise<ContactFormState> {
+  // Validation côté serveur par le service (zod) : on lui passe les champs bruts du formulaire.
+  const result = await contactService.updateContact(id, Object.fromEntries(formData));
+
+  // Saisie renvoyée au formulaire, pour ne pas la perdre en cas d'erreur.
   const values: ContactFormValues = {
     name: text(formData, "name"),
     company: text(formData, "company"),
@@ -41,8 +46,6 @@ export async function updateContactAction(
     phone: text(formData, "phone"),
     notes: text(formData, "notes"),
   };
-
-  const result = await contactService.updateContact(id, values);
 
   if (!result.ok) {
     if ("error" in result) notFound();

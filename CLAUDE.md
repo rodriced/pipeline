@@ -33,8 +33,8 @@ Les tests sont dans `__tests__/` (racine), qui reproduit l'arborescence de `src/
 - Next.js 16 (App Router, `src/app`), React 19, TypeScript strict, alias `@/*` → `src/*`.
 - Tailwind CSS 4 : pas de `tailwind.config`, la config est dans `src/app/globals.css` (`@import "tailwindcss"`, `shadcn/tailwind.css`, variables CSS du thème).
 - shadcn/ui, style `base-nova` sur **Base UI** (`@base-ui/react`), pas Radix. Icônes : `lucide-react`. `cn()` vient du paquet `cn`, réexporté par `src/lib/utils.ts` (pas de dépendance directe à `clsx`/`tailwind-merge`).
-- Design system « Papier » (référence visuelle : `design-system.html`) : tokens dans `src/app/globals.css`, polices Fraunces (titres, `font-heading`, appliquée aux h1–h4) et Source Sans 3 (texte), chargées par `next/font` dans `layout.tsx`. Tokens en plus de shadcn : `stage-*` (couleurs d'étape), `today` / `today-foreground` (relances du jour), `primary-border`, `destructive-foreground`, `overlay` (fond des fenêtres modales), et `shadow-card` (ombre franche des cartes).
-- Le mode sombre suit `prefers-color-scheme` (variante `dark:` en media query, pas de classe `.dark`).
+- Design system « Papier » (référence visuelle : `design-system.html`) : tokens dans `src/app/globals.css`, polices Fraunces (titres, `font-heading`, appliquée aux h1–h4) et Source Sans 3 (texte), chargées par `next/font` dans `layout.tsx`. Design system « Papier v2 » depuis le lot 8. Tokens en plus de shadcn : `stage-*` (couleurs d'étape), `overdue` / `today` / `today-foreground` / `upcoming` (urgence des relances), `surface`, `subtle-foreground`, `border-strong`, `success`, `primary-hover`, `primary-soft`, `primary-border`, `destructive-foreground`, `overlay` (fond des fenêtres modales), et `shadow-card` (ombre douce des cartes).
+- Thème : clair / sombre / système au choix (`src/components/theme/`). Le choix est gardé dans `localStorage` et posé en `data-theme` sur `<html>` par un script inline dans `<head>` ; sans choix, le sombre suit `prefers-color-scheme`. La variante `dark:` suit la même règle (pas de classe `.dark`).
 - Déploiement cible : Vercel.
 
 ## Architecture (définie par INTENT.md)

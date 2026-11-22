@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Contact, ContactFields, ContactRepository, NewContact, Stage } from "@/data/contact.repository";
-import { createContactService, STAGES } from "@/services/contact.service";
+import { CONTACT_LIMITS, createContactService, STAGES } from "@/services/contact.service";
 
 function fakeRepo() {
   const contacts: Contact[] = [];
@@ -639,6 +639,79 @@ describe("createContactService", () => {
 
       const lost = (await service.getPipelineBoard()).find((c) => c.stage === "lost")!.contacts;
       expect(lost.find((c) => c.name === "Marie RDV")).toMatchObject({ nextFollowUp: null });
+    });
+  });
+
+  describe("longueurs maximales des champs (#22)", () => {
+    const long = (n: number) => "x".repeat(n);
+
+    it("fixe une longueur maximale pour chaque champ texte", () => {
+      expect(CONTACT_LIMITS).toEqual({ name: 120, company: 160, email: 254, phone: 40, notes: 5000 });
+    });
+
+    it("addContact refuse un nom trop long sans rien enregistrer ; la limite exacte passe", async () => {
+      const repo = fakeRepo();
+      const service = createContactService(repo, fixedNow);
+
+      await expect(service.addContact(long(121))).resolves.toEqual({ ok: false, error: "NAME_TOO_LONG" });
+      expect(repo.create).not.toHaveBeenCalled();
+      await expect(service.addContact(long(120))).resolves.toMatchObject({ ok: true });
+    });
+
+    it("les espaces autour ne comptent pas dans la longueur", async () => {
+      const service = createContactService(fakeRepo(), fixedNow);
+      await expect(service.addContact(`   ${long(120)}   `)).resolves.toMatchObject({ ok: true });
+    });
+
+    it.each([
+      ["name", 121, { name: "NAME_TOO_LONG" }],
+      ["company", 161, { company: "COMPANY_TOO_LONG" }],
+      ["phone", 41, { phone: "PHONE_TOO_LONG" }],
+      ["notes", 5001, { notes: "NOTES_TOO_LONG" }],
+    ] as const)("updateContact refuse un champ %s trop long sans rien modifier", async (field, length, errors) => {
+      const { repo, service, id } = await withMarie();
+
+      await expect(service.updateContact(id, { name: "Marie Durand", [field]: long(length) })).resolves.toEqual({
+        ok: false,
+        errors,
+      });
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it("un e-mail de plus de 254 caractères est invalide", async () => {
+      const { service, id } = await withMarie();
+      const email = `${long(250)}@a.fr`;
+      await expect(service.updateContact(id, { name: "Marie Durand", email })).resolves.toEqual({
+        ok: false,
+        errors: { email: "EMAIL_INVALID" },
+      });
+    });
+
+    it("à la limite exacte, tous les champs sont acceptés", async () => {
+      const { service, id } = await withMarie();
+      const email = `${long(254 - "@a.fr".length)}@a.fr`;
+
+      await expect(
+        service.updateContact(id, { name: long(120), company: long(160), email, phone: long(40), notes: long(5000) }),
+      ).resolves.toMatchObject({ ok: true });
+    });
+
+    it("signale toutes les longueurs dépassées à la fois", async () => {
+      const { service, id } = await withMarie();
+      await expect(
+        service.updateContact(id, { name: long(121), company: long(161), phone: long(41), notes: long(5001) }),
+      ).resolves.toEqual({
+        ok: false,
+        errors: { name: "NAME_TOO_LONG", company: "COMPANY_TOO_LONG", phone: "PHONE_TOO_LONG", notes: "NOTES_TOO_LONG" },
+      });
+    });
+
+    it("une recherche trop longue (plus de 200 caractères) est ignorée", async () => {
+      const service = createContactService(fakeRepo(), fixedNow);
+      await service.addContact("Marie Durand");
+
+      expect(service.parseContactFilters({ q: long(201) })).toEqual({ q: "", stage: null });
+      await expect(service.searchContacts({ q: long(201) })).resolves.toHaveLength(1);
     });
   });
 

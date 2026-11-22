@@ -25,3 +25,10 @@ describe("AddContactForm", () => {
     expect(renderToStaticMarkup(<AddContactForm action={noop} />)).not.toContain('aria-invalid="true"');
   });
 });
+
+describe("AddContactForm · longueur maximale (#22)", () => {
+  it("limite la saisie du nom à 120 caractères", () => {
+    const input = renderToStaticMarkup(<AddContactForm action={noop} />).match(/<input[^>]*>/)?.[0] ?? "";
+    expect(input).toMatch(/maxLength="120"|maxlength="120"/);
+  });
+});

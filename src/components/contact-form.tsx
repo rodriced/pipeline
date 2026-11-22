@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CONTACT_LIMITS } from "@/services/contact.schema";
 
 export type ContactFormValues = {
   name: string;
@@ -19,7 +20,7 @@ export type ContactFormValues = {
 
 export type ContactFormState = {
   values: ContactFormValues;
-  errors?: { name?: string; email?: string };
+  errors?: { name?: string; email?: string; company?: string; phone?: string; notes?: string };
   saved?: boolean;
 };
 
@@ -51,13 +52,27 @@ export function ContactForm({
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label htmlFor="contact-name">Nom</Label>
-        <Input id="contact-name" name="name" defaultValue={values.name} required {...invalid("name")} />
+        <Input
+          id="contact-name"
+          name="name"
+          defaultValue={values.name}
+          required
+          maxLength={CONTACT_LIMITS.name}
+          {...invalid("name")}
+        />
         <FieldError id="contact-name-error" message={errors.name} />
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="contact-company">Entreprise</Label>
-        <Input id="contact-company" name="company" defaultValue={values.company} />
+        <Input
+          id="contact-company"
+          name="company"
+          defaultValue={values.company}
+          maxLength={CONTACT_LIMITS.company}
+          {...invalid("company")}
+        />
+        <FieldError id="contact-company-error" message={errors.company} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -69,19 +84,37 @@ export function ContactForm({
             type="email"
             defaultValue={values.email}
             autoComplete="off"
+            maxLength={CONTACT_LIMITS.email}
             {...invalid("email")}
           />
           <FieldError id="contact-email-error" message={errors.email} />
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="contact-phone">Téléphone</Label>
-          <Input id="contact-phone" name="phone" type="tel" defaultValue={values.phone} autoComplete="off" />
+          <Input
+            id="contact-phone"
+            name="phone"
+            type="tel"
+            defaultValue={values.phone}
+            autoComplete="off"
+            maxLength={CONTACT_LIMITS.phone}
+            {...invalid("phone")}
+          />
+          <FieldError id="contact-phone-error" message={errors.phone} />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="contact-notes">Notes</Label>
-        <Textarea id="contact-notes" name="notes" defaultValue={values.notes} rows={4} />
+        <Textarea
+          id="contact-notes"
+          name="notes"
+          defaultValue={values.notes}
+          rows={4}
+          maxLength={CONTACT_LIMITS.notes}
+          {...invalid("notes")}
+        />
+        <FieldError id="contact-notes-error" message={errors.notes} />
       </div>
 
       <div className="flex items-center gap-3">

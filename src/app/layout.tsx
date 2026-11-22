@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist_Mono, Source_Sans_3 } from "next/font/google";
 import { MainNav } from "@/components/main-nav";
+import { themeInitScript } from "@/components/theme/theme";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -29,7 +30,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="fr"
       className={`${fraunces.variable} ${sourceSans.variable} ${geistMono.variable} h-full antialiased`}
+      // Le script de thème pose data-theme sur <html> avant l'hydratation.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <MainNav />
         {children}

@@ -73,3 +73,37 @@ describe("ContactForm", () => {
     expect(html).not.toContain("Modifications enregistrées.");
   });
 });
+
+describe("ContactForm · longueurs maximales (#22)", () => {
+  it("limite la saisie de chaque champ à sa longueur maximale", () => {
+    const html = renderToStaticMarkup(<ContactForm action={noop} initialState={{ values }} />);
+
+    expect(field(html, "name")).toMatch(/maxLength="120"|maxlength="120"/);
+    expect(field(html, "company")).toMatch(/maxLength="160"|maxlength="160"/);
+    expect(field(html, "email")).toMatch(/maxLength="254"|maxlength="254"/);
+    expect(field(html, "phone")).toMatch(/maxLength="40"|maxlength="40"/);
+    expect(field(html, "notes")).toMatch(/maxLength="5000"|maxlength="5000"/);
+  });
+
+  it("affiche l'erreur de longueur sous l'entreprise, le téléphone et les notes", () => {
+    const html = renderToStaticMarkup(
+      <ContactForm
+        action={noop}
+        initialState={{
+          values,
+          errors: {
+            company: "L’entreprise ne doit pas dépasser 160 caractères.",
+            phone: "Le téléphone ne doit pas dépasser 40 caractères.",
+            notes: "Les notes ne doivent pas dépasser 5000 caractères.",
+          },
+        }}
+      />,
+    );
+
+    expect(html).toContain("L’entreprise ne doit pas dépasser 160 caractères.");
+    expect(html).toContain("Le téléphone ne doit pas dépasser 40 caractères.");
+    expect(html).toContain("Les notes ne doivent pas dépasser 5000 caractères.");
+    for (const name of ["company", "phone", "notes"]) expect(field(html, name)).toContain('aria-invalid="true"');
+    expect(field(html, "name")).not.toContain('aria-invalid="true"');
+  });
+});

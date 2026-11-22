@@ -4,7 +4,21 @@
 import { z } from "zod";
 
 const NAME_REQUIRED = "NAME_REQUIRED";
+const NAME_TOO_LONG = "NAME_TOO_LONG";
 const EMAIL_INVALID = "EMAIL_INVALID";
+const COMPANY_TOO_LONG = "COMPANY_TOO_LONG";
+const PHONE_TOO_LONG = "PHONE_TOO_LONG";
+const NOTES_TOO_LONG = "NOTES_TOO_LONG";
+
+/**
+ * Longueurs maximales des champs texte, espaces retirés (#22). Sans authentification,
+ * elles empêchent de remplir la base avec des saisies géantes. E-mail : limite RFC 5321.
+ * Ce module n'importe que zod : les formulaires peuvent s'en servir côté client (maxLength).
+ */
+export const CONTACT_LIMITS = { name: 120, company: 160, email: 254, phone: 40, notes: 5000 } as const;
+
+/** Longueur maximale d'une recherche ; au-delà, elle est ignorée. */
+const SEARCH_MAX = 200;
 
 const positiveId = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 
@@ -44,25 +58,32 @@ const firstValue = (value: unknown) => (Array.isArray(value) ? value[0] : value)
 export const contactFiltersSchema = z.preprocess(
   (input) => (typeof input === "object" && input !== null ? input : {}),
   z.object({
-    q: z.preprocess(firstValue, z.string().trim()).catch(""),
+    q: z.preprocess(firstValue, z.string().trim().max(SEARCH_MAX)).catch(""),
     stage: z.preprocess(firstValue, stageSchema.nullable()).catch(null),
   }),
 );
 
-/** Nom obligatoire : une chaîne non vide une fois les espaces retirés. */
-export const nameSchema = z.string({ error: NAME_REQUIRED }).trim().min(1, NAME_REQUIRED);
-
-/** Champ texte facultatif : espaces retirés, absent ou vide → null. */
-const optionalText = z
-  .string()
+/** Nom obligatoire : une chaîne non vide une fois les espaces retirés, de longueur bornée. */
+export const nameSchema = z
+  .string({ error: NAME_REQUIRED })
   .trim()
-  .optional()
-  .transform((value) => value || null);
+  .min(1, NAME_REQUIRED)
+  .max(CONTACT_LIMITS.name, NAME_TOO_LONG);
 
-/** Email facultatif ; s'il est rempli, il doit être bien formé. */
+/** Champ texte facultatif : espaces retirés, longueur bornée, absent ou vide → null. */
+const optionalText = (max: number, tooLong: string) =>
+  z
+    .string()
+    .trim()
+    .max(max, tooLong)
+    .optional()
+    .transform((value) => value || null);
+
+/** Email facultatif ; s'il est rempli, il doit être bien formé (et pas plus long que la limite). */
 const optionalEmail = z
   .string({ error: EMAIL_INVALID })
   .trim()
+  .max(CONTACT_LIMITS.email, EMAIL_INVALID)
   .pipe(z.union([z.literal(""), z.email({ error: EMAIL_INVALID })]))
   .optional()
   .transform((value) => value || null);
@@ -73,20 +94,35 @@ export const contactFieldsSchema = z.preprocess(
   (input) => (typeof input === "object" && input !== null ? input : {}),
   z.object({
     name: nameSchema,
-    company: optionalText,
+    company: optionalText(CONTACT_LIMITS.company, COMPANY_TOO_LONG),
     email: optionalEmail,
-    phone: optionalText,
-    notes: optionalText,
+    phone: optionalText(CONTACT_LIMITS.phone, PHONE_TOO_LONG),
+    notes: optionalText(CONTACT_LIMITS.notes, NOTES_TOO_LONG),
   }),
 );
 
-export type ContactFieldErrors = { name?: typeof NAME_REQUIRED; email?: typeof EMAIL_INVALID };
+export type ContactFieldErrors = {
+  name?: typeof NAME_REQUIRED | typeof NAME_TOO_LONG;
+  email?: typeof EMAIL_INVALID;
+  company?: typeof COMPANY_TOO_LONG;
+  phone?: typeof PHONE_TOO_LONG;
+  notes?: typeof NOTES_TOO_LONG;
+};
 
-/** Erreurs zod → codes métier par champ (le premier code de chaque champ). */
+/** Code métier d'erreur sur le nom seul (ajout rapide d'un contact). */
+export type NameError = typeof NAME_REQUIRED | typeof NAME_TOO_LONG;
+export const nameErrorOf = (error: z.ZodError): NameError =>
+  error.issues.some((issue) => issue.message === NAME_TOO_LONG) ? NAME_TOO_LONG : NAME_REQUIRED;
+
+/** Erreurs zod → codes métier par champ (nom requis ou trop long, e-mail invalide, longueurs dépassées). */
 export function toFieldErrors(error: z.ZodError): ContactFieldErrors {
   const { fieldErrors } = z.flattenError(error) as { fieldErrors: Record<string, string[] | undefined> };
+  const has = (field: string, code: string) => fieldErrors[field]?.includes(code) ?? false;
   const errors: ContactFieldErrors = {};
-  if (fieldErrors.name?.length) errors.name = NAME_REQUIRED;
+  if (fieldErrors.name?.length) errors.name = has("name", NAME_TOO_LONG) ? NAME_TOO_LONG : NAME_REQUIRED;
   if (fieldErrors.email?.length) errors.email = EMAIL_INVALID;
+  if (has("company", COMPANY_TOO_LONG)) errors.company = COMPANY_TOO_LONG;
+  if (has("phone", PHONE_TOO_LONG)) errors.phone = PHONE_TOO_LONG;
+  if (has("notes", NOTES_TOO_LONG)) errors.notes = NOTES_TOO_LONG;
   return errors;
 }

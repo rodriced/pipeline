@@ -10,21 +10,25 @@ import {
 } from "@/data/contact.repository";
 import {
   contactFieldsSchema,
+  CONTACT_LIMITS,
   contactFiltersSchema,
   contactIdSchema,
   isoDateSchema,
+  nameErrorOf,
   nameSchema,
   stageSchema,
   toFieldErrors,
   type ContactFieldErrors,
+  type NameError,
 } from "@/services/contact.schema";
 
 export type { Contact, ContactFieldErrors, Stage };
+export { CONTACT_LIMITS };
 
 /** Étapes du pipeline, dans l'ordre. */
 export const STAGES: readonly Stage[] = stageSchema.options;
 
-export type AddContactError = "NAME_REQUIRED";
+export type AddContactError = NameError;
 
 export type AddContactResult =
   | { ok: true; contact: Contact }
@@ -87,7 +91,7 @@ export function createContactService(repo: ContactRepository, now: () => Date = 
   const service = {
     async addContact(rawName: unknown): Promise<AddContactResult> {
       const parsed = nameSchema.safeParse(rawName);
-      if (!parsed.success) return { ok: false, error: "NAME_REQUIRED" };
+      if (!parsed.success) return { ok: false, error: nameErrorOf(parsed.error) };
 
       const contact = await repo.create({ name: parsed.data, stage: "new", createdAt: now() });
       return { ok: true, contact };

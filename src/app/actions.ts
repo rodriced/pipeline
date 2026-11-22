@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import type { AddContactState } from "@/components/add-contact-form";
 import type { ContactFormState, ContactFormValues } from "@/components/contact-form";
 import type { FollowUpState } from "@/components/follow-up-form";
+import { CONTACT_LIMITS } from "@/services/contact.schema";
 import {
   contactService,
   type AddContactError,
@@ -15,7 +16,11 @@ import {
 
 const MESSAGES: Record<AddContactError | NonNullable<ContactFieldErrors[keyof ContactFieldErrors]>, string> = {
   NAME_REQUIRED: "Le nom est requis.",
+  NAME_TOO_LONG: `Le nom ne doit pas dépasser ${CONTACT_LIMITS.name} caractères.`,
   EMAIL_INVALID: "Adresse e-mail invalide.",
+  COMPANY_TOO_LONG: `L’entreprise ne doit pas dépasser ${CONTACT_LIMITS.company} caractères.`,
+  PHONE_TOO_LONG: `Le téléphone ne doit pas dépasser ${CONTACT_LIMITS.phone} caractères.`,
+  NOTES_TOO_LONG: `Les notes ne doivent pas dépasser ${CONTACT_LIMITS.notes} caractères.`,
 };
 
 const text = (formData: FormData, key: string) => {
@@ -62,6 +67,9 @@ export async function updateContactAction(
       errors: {
         name: result.errors.name && MESSAGES[result.errors.name],
         email: result.errors.email && MESSAGES[result.errors.email],
+        company: result.errors.company && MESSAGES[result.errors.company],
+        phone: result.errors.phone && MESSAGES[result.errors.phone],
+        notes: result.errors.notes && MESSAGES[result.errors.notes],
       },
     };
   }

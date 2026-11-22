@@ -1,11 +1,19 @@
 // Couche présentation : contenu de la fiche contact (Server Component).
 // Séparé de page.tsx pour être testable ; rendu sous <Suspense> car il lit les params.
 import { notFound } from "next/navigation";
-import { deleteContactAction, updateContactAction } from "@/app/actions";
+import {
+  changeStageAction,
+  clearFollowUpAction,
+  deleteContactAction,
+  scheduleFollowUpAction,
+  updateContactAction,
+} from "@/app/actions";
 import { ContactForm } from "@/components/contact-form";
 import { DeleteContactDialog } from "@/components/delete-contact-dialog";
+import { FollowUpForm } from "@/components/follow-up-form";
 import { StageBadge } from "@/components/stage-badge";
-import { contactService } from "@/services/contact.service";
+import { StageSelector } from "@/components/stage-selector";
+import { contactService, isClosedStage } from "@/services/contact.service";
 
 export async function ContactDetail({ params }: { params: Promise<{ id: string }> }) {
   // Identifiant de l'URL transmis brut : le service le valide (zod) et renvoie null s'il est invalide.
@@ -21,6 +29,25 @@ export async function ContactDetail({ params }: { params: Promise<{ id: string }
         </div>
         <StageBadge stage={contact.stage} />
       </header>
+
+      <section aria-labelledby="stage-heading" className="flex flex-col gap-2">
+        <h2 id="stage-heading" className="text-sm font-medium text-muted-foreground">
+          Étape
+        </h2>
+        <StageSelector stage={contact.stage} action={changeStageAction.bind(null, contact.id)} />
+      </section>
+
+      <section aria-labelledby="follow-up-heading" className="flex flex-col gap-2">
+        <h2 id="follow-up-heading" className="text-sm font-medium text-muted-foreground">
+          Relance
+        </h2>
+        <FollowUpForm
+          nextFollowUp={contact.nextFollowUp}
+          closed={isClosedStage(contact.stage)}
+          scheduleAction={scheduleFollowUpAction.bind(null, contact.id)}
+          clearAction={clearFollowUpAction.bind(null, contact.id)}
+        />
+      </section>
 
       <ContactForm
         action={updateContactAction.bind(null, contact.id)}

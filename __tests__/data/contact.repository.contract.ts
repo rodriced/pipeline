@@ -39,6 +39,7 @@ export function describeContactRepositoryContract(
         email: null,
         phone: null,
         notes: null,
+        nextFollowUp: null,
       });
       await expect(repo.listByMostRecent()).resolves.toEqual([created]);
     });
@@ -101,6 +102,62 @@ export function describeContactRepositoryContract(
 
       await expect(repo.findById(b.id)).resolves.toEqual(b);
       await expect(repo.update(b.id + 1000, fullFields)).resolves.toBeNull();
+    });
+
+    it("change l'étape d'un contact, visible par findById et dans la liste (lot 3)", async () => {
+      const repo = await makeRepo();
+      const created = await repo.create(marie);
+
+      const updated = await repo.updateStage(created.id, "contacted");
+
+      expect(updated).toEqual({ ...created, stage: "contacted" });
+      await expect(repo.findById(created.id)).resolves.toEqual(updated);
+      await expect(repo.listByMostRecent()).resolves.toEqual([updated]);
+    });
+
+    it("changer l'étape ne touche ni aux autres contacts ni aux autres champs ; null si inexistant (lot 3)", async () => {
+      const repo = await makeRepo();
+      const a = await repo.create(marie);
+      await repo.update(a.id, fullFields);
+      const b = await repo.create({ ...marie, name: "Paul Martin" });
+
+      const updated = await repo.updateStage(a.id, "won");
+
+      expect(updated).toMatchObject({ ...fullFields, stage: "won" });
+      await expect(repo.findById(b.id)).resolves.toEqual(b);
+      await expect(repo.updateStage(b.id + 1000, "won")).resolves.toBeNull();
+    });
+
+    it("planifie puis supprime une relance, visible par findById et dans la liste (lot 4)", async () => {
+      const repo = await makeRepo();
+      const created = await repo.create(marie);
+      const other = await repo.create({ ...marie, name: "Paul Martin" });
+
+      const planned = await repo.setFollowUp(created.id, "2026-11-25");
+      expect(planned).toEqual({ ...created, nextFollowUp: "2026-11-25" });
+      await expect(repo.findById(created.id)).resolves.toEqual(planned);
+      await expect(repo.findById(other.id)).resolves.toEqual(other);
+
+      const cleared = await repo.setFollowUp(created.id, null);
+      expect(cleared?.nextFollowUp).toBeNull();
+      await expect(repo.setFollowUp(other.id + 1000, "2026-11-25")).resolves.toBeNull();
+    });
+
+    it("liste les contacts dont la relance est due à une date, la plus ancienne d'abord (lot 5)", async () => {
+      const repo = await makeRepo();
+      const [hier, auj, demain, sans, auj2] = await Promise.all(
+        ["Hier", "Aujourd'hui", "Demain", "Sans relance", "Aujourd'hui bis"].map((name) => repo.create({ ...marie, name })),
+      );
+      await repo.setFollowUp(auj.id, "2026-11-21");
+      await repo.setFollowUp(demain.id, "2026-11-22");
+      await repo.setFollowUp(hier.id, "2026-11-20");
+      await repo.setFollowUp(auj2.id, "2026-11-21");
+
+      const due = await repo.listWithFollowUpDueBy("2026-11-21");
+
+      expect(due.map((c) => c.name)).toEqual(["Hier", "Aujourd'hui", "Aujourd'hui bis"]);
+      expect(due.map((c) => c.id)).not.toContain(sans.id);
+      await expect(repo.listWithFollowUpDueBy("2026-11-19")).resolves.toEqual([]);
     });
 
     it("supprime un contact : true, puis introuvable ; false s'il n'existe pas", async () => {

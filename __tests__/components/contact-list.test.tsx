@@ -12,6 +12,7 @@ const contact = (id: number, name: string, company: string | null = null): Conta
   email: null,
   phone: null,
   notes: null,
+  nextFollowUp: null,
 });
 
 describe("ContactList", () => {
@@ -26,6 +27,17 @@ describe("ContactList", () => {
     expect(html).toContain("Atelier Lumen");
   });
 
+  it("affiche la date de relance (lot 4)", () => {
+    const html = renderToStaticMarkup(
+      <ContactList contacts={[{ ...contact(1, "Marie Durand"), nextFollowUp: "2026-11-25" }]} />,
+    );
+    expect(html).toContain("Relance : 25/11");
+  });
+
+  it("n'affiche aucune date sans relance (lot 4)", () => {
+    expect(renderToStaticMarkup(<ContactList contacts={[contact(1, "Marie Durand")]} />)).not.toContain("Relance");
+  });
+
   it("chaque contact mène à sa fiche", () => {
     const html = renderToStaticMarkup(<ContactList contacts={[contact(7, "Marie Durand")]} />);
     expect(html).toContain('href="/contacts/7"');
@@ -37,6 +49,12 @@ describe("ContactList", () => {
     );
     const positions = ["Récent", "Milieu", "Ancien"].map((n) => html.indexOf(n));
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  });
+
+  it("affiche « Aucun résultat. » quand une recherche ne trouve rien (lot 6)", () => {
+    const html = renderToStaticMarkup(<ContactList contacts={[]} filtered />);
+    expect(html).toContain("Aucun résultat.");
+    expect(html).not.toContain("Aucun contact pour l’instant");
   });
 
   it("affiche un message quand la liste est vide", () => {

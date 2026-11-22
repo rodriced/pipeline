@@ -5,7 +5,13 @@ import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import type { AddContactState } from "@/components/add-contact-form";
 import type { ContactFormState, ContactFormValues } from "@/components/contact-form";
-import { contactService, type AddContactError, type ContactFieldErrors } from "@/services/contact.service";
+import type { FollowUpState } from "@/components/follow-up-form";
+import {
+  contactService,
+  type AddContactError,
+  type ContactFieldErrors,
+  type FollowUpError,
+} from "@/services/contact.service";
 
 const MESSAGES: Record<AddContactError | NonNullable<ContactFieldErrors[keyof ContactFieldErrors]>, string> = {
   NAME_REQUIRED: "Le nom est requis.",
@@ -80,4 +86,66 @@ export async function deleteContactAction(id: unknown): Promise<void> {
   await contactService.deleteContact(id);
   revalidatePath("/");
   redirect("/");
+}
+
+export async function changeStageAction(id: unknown, formData: FormData): Promise<void> {
+  // Validation côté serveur par le service (zod) : id lié et étape transmis bruts.
+  const result = await contactService.changeStage(id, formData.get("stage"));
+  if (!result.ok) return; // étape forgée ou contact disparu : rien ne change
+
+  revalidatePath("/");
+  revalidatePath(`/contacts/${result.contact.id}`);
+}
+
+const FOLLOW_UP_MESSAGES: Record<Exclude<FollowUpError, "NOT_FOUND">, string> = {
+  DATE_INVALID: "Date invalide.",
+  DATE_PAST: "La date de relance ne peut pas être passée.",
+  CONTACT_CLOSED: "Un contact clôturé ne peut pas avoir de relance.",
+};
+
+export async function scheduleFollowUpAction(
+  id: unknown,
+  _state: FollowUpState,
+  formData: FormData,
+): Promise<FollowUpState> {
+  // Validation côté serveur par le service (zod) : id lié et date transmis bruts.
+  const result = await contactService.scheduleFollowUp(id, formData.get("date"));
+  const value = text(formData, "date");
+
+  if (!result.ok) {
+    if (result.error === "NOT_FOUND") notFound();
+    return { value, error: FOLLOW_UP_MESSAGES[result.error] };
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/contacts/${result.contact.id}`);
+  return { value };
+}
+
+export async function clearFollowUpAction(id: unknown): Promise<void> {
+  const result = await contactService.clearFollowUp(id);
+  if (!result.ok) return;
+
+  revalidatePath("/");
+  revalidatePath(`/contacts/${result.contact.id}`);
+}
+
+/** Relance faite (vue « Aujourd'hui ») : le contact n'a plus de relance planifiée. */
+export async function markFollowUpDoneAction(id: unknown): Promise<void> {
+  const result = await contactService.clearFollowUp(id);
+  if (!result.ok) return;
+
+  revalidatePath("/aujourdhui");
+  revalidatePath("/");
+  revalidatePath(`/contacts/${result.contact.id}`);
+}
+
+/** Relance reportée au lendemain (vue « Aujourd'hui »). */
+export async function postponeFollowUpAction(id: unknown): Promise<void> {
+  const result = await contactService.postponeFollowUp(id);
+  if (!result.ok) return;
+
+  revalidatePath("/aujourdhui");
+  revalidatePath("/");
+  revalidatePath(`/contacts/${result.contact.id}`);
 }

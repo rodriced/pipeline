@@ -1,12 +1,15 @@
 // Couche présentation : composant pur, reçoit la liste déjà triée en props.
 import Link from "next/link";
+import { formatDayMonth } from "@/components/format-date";
 import { StageBadge } from "@/components/stage-badge";
 import { Card } from "@/components/ui/card";
 import type { Contact } from "@/services/contact.service";
 
-export function ContactList({ contacts }: { contacts: Contact[] }) {
+export function ContactList({ contacts, filtered = false }: { contacts: Contact[]; filtered?: boolean }) {
   if (contacts.length === 0) {
-    return <p className="text-sm text-muted-foreground">Aucun contact pour l’instant.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">{filtered ? "Aucun résultat." : "Aucun contact pour l’instant."}</p>
+    );
   }
 
   return (
@@ -25,6 +28,9 @@ export function ContactList({ contacts }: { contacts: Contact[] }) {
                 <span className="font-heading text-base">{contact.name}</span>
                 {contact.company && (
                   <span className="truncate text-sm text-muted-foreground">{contact.company}</span>
+                )}
+                {contact.nextFollowUp && (
+                  <span className="text-sm text-muted-foreground">Relance : {formatDayMonth(contact.nextFollowUp)}</span>
                 )}
               </span>
               <StageBadge stage={contact.stage} />

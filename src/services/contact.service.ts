@@ -73,6 +73,9 @@ export type ContactFilters = { q: string; stage: Stage | null };
 /** Texte comparable : sans accents, en minuscules. */
 const normalize = (text: string) => text.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 
+/** Colonne de la vue Pipeline : une étape et ses contacts (lot 7). */
+export type PipelineColumn = { stage: Stage; contacts: Contact[] };
+
 /** Relance due : le contact et son retard en jours (0 = aujourd'hui). */
 export type DueFollowUp = { contact: Contact; daysLate: number };
 
@@ -92,6 +95,12 @@ export function createContactService(repo: ContactRepository, now: () => Date = 
 
     listContacts(): Promise<Contact[]> {
       return repo.listByMostRecent();
+    },
+
+    /** Vue Pipeline : les cinq étapes dans l'ordre, chacune avec ses contacts (du plus récent au plus ancien). */
+    async getPipelineBoard(): Promise<PipelineColumn[]> {
+      const contacts = await repo.listByMostRecent();
+      return STAGES.map((stage) => ({ stage, contacts: contacts.filter((contact) => contact.stage === stage) }));
     },
 
     /** Filtres lus dans l'URL ; valeurs absentes ou invalides ignorées. */

@@ -5,15 +5,17 @@ const revalidatePath = vi.fn();
 vi.mock("next/cache", () => ({ revalidatePath }));
 
 const updateContact = vi.fn();
+const addContact = vi.fn();
 const changeStage = vi.fn();
 const scheduleFollowUp = vi.fn();
 const clearFollowUp = vi.fn();
 const postponeFollowUp = vi.fn();
 vi.mock("@/services/contact.service", () => ({
-  contactService: { updateContact, changeStage, scheduleFollowUp, clearFollowUp, postponeFollowUp },
+  contactService: { addContact, updateContact, changeStage, scheduleFollowUp, clearFollowUp, postponeFollowUp },
 }));
 
 const {
+  addContactAction,
   updateContactAction,
   changeStageAction,
   scheduleFollowUpAction,
@@ -184,5 +186,37 @@ describe("relances du jour (lot 5)", () => {
     await markFollowUpDoneAction("abc");
 
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+});
+
+describe("longueurs maximales (#22)", () => {
+  beforeEach(() => {
+    addContact.mockReset();
+    updateContact.mockReset();
+  });
+
+  it("addContactAction traduit NAME_TOO_LONG en message", async () => {
+    addContact.mockResolvedValue({ ok: false, error: "NAME_TOO_LONG" });
+
+    await expect(addContactAction({}, form({ name: "x".repeat(121) }))).resolves.toEqual({
+      error: "Le nom ne doit pas dépasser 120 caractères.",
+    });
+  });
+
+  it("updateContactAction traduit chaque dépassement en message, champ par champ", async () => {
+    updateContact.mockResolvedValue({
+      ok: false,
+      errors: { name: "NAME_TOO_LONG", company: "COMPANY_TOO_LONG", phone: "PHONE_TOO_LONG", notes: "NOTES_TOO_LONG" },
+    });
+
+    const state = await updateContactAction(1, emptyState, form({ name: "x" }));
+
+    expect(state.errors).toEqual({
+      name: "Le nom ne doit pas dépasser 120 caractères.",
+      email: undefined,
+      company: "L’entreprise ne doit pas dépasser 160 caractères.",
+      phone: "Le téléphone ne doit pas dépasser 40 caractères.",
+      notes: "Les notes ne doivent pas dépasser 5000 caractères.",
+    });
   });
 });

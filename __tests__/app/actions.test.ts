@@ -92,6 +92,14 @@ describe("changeStageAction (lot 3)", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/contacts/1");
   });
 
+  it("rafraîchit aussi la vue Pipeline (lot 7)", async () => {
+    changeStage.mockResolvedValue({ ok: true, contact: { ...marie, stage: "meeting" } });
+
+    await changeStageAction(1, form({ stage: "meeting" }));
+
+    expect(revalidatePath).toHaveBeenCalledWith("/pipeline");
+  });
+
   it("ne rafraîchit rien si le service refuse l'étape", async () => {
     changeStage.mockResolvedValue({ ok: false, error: "INVALID_STAGE" });
 

@@ -58,3 +58,13 @@ Dans la liste, je tape une partie d'un nom ou d'une entreprise, et/ou je filtre 
 - [ ] Étant donné des contacts à plusieurs étapes, quand je filtre sur « RDV », alors seuls les contacts en RDV s'affichent.
 - [ ] Étant donné une recherche et un filtre combinés, quand aucun contact ne correspond, alors un message « aucun résultat » s'affiche.
 - [ ] Étant donné un filtre actif, quand je recharge la page, alors le filtre est conservé (dans l'URL).
+
+## Lot 7 · Voir le pipeline en colonnes et y déplacer un contact
+
+Depuis une vue « Pipeline », je vois une colonne par étape (Nouveau, Contacté, RDV, Gagné, Perdu), avec les contacts rangés selon leur étape. Je fais passer un contact d'une colonne à une autre, à la souris ou au clavier, et il apparaît aussitôt dans sa nouvelle colonne.
+
+- [ ] Étant donné des contacts à différentes étapes, quand j'ouvre la vue Pipeline, alors je vois cinq colonnes dans l'ordre du pipeline, chacune avec ses contacts et leur nombre.
+- [ ] Étant donné un contact « Contacté », quand je le fais passer dans la colonne « RDV », alors il apparaît dans « RDV » et plus dans « Contacté », y compris après un rechargement.
+- [ ] Étant donné un contact qui a une relance, quand je le fais passer dans « Gagné » ou « Perdu », alors sa relance est effacée (même règle qu'au lot 4).
+- [ ] Étant donné la vue Pipeline, quand j'utilise seulement le clavier, alors je peux faire passer un contact dans une autre colonne.
+- [ ] Étant donné une étape sans contact, quand j'ouvre la vue Pipeline, alors sa colonne affiche qu'elle est vide.

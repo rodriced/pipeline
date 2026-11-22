@@ -577,6 +577,71 @@ describe("createContactService", () => {
     });
   });
 
+  describe("vue Pipeline en colonnes (lot 7)", () => {
+    /** Contacts créés dans l'ordre (le dernier est le plus récent), puis placés à leur étape. */
+    async function withBoard() {
+      let t = Date.parse("2026-11-01T09:00:00Z");
+      const repo = fakeRepo();
+      const service = createContactService(repo, () => new Date((t += 60_000)));
+      const ids: Record<string, number> = {};
+      for (const [name, stage] of [
+        ["Ancien contacté", "contacted"],
+        ["Marie RDV", "meeting"],
+        ["Récent contacté", "contacted"],
+        ["Léo nouveau", "new"],
+        ["Chloé perdue", "lost"],
+      ] as const) {
+        const added = await service.addContact(name);
+        if (!added.ok) throw new Error("setup");
+        ids[name] = added.contact.id;
+        await service.changeStage(added.contact.id, stage);
+      }
+      return { service, ids };
+    }
+    const summary = (board: { stage: string; contacts: Contact[] }[]) =>
+      board.map(({ stage, contacts }) => [stage, contacts.map((c) => c.name)]);
+
+    it("renvoie les cinq colonnes dans l'ordre du pipeline, avec les contacts de chaque étape", async () => {
+      const { service } = await withBoard();
+
+      expect(summary(await service.getPipelineBoard())).toEqual([
+        ["new", ["Léo nouveau"]],
+        ["contacted", ["Récent contacté", "Ancien contacté"]],
+        ["meeting", ["Marie RDV"]],
+        ["won", []],
+        ["lost", ["Chloé perdue"]],
+      ]);
+    });
+
+    it("une étape sans contact donne une colonne vide ; sans aucun contact, cinq colonnes vides", async () => {
+      const { service } = await withBoard();
+      expect((await service.getPipelineBoard()).find((c) => c.stage === "won")?.contacts).toEqual([]);
+
+      const empty = createContactService(fakeRepo(), fixedNow);
+      expect(summary(await empty.getPipelineBoard())).toEqual(STAGES.map((stage) => [stage, []]));
+    });
+
+    it("après un passage de « Contacté » à « RDV », le contact est dans la colonne RDV et plus dans Contacté", async () => {
+      const { service, ids } = await withBoard();
+
+      await service.changeStage(ids["Ancien contacté"], "meeting");
+
+      const board = summary(await service.getPipelineBoard());
+      expect(board[1]).toEqual(["contacted", ["Récent contacté"]]);
+      expect(board[2]).toEqual(["meeting", ["Marie RDV", "Ancien contacté"]]);
+    });
+
+    it("un contact passé dans « Perdu » y arrive sans sa relance", async () => {
+      const { service, ids } = await withBoard();
+      await service.scheduleFollowUp(ids["Marie RDV"], "2026-12-01");
+
+      await service.changeStage(ids["Marie RDV"], "lost");
+
+      const lost = (await service.getPipelineBoard()).find((c) => c.stage === "lost")!.contacts;
+      expect(lost.find((c) => c.name === "Marie RDV")).toMatchObject({ nextFollowUp: null });
+    });
+  });
+
   describe("validation de l'identifiant (URL, argument lié d'une action)", () => {
     const invalidIds = ["abc", "1.5", "0", "-3", "", " 1", "1e2", "0x1", "9007199254740993", 0, -1, 1.5, NaN, null, undefined, {}];
 

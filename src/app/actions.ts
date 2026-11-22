@@ -94,6 +94,7 @@ export async function changeStageAction(id: unknown, formData: FormData): Promis
   if (!result.ok) return; // étape forgée ou contact disparu : rien ne change
 
   revalidatePath("/");
+  revalidatePath("/pipeline");
   revalidatePath(`/contacts/${result.contact.id}`);
 }
 

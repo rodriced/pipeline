@@ -5,8 +5,8 @@ import { dirname, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
 // Migrations, dans l'ordre. L'indice + 1 est la version du schéma (PRAGMA user_version).
-// Ne jamais modifier une migration publiée : en ajouter une nouvelle.
-const MIGRATIONS = [
+// Ne jamais modifier une migration publiée : en ajouter une nouvelle, et mettre à jour schema.sql (Turso).
+export const MIGRATIONS = [
   // v1 · lot 1 (idempotente : les bases du lot 1 ont la table mais user_version = 0)
   `CREATE TABLE IF NOT EXISTS contacts (
      id         INTEGER PRIMARY KEY AUTOINCREMENT,

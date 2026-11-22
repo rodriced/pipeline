@@ -3,393 +3,625 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pipeline · Design system</title>
+<title>Pipeline · Design system Papier v2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ---------- Chrome de la page (neutre, hors design systems) ---------- */
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: #e9e9ec;
-    color: #1c1c1f;
-    font: 14px/1.5 system-ui, -apple-system, sans-serif;
-  }
-  header.page {
-    max-width: 1440px; margin: 0 auto; padding: 32px 16px 8px;
-  }
-  header.page h1 { margin: 0 0 4px; font-size: 22px; }
-  header.page p { margin: 0; color: #5d5d66; max-width: 70ch; }
-  .grid {
-    max-width: 1440px; margin: 0 auto; padding: 16px;
-    display: grid; gap: 16px;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-    align-items: start;
-  }
-  .grid:not(.both) { max-width: 680px; }
-  .grid.both { grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); max-width: 1200px; }
-  .seg { display: inline-flex; margin-top: 14px; background: #d7d7dc; border-radius: 9px; padding: 3px; gap: 2px; }
-  .seg button { font: inherit; font-size: 13px; border: 0; background: transparent; padding: 6px 12px; border-radius: 7px; cursor: pointer; color: #3b3b42; }
-  .seg button[aria-pressed="true"] { background: #fff; color: #111; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
-  .ds-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-  .mode {
-    flex: none; font: inherit; font-size: 12px; font-family: var(--font-mono);
-    background: var(--muted); color: var(--muted-foreground);
-    border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; cursor: pointer;
-  }
-
-  /* ---------- Tokens (noms alignés sur shadcn, valeurs = src/app/globals.css) ----------
-     Clair = .ds-b   ·   Sombre = .ds-b.dark */
-
-  .ds-b {
-    --background: oklch(0.965 0.014 85);
-    --card: oklch(0.99 0.006 85);
-    --foreground: oklch(0.26 0.025 50);
-    --muted: oklch(0.935 0.018 80);
-    --muted-foreground: oklch(0.5 0.03 60);
-    --border: oklch(0.86 0.025 75);
-    --input: oklch(0.78 0.03 70);
-    --input-bg: var(--card);
-    --primary: oklch(0.57 0.15 40);
-    --primary-foreground: oklch(0.985 0.01 85);
-    --primary-border: oklch(0.45 0.13 40);
-    --secondary: oklch(0.92 0.03 70);
-    --secondary-foreground: oklch(0.32 0.04 50);
-    --destructive: oklch(0.5 0.17 25);
-    --destructive-foreground: oklch(0.985 0.01 85);
-    --ring: oklch(0.57 0.15 40);
-    --ring-halo: oklch(0.57 0.15 40 / 0.3);
-    --radius: 0.25rem;
-    --font-heading: "Fraunces", Georgia, serif;
-    --font-body: "Source Sans 3", system-ui, sans-serif;
-    --font-mono: "Source Sans 3", system-ui, sans-serif;
-    --h-weight: 600; --h-tracking: -0.01em;
-    --stage-new: oklch(0.55 0.03 60);
-    --stage-contacted: oklch(0.5 0.08 230);
-    --stage-meeting: oklch(0.58 0.12 70);
-    --stage-won: oklch(0.5 0.1 145);
-    --stage-lost: oklch(0.5 0.15 25);
-    --today: oklch(0.57 0.15 40);
-    --today-foreground: oklch(0.48 0.14 40);
-    --btn-shadow: none;
-    --card-border: var(--border);
-    --card-shadow: 3px 3px 0 oklch(0.86 0.025 75);
-  }
-  .ds-b.dark {
-    --background: oklch(0.2 0.015 55);
-    --card: oklch(0.24 0.016 55);
-    --foreground: oklch(0.93 0.02 85);
-    --muted: oklch(0.27 0.018 55);
-    --muted-foreground: oklch(0.72 0.03 70);
-    --border: oklch(0.34 0.02 60);
-    --input: oklch(0.44 0.025 60);
-    --primary: oklch(0.68 0.14 42);
+/* =====================================================================
+   TOKENS · Papier v2
+   Noms alignés sur shadcn + tokens Pipeline (src/app/globals.css).
+   Clair par défaut ; sombre via prefers-color-scheme (sauf data-theme="light")
+   ou data-theme="dark". Bloc identique dans design/maquette.html.
+   ===================================================================== */
+:root {
+  color-scheme: light;
+  /* Surfaces */
+  --background: oklch(0.975 0.01 85);
+  --surface: oklch(0.955 0.013 82);
+  --card: oklch(0.995 0.004 85);
+  --popover: oklch(0.995 0.004 85);
+  --muted: oklch(0.94 0.014 80);
+  --accent: oklch(0.945 0.018 76);
+  /* Texte */
+  --foreground: oklch(0.25 0.022 50);
+  --muted-foreground: oklch(0.52 0.025 60);
+  --subtle-foreground: oklch(0.64 0.022 65);
+  /* Traits */
+  --border: oklch(0.9 0.016 78);
+  --border-strong: oklch(0.84 0.02 72);
+  --input: oklch(0.84 0.02 72);
+  /* Accent terracotta */
+  --primary: oklch(0.58 0.15 40);
+  --primary-hover: oklch(0.53 0.15 40);
+  --primary-foreground: oklch(0.985 0.01 85);
+  --primary-soft: oklch(0.58 0.15 40 / 0.1);
+  --secondary: oklch(0.93 0.025 72);
+  --secondary-foreground: oklch(0.32 0.04 50);
+  --ring: oklch(0.58 0.15 40);
+  --ring-halo: oklch(0.58 0.15 40 / 0.28);
+  /* Sémantique */
+  --destructive: oklch(0.55 0.19 27);
+  --destructive-foreground: oklch(0.985 0.01 85);
+  --success: oklch(0.52 0.11 150);
+  /* Urgence des relances */
+  --overdue: oklch(0.55 0.19 27);
+  --today: oklch(0.63 0.15 58);
+  --today-foreground: oklch(0.48 0.13 52);
+  --upcoming: oklch(0.52 0.08 235);
+  /* Étapes */
+  --stage-new: oklch(0.55 0.03 60);
+  --stage-contacted: oklch(0.52 0.09 235);
+  --stage-meeting: oklch(0.6 0.13 70);
+  --stage-won: oklch(0.52 0.11 150);
+  --stage-lost: oklch(0.55 0.15 25);
+  /* Forme */
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-lg: calc(var(--radius) * 1.4);
+  --radius-full: 999px;
+  /* Élévation (ombres douces, plus d'ombre décalée) */
+  --shadow-xs: 0 1px 2px oklch(0.3 0.03 50 / 0.06);
+  --shadow-sm: 0 1px 3px oklch(0.3 0.03 50 / 0.08), 0 1px 2px oklch(0.3 0.03 50 / 0.04);
+  --shadow-md: 0 8px 20px -6px oklch(0.3 0.03 50 / 0.14), 0 2px 6px oklch(0.3 0.03 50 / 0.06);
+  --shadow-lg: 0 24px 48px -12px oklch(0.3 0.03 50 / 0.28);
+  --overlay: oklch(0.22 0.02 55 / 0.32);
+  /* Espacements (base 4 px) */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+  /* Typographie */
+  --font-heading: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-xs: 12px; --text-sm: 13px; --text-base: 14px; --text-md: 15px; --text-lg: 18px; --text-xl: 22px; --text-2xl: 28px; --text-3xl: 34px;
+  /* Mouvement */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration: 160ms;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --background: oklch(0.19 0.012 55);
+    --surface: oklch(0.215 0.013 55);
+    --card: oklch(0.235 0.014 55);
+    --popover: oklch(0.25 0.015 55);
+    --muted: oklch(0.27 0.015 55);
+    --accent: oklch(0.28 0.018 55);
+    --foreground: oklch(0.94 0.015 85);
+    --muted-foreground: oklch(0.72 0.025 70);
+    --subtle-foreground: oklch(0.6 0.022 65);
+    --border: oklch(0.3 0.016 58);
+    --border-strong: oklch(0.37 0.02 60);
+    --input: oklch(0.38 0.02 60);
+    --primary: oklch(0.7 0.14 45);
+    --primary-hover: oklch(0.75 0.13 47);
     --primary-foreground: oklch(0.18 0.02 50);
-    --primary-border: oklch(0.76 0.11 45);
-    --secondary: oklch(0.31 0.025 60);
+    --primary-soft: oklch(0.7 0.14 45 / 0.14);
+    --secondary: oklch(0.3 0.022 58);
     --secondary-foreground: oklch(0.9 0.02 85);
-    --destructive: oklch(0.65 0.17 25);
+    --ring: oklch(0.72 0.13 45);
+    --ring-halo: oklch(0.7 0.14 45 / 0.32);
+    --destructive: oklch(0.68 0.17 27);
     --destructive-foreground: oklch(0.16 0.02 25);
-    --ring: oklch(0.72 0.13 42);
-    --ring-halo: oklch(0.68 0.14 42 / 0.35);
-    --stage-new: oklch(0.72 0.03 70);
-    --stage-contacted: oklch(0.74 0.08 230);
+    --success: oklch(0.74 0.11 150);
+    --overdue: oklch(0.7 0.16 27);
+    --today: oklch(0.76 0.13 65);
+    --today-foreground: oklch(0.82 0.11 70);
+    --upcoming: oklch(0.74 0.08 235);
+    --stage-new: oklch(0.74 0.03 70);
+    --stage-contacted: oklch(0.75 0.09 235);
     --stage-meeting: oklch(0.8 0.12 80);
-    --stage-won: oklch(0.74 0.1 145);
-    --stage-lost: oklch(0.7 0.15 25);
-    --today: oklch(0.68 0.14 42);
-    --today-foreground: oklch(0.8 0.11 48);
-    --card-shadow: 3px 3px 0 oklch(0.14 0.015 55);
+    --stage-won: oklch(0.75 0.11 150);
+    --stage-lost: oklch(0.72 0.14 25);
+    --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.3);
+    --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.35), 0 1px 2px oklch(0 0 0 / 0.2);
+    --shadow-md: 0 8px 20px -6px oklch(0 0 0 / 0.5), 0 2px 6px oklch(0 0 0 / 0.25);
+    --shadow-lg: 0 24px 48px -12px oklch(0 0 0 / 0.65);
+    --overlay: oklch(0.08 0.01 55 / 0.6);
   }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: oklch(0.19 0.012 55);
+  --surface: oklch(0.215 0.013 55);
+  --card: oklch(0.235 0.014 55);
+  --popover: oklch(0.25 0.015 55);
+  --muted: oklch(0.27 0.015 55);
+  --accent: oklch(0.28 0.018 55);
+  --foreground: oklch(0.94 0.015 85);
+  --muted-foreground: oklch(0.72 0.025 70);
+  --subtle-foreground: oklch(0.6 0.022 65);
+  --border: oklch(0.3 0.016 58);
+  --border-strong: oklch(0.37 0.02 60);
+  --input: oklch(0.38 0.02 60);
+  --primary: oklch(0.7 0.14 45);
+  --primary-hover: oklch(0.75 0.13 47);
+  --primary-foreground: oklch(0.18 0.02 50);
+  --primary-soft: oklch(0.7 0.14 45 / 0.14);
+  --secondary: oklch(0.3 0.022 58);
+  --secondary-foreground: oklch(0.9 0.02 85);
+  --ring: oklch(0.72 0.13 45);
+  --ring-halo: oklch(0.7 0.14 45 / 0.32);
+  --destructive: oklch(0.68 0.17 27);
+  --destructive-foreground: oklch(0.16 0.02 25);
+  --success: oklch(0.74 0.11 150);
+  --overdue: oklch(0.7 0.16 27);
+  --today: oklch(0.76 0.13 65);
+  --today-foreground: oklch(0.82 0.11 70);
+  --upcoming: oklch(0.74 0.08 235);
+  --stage-new: oklch(0.74 0.03 70);
+  --stage-contacted: oklch(0.75 0.09 235);
+  --stage-meeting: oklch(0.8 0.12 80);
+  --stage-won: oklch(0.75 0.11 150);
+  --stage-lost: oklch(0.72 0.14 25);
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.35), 0 1px 2px oklch(0 0 0 / 0.2);
+  --shadow-md: 0 8px 20px -6px oklch(0 0 0 / 0.5), 0 2px 6px oklch(0 0 0 / 0.25);
+  --shadow-lg: 0 24px 48px -12px oklch(0 0 0 / 0.65);
+  --overlay: oklch(0.08 0.01 55 / 0.6);
+}
 
-  /* ---------- Composants (partagés, pilotés par les tokens) ---------- */
-  .ds {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-body);
-    border-radius: 14px;
-    padding: 24px;
-    min-width: 0;
-  }
-  .ds h2, .ds h3, .ds .h { font-family: var(--font-heading); font-weight: var(--h-weight); letter-spacing: var(--h-tracking); }
-  .ds .label {
-    font-family: var(--font-mono);
-    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--muted-foreground); margin: 28px 0 10px;
-  }
-  .ds .name { margin: 0; font-size: 28px; line-height: 1.15; }
-  .ds .pitch { margin: 6px 0 0; color: var(--muted-foreground); }
+/* =====================================================================
+   COMPOSANTS (pilotés uniquement par les tokens)
+   ===================================================================== */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--background); color: var(--foreground);
+  font: var(--text-base)/1.5 var(--font-sans); -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .heading { font-family: var(--font-heading); font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: 0.92em; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 
-  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .sw { min-width: 0; }
-  .sw i { display: block; height: 44px; border-radius: calc(var(--radius) * 0.75); border: 1px solid var(--border); }
-  .sw b { display: block; font-size: 11px; font-weight: 500; margin-top: 4px; }
-  .sw code { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Boutons */
+.btn {
+  --h: 36px;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  height: var(--h); padding: 0 var(--space-4); border-radius: var(--radius);
+  font: 500 var(--text-base)/1 var(--font-sans); white-space: nowrap; cursor: pointer;
+  border: 1px solid transparent; background: transparent; color: var(--foreground);
+  transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease), transform var(--duration) var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); box-shadow: var(--shadow-xs); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
+.btn-secondary:hover { background: color-mix(in oklch, var(--secondary) 85%, var(--foreground)); }
+.btn-outline { background: var(--card); border-color: var(--border-strong); box-shadow: var(--shadow-xs); }
+.btn-outline:hover { background: var(--accent); }
+.btn-ghost:hover { background: var(--accent); }
+.btn-danger { background: var(--destructive); color: var(--destructive-foreground); }
+.btn-danger:hover { background: color-mix(in oklch, var(--destructive) 88%, var(--foreground)); }
+.btn-sm { --h: 30px; padding: 0 var(--space-3); font-size: var(--text-sm); border-radius: var(--radius-sm); }
+.btn-icon { width: var(--h); padding: 0; }
+.btn[disabled] { opacity: 0.5; pointer-events: none; }
+.kbd { font: 500 11px/1 var(--font-sans); padding: 3px 6px; border-radius: 5px; border: 1px solid var(--border-strong); background: var(--card); color: var(--muted-foreground); box-shadow: 0 1px 0 var(--border-strong); }
 
-  .stages { display: flex; flex-wrap: wrap; gap: 6px; }
-  .badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12px; font-weight: 500; line-height: 1;
-    padding: 5px 9px; border-radius: 999px;
-    color: var(--c);
-    background: color-mix(in oklch, var(--c) 14%, transparent);
-  }
-  .ds-b .badge { border-radius: var(--radius); border: 1px solid color-mix(in oklch, var(--c) 40%, transparent); background: transparent; }
-  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+/* Champs */
+.field { display: grid; gap: 6px; }
+.field > label { font-size: var(--text-sm); font-weight: 600; }
+.input {
+  width: 100%; height: 38px; padding: 0 var(--space-3);
+  font: var(--text-base) var(--font-sans); color: var(--foreground);
+  background: var(--card); border: 1px solid var(--input); border-radius: var(--radius);
+  transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+}
+textarea.input { height: auto; min-height: 88px; padding: var(--space-2) var(--space-3); resize: vertical; line-height: 1.5; }
+.input::placeholder { color: var(--subtle-foreground); }
+.input:focus, .input.is-focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 3px var(--ring-halo); }
+.field.has-error .input { border-color: var(--destructive); box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 18%, transparent); }
+.hint { font-size: var(--text-xs); color: var(--muted-foreground); }
+.field.has-error .hint { color: var(--destructive); }
+.input-ghost { border-color: transparent; background: transparent; box-shadow: none; padding-left: var(--space-2); }
+.input-ghost:hover { background: var(--accent); }
+.search { position: relative; }
+.search svg { position: absolute; left: 11px; top: 50%; translate: 0 -50%; width: 16px; height: 16px; color: var(--muted-foreground); }
+.search .input { padding-left: 34px; }
 
-  .type > * { margin: 0 0 8px; }
-  .type .t1 { font-size: 30px; line-height: 1.15; }
-  .type .t2 { font-size: 20px; line-height: 1.25; }
-  .type .t3 { font-size: 15px; line-height: 1.6; }
-  .type .t4 { font-size: 13px; color: var(--muted-foreground); }
-  .type .t5 { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
-  .type .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted-foreground); margin-left: 6px; letter-spacing: 0; font-weight: 400; }
+/* Pastilles d'étape et puces d'urgence */
+.pill {
+  --c: var(--stage-new);
+  display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px;
+  border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; white-space: nowrap;
+  color: color-mix(in oklch, var(--c) 82%, var(--foreground)); background: color-mix(in oklch, var(--c) 13%, transparent);
+}
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+.pill[data-stage="new"] { --c: var(--stage-new); }
+.pill[data-stage="contacted"] { --c: var(--stage-contacted); }
+.pill[data-stage="meeting"] { --c: var(--stage-meeting); }
+.pill[data-stage="won"] { --c: var(--stage-won); }
+.pill[data-stage="lost"] { --c: var(--stage-lost); }
+.chip {
+  --c: var(--muted-foreground);
+  display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px;
+  border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 600; white-space: nowrap;
+  color: var(--c); background: color-mix(in oklch, var(--c) 11%, transparent);
+}
+.chip svg { width: 13px; height: 13px; }
+.chip[data-urgency="overdue"] { --c: var(--overdue); }
+.chip[data-urgency="today"] { --c: var(--today-foreground); }
+.chip[data-urgency="soon"] { --c: var(--upcoming); }
+.chip[data-urgency="later"] { --c: var(--muted-foreground); }
+.count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--radius-full); font-size: 11px; font-weight: 700; background: var(--muted); color: var(--muted-foreground); }
+.count.is-alert { background: var(--overdue); color: var(--destructive-foreground); }
 
-  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .btn {
-    font: inherit; font-size: 14px; font-weight: 500;
-    height: 36px; padding: 0 14px;
-    border-radius: var(--radius);
-    border: 1px solid transparent;
-    cursor: pointer; box-shadow: var(--btn-shadow);
-    display: inline-flex; align-items: center; gap: 6px;
-  }
-  .btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary-border); }
-  .btn.secondary { background: var(--secondary); color: var(--secondary-foreground); }
-  .btn.outline { background: var(--card); color: var(--foreground); border-color: var(--input); }
-  .btn.ghost { background: transparent; color: var(--foreground); box-shadow: none; }
-  .btn.destructive { background: var(--destructive); color: var(--destructive-foreground); }
-  .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
-  .btn.sm { height: 30px; padding: 0 10px; font-size: 13px; }
+/* Avatar à initiales, teinté par l'étape */
+.avatar {
+  --c: var(--stage-new); --size: 34px;
+  flex: none; width: var(--size); height: var(--size); border-radius: 50%;
+  display: grid; place-items: center; font: 600 calc(var(--size) * 0.38)/1 var(--font-sans); letter-spacing: 0.02em;
+  color: color-mix(in oklch, var(--c) 85%, var(--foreground)); background: color-mix(in oklch, var(--c) 17%, var(--card));
+}
+.avatar[data-stage="contacted"] { --c: var(--stage-contacted); }
+.avatar[data-stage="meeting"] { --c: var(--stage-meeting); }
+.avatar[data-stage="won"] { --c: var(--stage-won); }
+.avatar[data-stage="lost"] { --c: var(--stage-lost); }
+.avatar-lg { --size: 52px; }
 
-  .fields { display: grid; gap: 14px; }
-  .field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-  .field .input {
-    width: 100%; height: 38px; padding: 0 12px;
-    font: inherit; font-size: 14px;
-    color: var(--foreground); background: var(--input-bg);
-    border: 1px solid var(--input); border-radius: var(--radius);
-    outline: none;
-  }
-  .field .input::placeholder { color: var(--muted-foreground); }
-  .field .input:focus, .field .input.focus { border-color: var(--ring); box-shadow: 0 0 0 3px var(--ring-halo); }
-  .field.error .input { border-color: var(--destructive); box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent); }
-  .field .hint { font-size: 12px; color: var(--muted-foreground); margin-top: 5px; }
-  .field.error .hint { color: var(--destructive); }
-  .field select.input { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%), linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%); background-position: calc(100% - 16px) 16px, calc(100% - 11px) 16px; background-size: 5px 5px; background-repeat: no-repeat; }
+/* Cartes */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.deal {
+  display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs);
+  transition: box-shadow var(--duration) var(--ease), border-color var(--duration) var(--ease), transform var(--duration) var(--ease);
+}
+.deal:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+.deal.is-dragging { transform: rotate(1.5deg); box-shadow: var(--shadow-lg); }
+.deal-head { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.deal-name { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.deal-sub { font-size: var(--text-sm); color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .card {
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: calc(var(--radius) * 1.5);
-    box-shadow: var(--card-shadow);
-    padding: 18px;
-  }
-  .card-head { display: flex; gap: 12px; align-items: flex-start; }
-  .avatar {
-    flex: none; width: 40px; height: 40px; border-radius: 50%;
-    display: grid; place-items: center;
-    font-family: var(--font-heading); font-weight: 600; font-size: 15px;
-    background: var(--secondary); color: var(--secondary-foreground);
-  }
-  .ds-b .avatar { border-radius: var(--radius); }
-  .card-head .who { flex: 1; min-width: 0; }
-  .card-head h3 { margin: 0; font-size: 17px; line-height: 1.3; }
-  .card-head .role { margin: 2px 0 0; font-size: 13px; color: var(--muted-foreground); }
-  .followup {
-    margin: 14px 0 0; padding: 10px 12px;
-    border-radius: var(--radius);
-    background: color-mix(in oklch, var(--today) 12%, transparent);
-    color: var(--foreground);
-    font-size: 13px; display: flex; justify-content: space-between; gap: 8px; align-items: center;
-  }
-  .followup strong { color: var(--today-foreground); font-weight: 600; }
-  .followup span { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
-  .meta-list { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 14px 0 0; font-size: 13px; }
-  .meta-list dt { color: var(--muted-foreground); }
-  .meta-list dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
-  .meta-list .mono { font-family: var(--font-mono); font-size: 12px; }
-  .card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
-  .card-actions .spacer { flex: 1; }
+/* Lignes (listes, tableau) */
+.row-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); }
+.row-item:last-child { border-bottom: 0; }
+.row-item:hover { background: var(--accent); }
+.row-main { flex: 1; min-width: 0; display: grid; }
+.row-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-sub { font-size: var(--text-sm); color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .mini { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .mini:last-child { border-bottom: 0; }
-  .mini .n { font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .mini .d { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
+/* Menu, dialogue, notification */
+.menu { min-width: 200px; padding: var(--space-1); background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); }
+.menu-item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: 7px 10px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--foreground); font: var(--text-base) var(--font-sans); text-align: left; cursor: pointer; }
+.menu-item:hover, .menu-item:focus-visible { background: var(--accent); outline: none; }
+.menu-item.is-danger { color: var(--destructive); }
+.menu-sep { height: 1px; margin: var(--space-1) 0; background: var(--border); }
+.menu-label { padding: 6px 10px 2px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--subtle-foreground); }
+.dialog { width: min(440px, 100%); padding: var(--space-6); background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+.dialog h3 { font-size: var(--text-lg); }
+.dialog p { color: var(--muted-foreground); margin: var(--space-2) 0 var(--space-5); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); }
+.toast { display: flex; align-items: center; gap: var(--space-3); padding: 10px 10px 10px var(--space-4); background: var(--foreground); color: var(--background); border-radius: var(--radius); box-shadow: var(--shadow-lg); font-size: var(--text-sm); }
+.toast .btn { color: var(--background); }
+.toast .btn:hover { background: color-mix(in oklch, var(--background) 16%, transparent); }
+.toast-action { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 
-  .tokens { font-family: var(--font-mono); font-size: 11px; line-height: 1.7; color: var(--muted-foreground); background: var(--muted); border-radius: var(--radius); padding: 10px 12px; overflow-x: auto; white-space: pre; margin: 0; }
+/* Navigation */
+.nav-item { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: var(--radius); color: var(--muted-foreground); font-weight: 500; text-decoration: none; }
+.nav-item svg { width: 18px; height: 18px; }
+.nav-item:hover { background: var(--accent); color: var(--foreground); }
+.nav-item[aria-current="page"] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-xs); }
+.nav-item .count { margin-left: auto; }
+.segmented { display: inline-flex; padding: 3px; gap: 2px; background: var(--muted); border-radius: var(--radius); }
+.segmented button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted-foreground); font: 500 var(--text-sm) var(--font-sans); cursor: pointer; }
+.segmented button svg { width: 15px; height: 15px; }
+.segmented button[aria-pressed="true"] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-xs); }
+
+/* Frise d'étapes */
+.stepper { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.step { --c: var(--stage-new); display: grid; gap: 6px; padding: 0; border: 0; background: transparent; color: var(--muted-foreground); font: 600 var(--text-xs) var(--font-sans); text-align: left; cursor: pointer; }
+.step::before { content: ""; height: 6px; border-radius: var(--radius-full); background: var(--muted); transition: background var(--duration) var(--ease); }
+.step.is-done::before, .step[aria-pressed="true"]::before { background: var(--c); }
+.step[aria-pressed="true"] { color: var(--foreground); }
+.step[data-stage="contacted"] { --c: var(--stage-contacted); }
+.step[data-stage="meeting"] { --c: var(--stage-meeting); }
+.step[data-stage="won"] { --c: var(--stage-won); }
+.step[data-stage="lost"] { --c: var(--stage-lost); }
+
+/* État vide */
+.empty { display: grid; justify-items: center; gap: var(--space-2); padding: var(--space-10) var(--space-6); text-align: center; color: var(--muted-foreground); }
+.empty-art { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+.empty-art svg { width: 28px; height: 28px; }
+.empty strong { color: var(--foreground); font-family: var(--font-heading); font-size: var(--text-lg); font-weight: 600; }
+
+/* =====================================================================
+   MISE EN PAGE DE CETTE RÉFÉRENCE
+   ===================================================================== */
+.page { max-width: 1120px; margin: 0 auto; padding: var(--space-10) var(--space-4) var(--space-10); }
+.page-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: var(--space-4); margin-bottom: var(--space-8); }
+.page-head h1 { font-size: var(--text-3xl); }
+.page-head p { margin: var(--space-2) 0 0; max-width: 68ch; color: var(--muted-foreground); }
+.section { margin-top: var(--space-10); }
+.section > h2 { font-size: var(--text-xl); margin-bottom: var(--space-1); }
+.section > .lead { margin: 0 0 var(--space-5); color: var(--muted-foreground); max-width: 72ch; }
+.grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+.grid-2 { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); align-items: start; }
+.demo { padding: var(--space-5); }
+.demo-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--subtle-foreground); margin: 0 0 var(--space-3); }
+.stack { display: grid; gap: var(--space-3); }
+.inline { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+.swatch { display: grid; gap: 6px; }
+.swatch i { height: 56px; border-radius: var(--radius); border: 1px solid var(--border); }
+.swatch b { font-size: var(--text-sm); }
+.swatch code { font-size: 11px; color: var(--muted-foreground); }
+.shadow-box { height: 72px; border-radius: var(--radius); background: var(--card); display: grid; place-items: center; font-size: var(--text-sm); color: var(--muted-foreground); }
+.radius-box { height: 56px; background: var(--primary-soft); border: 1px solid var(--primary); display: grid; place-items: center; font-size: var(--text-sm); }
+.space-bar { height: 10px; background: var(--primary); border-radius: 3px; }
+table.changes { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+table.changes th, table.changes td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.changes th { color: var(--muted-foreground); font-weight: 600; }
+pre.tokens { margin: 0; padding: var(--space-4); overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font: 12px/1.7 var(--font-mono); color: var(--muted-foreground); }
+.mini-app { display: grid; grid-template-columns: 200px 1fr; min-height: 260px; overflow: hidden; }
+.mini-side { padding: var(--space-3); background: var(--surface); border-right: 1px solid var(--border); display: grid; align-content: start; gap: 2px; }
+.mini-brand { display: flex; align-items: center; gap: 8px; padding: 6px 10px 12px; font-family: var(--font-heading); font-weight: 600; font-size: var(--text-md); }
+.brand-mark { width: 22px; height: 22px; border-radius: 7px; background: var(--primary); color: var(--primary-foreground); display: grid; place-items: center; font: 700 12px/1 var(--font-sans); }
+.mini-main { padding: var(--space-4); display: grid; align-content: start; gap: var(--space-4); }
+.mini-top { display: flex; gap: var(--space-2); }
+.mini-top .search { flex: 1; }
+.drawer-demo { padding: var(--space-5); display: grid; gap: var(--space-5); }
+.drawer-head { display: flex; gap: var(--space-3); align-items: center; }
+.drawer-head .row-main .row-title { font-family: var(--font-heading); font-size: var(--text-lg); }
+@media (max-width: 640px) { .mini-app { grid-template-columns: 1fr; } .mini-side { display: none; } }
 </style>
 </head>
 <body>
-<header class="page">
-  <h1>Pipeline : design system « Papier »</h1>
-  <p>Référence visuelle du thème de l'app. Les variables portent les noms du thème shadcn (<code>--primary</code>, <code>--border</code>, <code>--radius</code>…) et reprennent les valeurs de <code>src/app/globals.css</code>, en oklch. En plus de shadcn : les cinq couleurs d'étape (<code>--stage-*</code>), <code>--today</code> / <code>--today-foreground</code>, <code>--primary-border</code>, <code>--destructive-foreground</code> et l'ombre des cartes. Dans l'app, le mode sombre suit la préférence du système.</p>
-  <div class="seg" role="group" aria-label="Mode">
-    <button data-mode="light">Clair</button>
-    <button data-mode="dark">Sombre</button>
-    <button data-mode="both">Côte à côte</button>
-  </div>
-</header>
-
-<main class="grid" id="grid"></main>
-
-<template id="tpl">
-  <section class="ds">
-    <div class="ds-top">
-      <h2 class="name" data-slot="name"></h2>
-      <button class="mode" data-slot="mode" title="Basculer clair / sombre"></button>
+<main class="page">
+  <header class="page-head">
+    <div>
+      <h1>Papier v2</h1>
+      <p>Le design system de Pipeline, modernisé. On garde l'identité « carnet de prospection » (fond papier, encre brune, accent terracotta, titres en Fraunces) et on la rend plus douce et plus lisible : coins arrondis, ombres légères, surfaces hiérarchisées, couleurs d'urgence pour les relances et un vrai mode sombre. La maquette cliquable est dans <code>design/maquette.html</code>.</p>
     </div>
-    <p class="pitch" data-slot="pitch"></p>
-
-    <div class="label">Couleurs</div>
-    <div class="swatches">
-      <div class="sw"><i style="background:var(--background)"></i><b>background</b><code data-tok="--background"></code></div>
-      <div class="sw"><i style="background:var(--card)"></i><b>card</b><code data-tok="--card"></code></div>
-      <div class="sw"><i style="background:var(--foreground)"></i><b>foreground</b><code data-tok="--foreground"></code></div>
-      <div class="sw"><i style="background:var(--muted-foreground)"></i><b>muted-fg</b><code data-tok="--muted-foreground"></code></div>
-      <div class="sw"><i style="background:var(--border)"></i><b>border</b><code data-tok="--border"></code></div>
-      <div class="sw"><i style="background:var(--primary)"></i><b>primary</b><code data-tok="--primary"></code></div>
-      <div class="sw"><i style="background:var(--secondary)"></i><b>secondary</b><code data-tok="--secondary"></code></div>
-      <div class="sw"><i style="background:var(--destructive)"></i><b>destructive</b><code data-tok="--destructive"></code></div>
+    <div class="segmented" role="group" aria-label="Thème">
+      <button type="button" data-theme-choice="light">Clair</button>
+      <button type="button" data-theme-choice="dark">Sombre</button>
+      <button type="button" data-theme-choice="system">Système</button>
     </div>
+  </header>
 
-    <div class="label">Étapes du pipeline</div>
-    <div class="stages">
-      <span class="badge" style="--c:var(--stage-new)">Nouveau</span>
-      <span class="badge" style="--c:var(--stage-contacted)">Contacté</span>
-      <span class="badge" style="--c:var(--stage-meeting)">RDV</span>
-      <span class="badge" style="--c:var(--stage-won)">Gagné</span>
-      <span class="badge" style="--c:var(--stage-lost)">Perdu</span>
+  <section class="section" aria-labelledby="s-changes">
+    <h2 id="s-changes">Ce qui change par rapport à Papier v1</h2>
+    <p class="lead">Les noms de tokens restent ceux de <code>src/app/globals.css</code> (shadcn + tokens Pipeline) ; v2 ajuste les valeurs et ajoute quelques tokens.</p>
+    <div class="card" style="overflow-x:auto">
+      <table class="changes">
+        <thead><tr><th>Sujet</th><th>v1</th><th>v2</th></tr></thead>
+        <tbody>
+          <tr><td>Coins</td><td><code>--radius: 0.25rem</code>, très carré</td><td><code>--radius: 0.625rem</code>, plus <code>--radius-sm</code> / <code>--radius-lg</code> / <code>--radius-full</code></td></tr>
+          <tr><td>Ombres</td><td>Ombre décalée franche <code>3px 3px 0</code></td><td>Élévation douce en 4 niveaux : <code>--shadow-xs</code> → <code>--shadow-lg</code></td></tr>
+          <tr><td>Surfaces</td><td>Fond, carte</td><td>Fond, <code>--surface</code> (barre latérale, panneaux), carte, <code>--accent</code> (survol)</td></tr>
+          <tr><td>Relances</td><td><code>--today</code> seul</td><td><code>--overdue</code> (en retard), <code>--today</code>, <code>--upcoming</code> (à venir)</td></tr>
+          <tr><td>Texte</td><td>2 niveaux</td><td>3 niveaux : <code>--foreground</code>, <code>--muted-foreground</code>, <code>--subtle-foreground</code></td></tr>
+          <tr><td>Mode sombre</td><td>Préférence système uniquement</td><td>Clair / Sombre / Système au choix (<code>data-theme</code> sur <code>html</code>)</td></tr>
+          <tr><td>Rythme</td><td>Libre</td><td>Échelle d'espacements base 4 px (<code>--space-*</code>) et de tailles de texte (<code>--text-*</code>)</td></tr>
+        </tbody>
+      </table>
     </div>
-
-    <div class="label">Typographie</div>
-    <div class="type">
-      <p class="t1 h">À relancer aujourd'hui<span class="meta" data-slot="f-head"></span></p>
-      <p class="t2 h">Atelier Lumen</p>
-      <p class="t3">Premier échange très positif, souhaite une démo avant la fin du mois.<span class="meta" data-slot="f-body"></span></p>
-      <p class="t4">Dernier contact il y a 6 jours</p>
-      <p class="t5">20/11/2026 · 06 12 34 56 78<span class="meta" data-slot="f-mono"></span></p>
-    </div>
-
-    <div class="label">Boutons</div>
-    <div class="row">
-      <button class="btn primary">Ajouter un contact</button>
-      <button class="btn secondary">Relancer</button>
-      <button class="btn outline">Modifier</button>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <button class="btn ghost">Annuler</button>
-      <button class="btn destructive">Supprimer</button>
-      <button class="btn primary" disabled>Désactivé</button>
-    </div>
-
-    <div class="label">Champs</div>
-    <div class="fields">
-      <div class="field">
-        <label>Nom</label>
-        <input class="input" placeholder="Camille Martin">
-      </div>
-      <div class="field">
-        <label>Entreprise <span style="color:var(--muted-foreground);font-weight:400">(focus)</span></label>
-        <input class="input focus" value="Atelier Lumen">
-      </div>
-      <div class="field error">
-        <label>E-mail</label>
-        <input class="input" value="camille@lumen">
-        <div class="hint">Adresse e-mail invalide.</div>
-      </div>
-      <div class="field">
-        <label>Étape</label>
-        <select class="input"><option>RDV</option><option>Contacté</option></select>
-      </div>
-    </div>
-
-    <div class="label">Carte de contact</div>
-    <article class="card">
-      <div class="card-head">
-        <div class="avatar">CM</div>
-        <div class="who">
-          <h3 class="h">Camille Martin</h3>
-          <p class="role">Directrice marketing · Atelier Lumen</p>
-        </div>
-        <span class="badge" style="--c:var(--stage-meeting)">RDV</span>
-      </div>
-      <div class="followup"><strong>Relance aujourd'hui</strong><span>20 nov.</span></div>
-      <dl class="meta-list">
-        <dt>E-mail</dt><dd class="mono">camille@atelier-lumen.fr</dd>
-        <dt>Téléphone</dt><dd class="mono">06 12 34 56 78</dd>
-        <dt>Dernier contact</dt><dd>14 nov. · appel découverte</dd>
-      </dl>
-      <div class="card-actions">
-        <button class="btn primary sm">Étape suivante</button>
-        <button class="btn outline sm">Noter un échange</button>
-        <span class="spacer"></span>
-        <button class="btn ghost sm">⋯</button>
-      </div>
-    </article>
-
-    <div class="card" style="margin-top:12px;padding:4px 16px">
-      <div class="mini"><span class="n">Hugo Bernard · Kestrel SAS</span><span class="badge" style="--c:var(--stage-contacted)">Contacté</span><span class="d">24 nov.</span></div>
-      <div class="mini"><span class="n">Inès Laurent · Noma Studio</span><span class="badge" style="--c:var(--stage-new)">Nouveau</span><span class="d">—</span></div>
-      <div class="mini"><span class="n">Paul Girard · Vertex</span><span class="badge" style="--c:var(--stage-won)">Gagné</span><span class="d">—</span></div>
-    </div>
-
-    <div class="label">Tokens shadcn principaux</div>
-    <pre class="tokens" data-slot="tokens"></pre>
   </section>
-</template>
+
+  <section class="section" aria-labelledby="s-colors">
+    <h2 id="s-colors">Couleurs</h2>
+    <p class="lead">Fond papier chaud, encre brune, une seule couleur d'accent (terracotta) pour l'action principale. Les couleurs vives sont réservées aux étapes et à l'urgence.</p>
+    <div class="grid" id="swatches"></div>
+  </section>
+
+  <section class="section" aria-labelledby="s-stages">
+    <h2 id="s-stages">Étapes et urgence</h2>
+    <p class="lead">Une pastille par étape (point + teinte légère). La puce d'urgence dit quand relancer : rouge si en retard, ambre aujourd'hui, bleu dans la semaine, neutre au-delà.</p>
+    <div class="grid-2">
+      <div class="card demo">
+        <p class="demo-label">Pastilles d'étape</p>
+        <div class="inline">
+          <span class="pill" data-stage="new">Nouveau</span>
+          <span class="pill" data-stage="contacted">Contacté</span>
+          <span class="pill" data-stage="meeting">RDV</span>
+          <span class="pill" data-stage="won">Gagné</span>
+          <span class="pill" data-stage="lost">Perdu</span>
+        </div>
+      </div>
+      <div class="card demo">
+        <p class="demo-label">Puces de relance</p>
+        <div class="inline">
+          <span class="chip" data-urgency="overdue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>En retard · 3 j</span>
+          <span class="chip" data-urgency="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Aujourd'hui</span>
+          <span class="chip" data-urgency="soon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>Demain</span>
+          <span class="chip" data-urgency="later"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>ven. 12 déc.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="s-type">
+    <h2 id="s-type">Typographie</h2>
+    <p class="lead">Fraunces pour les titres et les noms (le côté éditorial), Source Sans 3 pour tout le reste. Chiffres et dates en tabulaire.</p>
+    <div class="card demo stack">
+      <h1 style="font-size:var(--text-3xl)">Bonjour, 5 relances vous attendent</h1>
+      <h2 style="font-size:var(--text-xl)">Atelier Lumen</h2>
+      <p style="margin:0;font-size:var(--text-md)">Premier échange très positif, souhaite une démo avant la fin du mois.</p>
+      <p style="margin:0;color:var(--muted-foreground)">Ajoutée il y a 6 jours · 06 12 34 56 78</p>
+      <p style="margin:0;color:var(--subtle-foreground);font-size:var(--text-sm)">Texte discret : métadonnées, aides</p>
+      <p style="margin:0;font-size:var(--text-xs);color:var(--muted-foreground)">Échelle : <code>--text-xs 12</code> · <code>sm 13</code> · <code>base 14</code> · <code>md 15</code> · <code>lg 18</code> · <code>xl 22</code> · <code>2xl 28</code> · <code>3xl 34</code></p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="s-form">
+    <h2 id="s-form">Forme : rayons, ombres, espacements</h2>
+    <div class="grid">
+      <div class="card demo stack">
+        <p class="demo-label">Rayons</p>
+        <div class="radius-box" style="border-radius:var(--radius-sm)">--radius-sm</div>
+        <div class="radius-box" style="border-radius:var(--radius)">--radius</div>
+        <div class="radius-box" style="border-radius:var(--radius-lg)">--radius-lg</div>
+      </div>
+      <div class="card demo stack">
+        <p class="demo-label">Élévation</p>
+        <div class="shadow-box" style="box-shadow:var(--shadow-xs)">xs · boutons</div>
+        <div class="shadow-box" style="box-shadow:var(--shadow-sm)">sm · cartes</div>
+        <div class="shadow-box" style="box-shadow:var(--shadow-md)">md · menus, survol</div>
+        <div class="shadow-box" style="box-shadow:var(--shadow-lg)">lg · dialogues, panneau</div>
+      </div>
+      <div class="card demo stack">
+        <p class="demo-label">Espacements (base 4 px)</p>
+        <div class="inline"><div class="space-bar" style="width:var(--space-1)"></div><code>1 · 4</code></div>
+        <div class="inline"><div class="space-bar" style="width:var(--space-2)"></div><code>2 · 8</code></div>
+        <div class="inline"><div class="space-bar" style="width:var(--space-3)"></div><code>3 · 12</code></div>
+        <div class="inline"><div class="space-bar" style="width:var(--space-4)"></div><code>4 · 16</code></div>
+        <div class="inline"><div class="space-bar" style="width:var(--space-6)"></div><code>6 · 24</code></div>
+        <div class="inline"><div class="space-bar" style="width:var(--space-10)"></div><code>10 · 40</code></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="s-actions">
+    <h2 id="s-actions">Actions</h2>
+    <p class="lead">Un seul bouton principal par zone. Les actions fréquentes ont un raccourci clavier, affiché dans l'interface.</p>
+    <div class="grid-2">
+      <div class="card demo stack">
+        <p class="demo-label">Boutons</p>
+        <div class="inline">
+          <button class="btn btn-primary" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nouveau contact <span class="kbd" style="background:transparent;color:inherit;border-color:currentColor;box-shadow:none;opacity:.7">N</span></button>
+          <button class="btn btn-outline" type="button">Reporter</button>
+          <button class="btn btn-secondary" type="button">Filtrer</button>
+        </div>
+        <div class="inline">
+          <button class="btn btn-ghost" type="button">Annuler</button>
+          <button class="btn btn-danger" type="button">Supprimer</button>
+          <button class="btn btn-primary" type="button" disabled>Désactivé</button>
+        </div>
+        <div class="inline">
+          <button class="btn btn-outline btn-sm" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Fait</button>
+          <button class="btn btn-ghost btn-sm btn-icon" type="button" aria-label="Plus d'actions"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
+          <span class="kbd">⌘K</span><span class="kbd">N</span><span class="kbd">Échap</span>
+        </div>
+      </div>
+      <div class="card demo stack">
+        <p class="demo-label">Champs</p>
+        <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="input" placeholder="Rechercher un contact, une entreprise…" aria-label="Rechercher"></div>
+        <div class="field"><label for="f1">Entreprise</label><input id="f1" class="input is-focus" value="Atelier Lumen"></div>
+        <div class="field has-error"><label for="f2">E-mail</label><input id="f2" class="input" value="camille@lumen"><span class="hint">Adresse e-mail invalide.</span></div>
+        <div class="field"><label for="f3">Notes</label><textarea id="f3" class="input">Rappeler après le salon.</textarea><span class="hint">Enregistré automatiquement.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="s-patterns">
+    <h2 id="s-patterns">Motifs</h2>
+    <p class="lead">Les briques de la maquette : navigation, carte de pipeline, ligne de liste, panneau de fiche, menu, dialogue, notification avec annulation, état vide.</p>
+    <div class="grid-2">
+      <div class="card mini-app">
+        <nav class="mini-side" aria-label="Exemple de navigation">
+          <div class="mini-brand"><span class="brand-mark">P</span>Pipeline</div>
+          <a class="nav-item" aria-current="page" href="#s-patterns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Aujourd'hui<span class="count is-alert">5</span></a>
+          <a class="nav-item" href="#s-patterns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/></svg>Pipeline</a>
+          <a class="nav-item" href="#s-patterns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>Contacts</a>
+        </nav>
+        <div class="mini-main">
+          <div class="mini-top">
+            <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="input" placeholder="Rechercher…  ⌘K" aria-label="Rechercher"></div>
+            <button class="btn btn-primary" type="button">+ Nouveau</button>
+          </div>
+          <div class="deal" style="max-width:260px">
+            <div class="deal-head"><span class="avatar" data-stage="meeting">ÉD</span><div style="min-width:0"><div class="deal-name">Éloïse Durand</div><div class="deal-sub">Maison Durand</div></div></div>
+            <div class="inline"><span class="chip" data-urgency="today">Aujourd'hui</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row-item"><span class="avatar" data-stage="meeting">ML</span><div class="row-main"><span class="row-title">Marc Lefèvre</span><span class="row-sub">Lefèvre Bâtiment</span></div><span class="chip" data-urgency="overdue">En retard · 10 j</span><button class="btn btn-outline btn-sm" type="button">Fait</button></div>
+        <div class="row-item"><span class="avatar" data-stage="contacted">ZL</span><div class="row-main"><span class="row-title">Zoé Leroy</span><span class="row-sub">Durandal SA</span></div><span class="chip" data-urgency="overdue">En retard · 3 j</span><button class="btn btn-outline btn-sm" type="button">Fait</button></div>
+        <div class="row-item"><span class="avatar" data-stage="new">HB</span><div class="row-main"><span class="row-title">Hugo Bernard</span><span class="row-sub">Nouveau contact</span></div><span class="chip" data-urgency="today">Aujourd'hui</span><button class="btn btn-outline btn-sm" type="button">Fait</button></div>
+      </div>
+
+      <div class="card drawer-demo">
+        <div class="drawer-head"><span class="avatar avatar-lg" data-stage="contacted">IM</span><div class="row-main"><span class="row-title">Inès Moreau</span><span class="row-sub">Atelier Lumen</span></div><span class="hint">Enregistré</span></div>
+        <div class="stepper" role="group" aria-label="Étape">
+          <button class="step is-done" data-stage="new" type="button">Nouveau</button>
+          <button class="step" data-stage="contacted" aria-pressed="true" type="button">Contacté</button>
+          <button class="step" data-stage="meeting" type="button">RDV</button>
+          <button class="step" data-stage="won" type="button">Gagné</button>
+          <button class="step" data-stage="lost" type="button">Perdu</button>
+        </div>
+        <div class="stack">
+          <p class="demo-label" style="margin:0">Prochaine relance</p>
+          <div class="inline"><span class="chip" data-urgency="soon">Dans 2 jours · lun. 24 nov.</span></div>
+          <div class="inline">
+            <button class="btn btn-outline btn-sm" type="button">Demain</button>
+            <button class="btn btn-outline btn-sm" type="button">Dans 3 jours</button>
+            <button class="btn btn-outline btn-sm" type="button">Lundi prochain</button>
+            <button class="btn btn-ghost btn-sm" type="button">Choisir…</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="menu" role="menu" aria-label="Exemple de menu">
+          <div class="menu-label">Déplacer vers</div>
+          <button class="menu-item" role="menuitem" type="button"><span class="pill" data-stage="meeting">RDV</span></button>
+          <button class="menu-item" role="menuitem" type="button"><span class="pill" data-stage="won">Gagné</span></button>
+          <div class="menu-sep"></div>
+          <button class="menu-item is-danger" role="menuitem" type="button">Supprimer…</button>
+        </div>
+        <div class="dialog" role="dialog" aria-labelledby="dlg-t" aria-modal="false">
+          <h3 id="dlg-t">Supprimer Margaux Lambert ?</h3>
+          <p>Sa fiche et ses notes seront supprimées. Vous pourrez annuler juste après.</p>
+          <div class="dialog-actions"><button class="btn btn-ghost" type="button">Annuler</button><button class="btn btn-danger" type="button">Supprimer</button></div>
+        </div>
+        <div class="toast" role="status"><span style="flex:1">Zoé Leroy déplacée vers RDV</span><button class="btn btn-sm toast-action" type="button">Annuler</button></div>
+      </div>
+
+      <div class="card empty">
+        <div class="empty-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></div>
+        <strong>Tout est à jour</strong>
+        <span>Aucune relance en retard ni prévue aujourd'hui.</span>
+        <button class="btn btn-outline btn-sm" type="button">Voir le pipeline</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="s-tokens">
+    <h2 id="s-tokens">Tokens pour <code>globals.css</code></h2>
+    <p class="lead">Valeurs calculées du thème affiché, prêtes à reporter dans <code>src/app/globals.css</code> lors de l'implémentation.</p>
+    <pre class="tokens" id="tokens"></pre>
+  </section>
+</main>
 
 <script>
-  const systems = [
-    {
-      cls: "ds-b", name: "Papier",
-      pitch: "Chaleureux et éditorial, comme un carnet de prospection : fond crème, encre brune, accent terracotta, titres en Fraunces, angles vifs, ombres franches. En sombre : fond brun encre, terracotta éclairci.",
-      fonts: ["Fraunces 600", "Source Sans 3", "Source Sans 3"],
-    },
+  const COLORS = [
+    ["--background", "Fond"], ["--surface", "Surface"], ["--card", "Carte"], ["--accent", "Survol"],
+    ["--foreground", "Encre"], ["--muted-foreground", "Texte discret"], ["--border", "Trait"], ["--primary", "Accent"],
+    ["--secondary", "Secondaire"], ["--destructive", "Danger"], ["--overdue", "En retard"], ["--today", "Aujourd'hui"],
+    ["--upcoming", "À venir"], ["--success", "Succès"],
   ];
-  const keys = ["--background", "--foreground", "--card", "--primary", "--primary-foreground", "--secondary", "--muted-foreground", "--border", "--input", "--destructive", "--radius"];
-  const grid = document.getElementById("grid");
-  const tpl = document.getElementById("tpl");
+  const TOKENS = ["--background", "--surface", "--card", "--foreground", "--muted-foreground", "--border", "--input",
+    "--primary", "--primary-foreground", "--secondary", "--accent", "--destructive", "--ring", "--overdue", "--today",
+    "--today-foreground", "--upcoming", "--stage-new", "--stage-contacted", "--stage-meeting", "--stage-won", "--stage-lost",
+    "--radius", "--shadow-sm", "--shadow-md"];
 
-  function fill(node) {
-    const cs = getComputedStyle(node);
-    node.querySelectorAll("[data-tok]").forEach(el => el.textContent = cs.getPropertyValue(el.dataset.tok).trim());
-    node.querySelector('[data-slot="tokens"]').textContent =
-      (node.classList.contains("dark") ? ".dark {\n" : ":root {\n") +
-      keys.map(k => `  ${k}: ${cs.getPropertyValue(k).trim()};`).join("\n") + "\n}";
-    node.querySelector('[data-slot="mode"]').textContent = node.classList.contains("dark") ? "☾ sombre" : "☀ clair";
+  const swatches = document.getElementById("swatches");
+  swatches.innerHTML = COLORS.map(([token, label]) =>
+    `<div class="swatch"><i style="background:var(${token})"></i><b>${label}</b><code data-tok="${token}"></code></div>`).join("");
+
+  function refresh() {
+    const cs = getComputedStyle(document.documentElement);
+    document.querySelectorAll("[data-tok]").forEach((el) => (el.textContent = cs.getPropertyValue(el.dataset.tok).trim()));
+    const dark = cs.getPropertyValue("color-scheme").trim() === "dark";
+    document.getElementById("tokens").textContent =
+      (dark ? ".dark / [data-theme=\"dark\"] {\n" : ":root {\n") +
+      TOKENS.map((t) => `  ${t}: ${cs.getPropertyValue(t).trim()};`).join("\n") + "\n}";
   }
 
-  function panel(s, dark) {
-    const node = tpl.content.firstElementChild.cloneNode(true);
-    node.classList.add(s.cls);
-    node.classList.toggle("dark", dark);
-    node.querySelector('[data-slot="name"]').textContent = s.name;
-    node.querySelector('[data-slot="pitch"]').textContent = s.pitch;
-    node.querySelector('[data-slot="f-head"]').textContent = s.fonts[0];
-    node.querySelector('[data-slot="f-body"]').textContent = s.fonts[1];
-    node.querySelector('[data-slot="f-mono"]').textContent = s.fonts[2];
-    node.querySelector('[data-slot="mode"]').addEventListener("click", () => { node.classList.toggle("dark"); fill(node); });
-    grid.appendChild(node);
-    fill(node);
+  function applyTheme(choice) {
+    if (choice === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", choice);
+    document.querySelectorAll("[data-theme-choice]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeChoice === choice)));
+    try { localStorage.setItem("pipeline-theme", choice); } catch {}
+    refresh();
   }
 
-  function render(mode) {
-    grid.replaceChildren();
-    grid.classList.toggle("both", mode === "both");
-    for (const s of systems) {
-      if (mode === "both") { panel(s, false); panel(s, true); }
-      else panel(s, mode === "dark");
-    }
-    document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
-    try { localStorage.setItem("pipeline-ds-mode-v2", mode); } catch {}
-  }
-
-  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => render(b.dataset.mode)));
-  let initial = "light";
-  try { initial = localStorage.getItem("pipeline-ds-mode-v2") || initial; } catch {}
-  render(initial);
+  document.querySelectorAll("[data-theme-choice]").forEach((b) => b.addEventListener("click", () => applyTheme(b.dataset.themeChoice)));
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", refresh);
+  let initial = "system";
+  try { initial = localStorage.getItem("pipeline-theme") || initial; } catch {}
+  applyTheme(initial);
 </script>
 </body>
 </html>

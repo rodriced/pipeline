@@ -1,0 +1,1584 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pipeline · Maquette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== TOKENS · Papier v2 (bloc identique à design-system.html) ===== */
+:root {
+  color-scheme: light;
+  /* Surfaces */
+  --background: oklch(0.975 0.01 85);
+  --surface: oklch(0.955 0.013 82);
+  --card: oklch(0.995 0.004 85);
+  --popover: oklch(0.995 0.004 85);
+  --muted: oklch(0.94 0.014 80);
+  --accent: oklch(0.945 0.018 76);
+  /* Texte */
+  --foreground: oklch(0.25 0.022 50);
+  --muted-foreground: oklch(0.52 0.025 60);
+  --subtle-foreground: oklch(0.64 0.022 65);
+  /* Traits */
+  --border: oklch(0.9 0.016 78);
+  --border-strong: oklch(0.84 0.02 72);
+  --input: oklch(0.84 0.02 72);
+  /* Accent terracotta */
+  --primary: oklch(0.58 0.15 40);
+  --primary-hover: oklch(0.53 0.15 40);
+  --primary-foreground: oklch(0.985 0.01 85);
+  --primary-soft: oklch(0.58 0.15 40 / 0.1);
+  --secondary: oklch(0.93 0.025 72);
+  --secondary-foreground: oklch(0.32 0.04 50);
+  --ring: oklch(0.58 0.15 40);
+  --ring-halo: oklch(0.58 0.15 40 / 0.28);
+  /* Sémantique */
+  --destructive: oklch(0.55 0.19 27);
+  --destructive-foreground: oklch(0.985 0.01 85);
+  --success: oklch(0.52 0.11 150);
+  /* Urgence des relances */
+  --overdue: oklch(0.55 0.19 27);
+  --today: oklch(0.63 0.15 58);
+  --today-foreground: oklch(0.48 0.13 52);
+  --upcoming: oklch(0.52 0.08 235);
+  /* Étapes */
+  --stage-new: oklch(0.55 0.03 60);
+  --stage-contacted: oklch(0.52 0.09 235);
+  --stage-meeting: oklch(0.6 0.13 70);
+  --stage-won: oklch(0.52 0.11 150);
+  --stage-lost: oklch(0.55 0.15 25);
+  /* Forme */
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-lg: calc(var(--radius) * 1.4);
+  --radius-full: 999px;
+  /* Élévation (ombres douces, plus d'ombre décalée) */
+  --shadow-xs: 0 1px 2px oklch(0.3 0.03 50 / 0.06);
+  --shadow-sm: 0 1px 3px oklch(0.3 0.03 50 / 0.08), 0 1px 2px oklch(0.3 0.03 50 / 0.04);
+  --shadow-md: 0 8px 20px -6px oklch(0.3 0.03 50 / 0.14), 0 2px 6px oklch(0.3 0.03 50 / 0.06);
+  --shadow-lg: 0 24px 48px -12px oklch(0.3 0.03 50 / 0.28);
+  --overlay: oklch(0.22 0.02 55 / 0.32);
+  /* Espacements (base 4 px) */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+  /* Typographie */
+  --font-heading: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-xs: 12px; --text-sm: 13px; --text-base: 14px; --text-md: 15px; --text-lg: 18px; --text-xl: 22px; --text-2xl: 28px; --text-3xl: 34px;
+  /* Mouvement */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration: 160ms;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --background: oklch(0.19 0.012 55);
+    --surface: oklch(0.215 0.013 55);
+    --card: oklch(0.235 0.014 55);
+    --popover: oklch(0.25 0.015 55);
+    --muted: oklch(0.27 0.015 55);
+    --accent: oklch(0.28 0.018 55);
+    --foreground: oklch(0.94 0.015 85);
+    --muted-foreground: oklch(0.72 0.025 70);
+    --subtle-foreground: oklch(0.6 0.022 65);
+    --border: oklch(0.3 0.016 58);
+    --border-strong: oklch(0.37 0.02 60);
+    --input: oklch(0.38 0.02 60);
+    --primary: oklch(0.7 0.14 45);
+    --primary-hover: oklch(0.75 0.13 47);
+    --primary-foreground: oklch(0.18 0.02 50);
+    --primary-soft: oklch(0.7 0.14 45 / 0.14);
+    --secondary: oklch(0.3 0.022 58);
+    --secondary-foreground: oklch(0.9 0.02 85);
+    --ring: oklch(0.72 0.13 45);
+    --ring-halo: oklch(0.7 0.14 45 / 0.32);
+    --destructive: oklch(0.68 0.17 27);
+    --destructive-foreground: oklch(0.16 0.02 25);
+    --success: oklch(0.74 0.11 150);
+    --overdue: oklch(0.7 0.16 27);
+    --today: oklch(0.76 0.13 65);
+    --today-foreground: oklch(0.82 0.11 70);
+    --upcoming: oklch(0.74 0.08 235);
+    --stage-new: oklch(0.74 0.03 70);
+    --stage-contacted: oklch(0.75 0.09 235);
+    --stage-meeting: oklch(0.8 0.12 80);
+    --stage-won: oklch(0.75 0.11 150);
+    --stage-lost: oklch(0.72 0.14 25);
+    --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.3);
+    --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.35), 0 1px 2px oklch(0 0 0 / 0.2);
+    --shadow-md: 0 8px 20px -6px oklch(0 0 0 / 0.5), 0 2px 6px oklch(0 0 0 / 0.25);
+    --shadow-lg: 0 24px 48px -12px oklch(0 0 0 / 0.65);
+    --overlay: oklch(0.08 0.01 55 / 0.6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: oklch(0.19 0.012 55);
+  --surface: oklch(0.215 0.013 55);
+  --card: oklch(0.235 0.014 55);
+  --popover: oklch(0.25 0.015 55);
+  --muted: oklch(0.27 0.015 55);
+  --accent: oklch(0.28 0.018 55);
+  --foreground: oklch(0.94 0.015 85);
+  --muted-foreground: oklch(0.72 0.025 70);
+  --subtle-foreground: oklch(0.6 0.022 65);
+  --border: oklch(0.3 0.016 58);
+  --border-strong: oklch(0.37 0.02 60);
+  --input: oklch(0.38 0.02 60);
+  --primary: oklch(0.7 0.14 45);
+  --primary-hover: oklch(0.75 0.13 47);
+  --primary-foreground: oklch(0.18 0.02 50);
+  --primary-soft: oklch(0.7 0.14 45 / 0.14);
+  --secondary: oklch(0.3 0.022 58);
+  --secondary-foreground: oklch(0.9 0.02 85);
+  --ring: oklch(0.72 0.13 45);
+  --ring-halo: oklch(0.7 0.14 45 / 0.32);
+  --destructive: oklch(0.68 0.17 27);
+  --destructive-foreground: oklch(0.16 0.02 25);
+  --success: oklch(0.74 0.11 150);
+  --overdue: oklch(0.7 0.16 27);
+  --today: oklch(0.76 0.13 65);
+  --today-foreground: oklch(0.82 0.11 70);
+  --upcoming: oklch(0.74 0.08 235);
+  --stage-new: oklch(0.74 0.03 70);
+  --stage-contacted: oklch(0.75 0.09 235);
+  --stage-meeting: oklch(0.8 0.12 80);
+  --stage-won: oklch(0.75 0.11 150);
+  --stage-lost: oklch(0.72 0.14 25);
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.35), 0 1px 2px oklch(0 0 0 / 0.2);
+  --shadow-md: 0 8px 20px -6px oklch(0 0 0 / 0.5), 0 2px 6px oklch(0 0 0 / 0.25);
+  --shadow-lg: 0 24px 48px -12px oklch(0 0 0 / 0.65);
+  --overlay: oklch(0.08 0.01 55 / 0.6);
+}
+
+/* ===== Base ===== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--background); color: var(--foreground);
+  font: var(--text-base)/1.5 var(--font-sans); -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+h1, h2, h3 { font-family: var(--font-heading); font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+svg.i { width: 18px; height: 18px; flex: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+[hidden] { display: none !important; }
+
+/* ===== Composants (Papier v2) ===== */
+.btn {
+  --h: 36px; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  height: var(--h); padding: 0 var(--space-4); border-radius: var(--radius); border: 1px solid transparent;
+  background: transparent; color: var(--foreground); font-weight: 500; white-space: nowrap; cursor: pointer;
+  transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease), transform var(--duration) var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn svg.i { width: 16px; height: 16px; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); box-shadow: var(--shadow-xs); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-secondary { background: var(--secondary); color: var(--secondary-foreground); }
+.btn-outline { background: var(--card); border-color: var(--border-strong); box-shadow: var(--shadow-xs); }
+.btn-outline:hover, .btn-ghost:hover, .btn-secondary:hover { background: var(--accent); }
+.btn-danger { background: var(--destructive); color: var(--destructive-foreground); }
+.btn-danger-ghost { color: var(--destructive); }
+.btn-danger-ghost:hover { background: color-mix(in oklch, var(--destructive) 10%, transparent); }
+.btn-sm { --h: 30px; padding: 0 var(--space-3); font-size: var(--text-sm); border-radius: var(--radius-sm); }
+.btn-icon { width: var(--h); padding: 0; }
+.btn[disabled] { opacity: 0.45; pointer-events: none; }
+.kbd { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: 5px; border: 1px solid var(--border-strong); background: var(--card); color: var(--muted-foreground); font: 600 11px/1 var(--font-sans); box-shadow: 0 1px 0 var(--border-strong); }
+.btn-primary .kbd { background: transparent; color: inherit; border-color: color-mix(in oklch, currentColor 45%, transparent); box-shadow: none; }
+
+.input {
+  width: 100%; height: 38px; padding: 0 var(--space-3); background: var(--card);
+  border: 1px solid var(--input); border-radius: var(--radius); color: var(--foreground);
+  transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease), background var(--duration) var(--ease);
+}
+textarea.input { height: auto; min-height: 110px; padding: var(--space-2) var(--space-3); resize: vertical; line-height: 1.5; }
+.input::placeholder { color: var(--subtle-foreground); }
+.input:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 3px var(--ring-halo); }
+.input[aria-invalid="true"] { border-color: var(--destructive); box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 18%, transparent); }
+.input-ghost { border-color: transparent; background: transparent; padding-left: var(--space-2); }
+.input-ghost:hover { background: var(--accent); }
+.input-ghost:focus { background: var(--card); }
+.field { display: grid; gap: 6px; }
+.field > label, .label { font-size: var(--text-sm); font-weight: 600; }
+.hint { font-size: var(--text-xs); color: var(--muted-foreground); }
+.error { font-size: var(--text-xs); color: var(--destructive); font-weight: 500; }
+.search { position: relative; }
+.search svg.i { position: absolute; left: 11px; top: 50%; translate: 0 -50%; width: 16px; height: 16px; color: var(--muted-foreground); pointer-events: none; }
+.search .input { padding-left: 34px; }
+
+.pill { --c: var(--stage-new); display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; color: color-mix(in oklch, var(--c) 82%, var(--foreground)); background: color-mix(in oklch, var(--c) 13%, transparent); }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+[data-stage="contacted"] { --c: var(--stage-contacted); }
+[data-stage="meeting"] { --c: var(--stage-meeting); }
+[data-stage="won"] { --c: var(--stage-won); }
+[data-stage="lost"] { --c: var(--stage-lost); }
+.chip { --c: var(--muted-foreground); display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in oklch, var(--c) 11%, transparent); }
+.chip svg.i { width: 13px; height: 13px; }
+.chip[data-urgency="overdue"] { --c: var(--overdue); }
+.chip[data-urgency="today"] { --c: var(--today-foreground); }
+.chip[data-urgency="soon"] { --c: var(--upcoming); }
+.chip-muted { --c: var(--subtle-foreground); background: transparent; padding-left: 0; font-weight: 500; }
+.count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--radius-full); font-size: 11px; font-weight: 700; background: var(--muted); color: var(--muted-foreground); }
+.count.is-alert { background: var(--overdue); color: var(--destructive-foreground); }
+.avatar { --c: var(--stage-new); --size: 34px; flex: none; width: var(--size); height: var(--size); border-radius: 50%; display: grid; place-items: center; font: 600 calc(var(--size) * 0.36)/1 var(--font-sans); letter-spacing: 0.02em; color: color-mix(in oklch, var(--c) 85%, var(--foreground)); background: color-mix(in oklch, var(--c) 17%, var(--card)); }
+.avatar-sm { --size: 28px; }
+.avatar-lg { --size: 52px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+
+/* ===== Coquille ===== */
+.app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100%; }
+.sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-4) var(--space-3); background: var(--surface); border-right: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 10px; padding: var(--space-1) var(--space-2) var(--space-5); font: 600 var(--text-lg)/1 var(--font-heading); }
+.brand-mark { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: var(--primary); color: var(--primary-foreground); font: 700 14px/1 var(--font-sans); box-shadow: var(--shadow-xs); }
+.nav-item { display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 10px; border-radius: var(--radius); color: var(--muted-foreground); font-weight: 500; text-decoration: none; }
+.nav-item:hover { background: var(--accent); color: var(--foreground); }
+.nav-item[aria-current="page"] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-xs); }
+.nav-item .count { margin-left: auto; }
+.nav-item .kbd { margin-left: auto; opacity: 0; transition: opacity var(--duration); }
+.nav-item:hover .kbd { opacity: 1; }
+.nav-item .count + .kbd { display: none; }
+.sidebar-section { margin-top: auto; display: grid; gap: var(--space-3); padding: var(--space-3) var(--space-2) 0; border-top: 1px solid var(--border); }
+.sidebar-link { display: flex; align-items: center; gap: 8px; padding: 0; border: 0; background: none; color: var(--muted-foreground); font-size: var(--text-sm); cursor: pointer; text-align: left; }
+.sidebar-link:hover { color: var(--foreground); }
+.sidebar-link svg.i { width: 15px; height: 15px; }
+.segmented { display: inline-flex; padding: 3px; gap: 2px; background: var(--muted); border-radius: var(--radius); }
+.segmented button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 28px; padding: 0 8px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted-foreground); font-size: var(--text-sm); font-weight: 500; cursor: pointer; }
+.segmented button svg.i { width: 15px; height: 15px; }
+.segmented button[aria-pressed="true"] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-xs); }
+
+.main-wrap { min-width: 0; display: flex; flex-direction: column; transition: margin-right 220ms var(--ease); }
+.topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: var(--space-3); height: 60px; padding: 0 var(--space-6); background: color-mix(in oklch, var(--background) 86%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.topbar .brand { display: none; padding: 0; }
+.search-trigger { flex: 1; max-width: 460px; display: flex; align-items: center; gap: var(--space-2); height: 38px; padding: 0 var(--space-2) 0 var(--space-3); border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--subtle-foreground); cursor: pointer; box-shadow: var(--shadow-xs); text-align: left; }
+.search-trigger:hover { border-color: var(--border-strong); }
+.search-trigger span:first-of-type { flex: 1; }
+.topbar-spacer { flex: 1; }
+.view { flex: 1; width: 100%; max-width: 1240px; margin: 0 auto; padding: var(--space-8) var(--space-6) var(--space-10); }
+.view:focus { outline: none; }
+.view-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); }
+.view-head h1 { font-size: var(--text-2xl); }
+.view-head p { margin: 6px 0 0; color: var(--muted-foreground); }
+.eyebrow { margin: 0 0 6px; font-size: var(--text-sm); font-weight: 600; color: var(--primary); text-transform: capitalize; }
+.bottom-nav { display: none; }
+
+/* ===== Aujourd'hui ===== */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+.kpi { padding: var(--space-4) var(--space-5); display: grid; gap: 2px; text-align: left; border: 1px solid var(--border); cursor: default; }
+button.kpi { cursor: pointer; transition: box-shadow var(--duration) var(--ease), border-color var(--duration) var(--ease); }
+button.kpi:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+.kpi-label { display: flex; align-items: center; gap: 6px; font-size: var(--text-sm); font-weight: 600; color: var(--muted-foreground); }
+.kpi-label svg.i { width: 15px; height: 15px; }
+.kpi-value { font: 600 var(--text-3xl)/1.15 var(--font-heading); }
+.kpi-sub { font-size: var(--text-xs); color: var(--muted-foreground); }
+.kpi[data-tone="overdue"] .kpi-value { color: var(--overdue); }
+.kpi[data-tone="today"] .kpi-value { color: var(--today-foreground); }
+.today-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--space-6); align-items: start; }
+.task-section + .task-section { margin-top: var(--space-6); }
+.section-title { display: flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); font: 600 var(--text-md)/1.2 var(--font-sans); }
+.section-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--muted-foreground)); }
+.list { list-style: none; margin: 0; padding: 0; overflow: hidden; }
+.row-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); cursor: pointer; transition: background var(--duration) var(--ease); }
+.row-item:last-child { border-bottom: 0; }
+.row-item:hover { background: var(--accent); }
+.row-item.is-selected { background: var(--primary-soft); }
+.row-main { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.row-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-sub { display: flex; align-items: center; gap: var(--space-2); min-width: 0; font-size: var(--text-sm); color: var(--muted-foreground); }
+.row-sub .company { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-actions { display: flex; gap: var(--space-1); }
+.side-card { padding: var(--space-5); }
+.side-card + .side-card { margin-top: var(--space-4); }
+.side-card h2 { font-size: var(--text-md); font-family: var(--font-sans); font-weight: 700; margin-bottom: 2px; }
+.side-card > p { margin: 0 0 var(--space-3); font-size: var(--text-sm); color: var(--muted-foreground); }
+.mini-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.mini-row { display: flex; align-items: center; gap: var(--space-2); padding: 6px; margin: 0 -6px; border-radius: var(--radius-sm); cursor: pointer; }
+.mini-row:hover { background: var(--accent); }
+.mini-row .row-title { font-size: var(--text-sm); flex: 1; }
+.bar { display: flex; height: 10px; border-radius: var(--radius-full); overflow: hidden; background: var(--muted); margin: var(--space-2) 0 var(--space-3); }
+.bar span { background: var(--c); }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: var(--text-sm); }
+.legend li { display: flex; align-items: center; gap: var(--space-2); }
+.legend .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.legend b { margin-left: auto; font-weight: 600; }
+
+/* ===== Pipeline ===== */
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 1fr); gap: var(--space-4); overflow-x: auto; padding-bottom: var(--space-4); align-items: start; }
+.column { display: flex; flex-direction: column; min-height: 320px; max-height: calc(100vh - 230px); background: color-mix(in oklch, var(--surface) 70%, var(--background)); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.column-head { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4); }
+.column-head .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.column-head h2 { font: 700 var(--text-base)/1 var(--font-sans); letter-spacing: 0; }
+.column-head .btn { margin-left: auto; }
+.column-body { flex: 1; display: grid; align-content: start; gap: var(--space-2); padding: var(--space-1) var(--space-3) var(--space-3); overflow-y: auto; border-radius: 0 0 var(--radius-lg) var(--radius-lg); transition: background var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
+.column-body.is-over { background: var(--primary-soft); box-shadow: inset 0 0 0 2px var(--primary); }
+.column-empty { display: grid; place-items: center; min-height: 90px; border: 1.5px dashed var(--border-strong); border-radius: var(--radius); color: var(--subtle-foreground); font-size: var(--text-sm); text-align: center; padding: var(--space-3); }
+.deal { display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); cursor: grab; transition: box-shadow var(--duration) var(--ease), border-color var(--duration) var(--ease), opacity var(--duration) var(--ease); }
+.deal:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+.deal:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.deal.is-dragging { opacity: 0.4; }
+.deal-head { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.deal-who { flex: 1; min-width: 0; display: grid; }
+.deal-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.deal-sub { font-size: var(--text-sm); color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.deal .btn-icon { opacity: 0; }
+.deal:hover .btn-icon, .deal:focus-within .btn-icon, .deal .btn-icon[aria-expanded="true"] { opacity: 1; }
+.column[data-closed] .deal { padding: var(--space-2) var(--space-3); }
+.column[data-closed] .deal-sub { display: none; }
+
+/* ===== Contacts ===== */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); }
+.toolbar .search { flex: 1; min-width: 220px; max-width: 420px; }
+.filter-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.filter-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 var(--space-3); border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--card); color: var(--muted-foreground); font-size: var(--text-sm); font-weight: 600; cursor: pointer; }
+.filter-chip:hover { border-color: var(--border-strong); color: var(--foreground); }
+.filter-chip[aria-pressed="true"] { background: var(--foreground); border-color: var(--foreground); color: var(--background); }
+.filter-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--muted-foreground)); }
+.filter-chip small { font-size: 11px; opacity: 0.75; }
+.table-card { overflow: hidden; }
+table.table { width: 100%; border-collapse: collapse; }
+.table th { position: sticky; top: 60px; z-index: 1; padding: 0; background: var(--surface); border-bottom: 1px solid var(--border); text-align: left; font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); }
+.table th button { display: inline-flex; align-items: center; gap: 4px; width: 100%; padding: 10px var(--space-4); border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+.table th button:hover { color: var(--foreground); }
+.table th svg.i { width: 13px; height: 13px; }
+.table td { padding: 10px var(--space-4); border-bottom: 1px solid var(--border); vertical-align: middle; }
+.table tbody tr { cursor: pointer; transition: background var(--duration) var(--ease); }
+.table tbody tr:hover { background: var(--accent); }
+.table tbody tr.is-selected { background: var(--primary-soft); }
+.table tbody tr:last-child td { border-bottom: 0; }
+.cell-name { display: flex; align-items: center; gap: var(--space-3); font-weight: 600; }
+.cell-muted { color: var(--muted-foreground); font-size: var(--text-sm); }
+.results-meta { margin: 0 0 var(--space-3); font-size: var(--text-sm); color: var(--muted-foreground); }
+
+/* ===== État vide ===== */
+.empty { display: grid; justify-items: center; gap: var(--space-2); padding: var(--space-10) var(--space-6); text-align: center; color: var(--muted-foreground); }
+.empty-art { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); margin-bottom: var(--space-1); }
+.empty-art svg.i { width: 28px; height: 28px; }
+.empty strong { color: var(--foreground); font: 600 var(--text-lg)/1.3 var(--font-heading); }
+
+/* ===== Fiche (panneau latéral) ===== */
+:root { --drawer-w: 460px; }
+.drawer { position: fixed; z-index: 40; top: 0; right: 0; bottom: 0; width: min(var(--drawer-w), 100vw); display: flex; flex-direction: column; background: var(--card); border-left: 1px solid var(--border); box-shadow: var(--shadow-lg); transform: translateX(100%); visibility: hidden; transition: transform 240ms var(--ease), visibility 0s linear 240ms; }
+.drawer.is-open { transform: none; visibility: visible; transition: transform 240ms var(--ease); }
+.drawer-top { display: flex; align-items: center; gap: var(--space-1); height: 60px; padding: 0 var(--space-3) 0 var(--space-5); border-bottom: 1px solid var(--border); }
+.drawer-top .saved { flex: 1; display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); color: var(--muted-foreground); }
+.drawer-top .saved svg.i { width: 14px; height: 14px; color: var(--success); }
+.drawer-body { flex: 1; overflow-y: auto; padding: var(--space-5); display: grid; align-content: start; gap: var(--space-6); }
+.drawer-ident { display: grid; grid-template-columns: auto 1fr; gap: 2px var(--space-3); align-items: center; }
+.drawer-ident .avatar { grid-row: span 2; }
+.title-input { height: 40px; font: 600 var(--text-xl)/1.2 var(--font-heading); letter-spacing: -0.015em; }
+.drawer-section { display: grid; gap: var(--space-3); }
+.drawer-section > h3 { font: 700 var(--text-xs)/1 var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--subtle-foreground); }
+.stepper { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.step { --c: var(--stage-new); display: grid; gap: 7px; padding: 4px 0; border: 0; background: transparent; color: var(--muted-foreground); font-size: var(--text-xs); font-weight: 600; text-align: left; cursor: pointer; }
+.step::before { content: ""; height: 6px; border-radius: var(--radius-full); background: var(--muted); transition: background var(--duration) var(--ease); }
+.step:hover::before { background: color-mix(in oklch, var(--c) 45%, var(--muted)); }
+.step.is-done::before, .step[aria-pressed="true"]::before { background: var(--c); }
+.step[aria-pressed="true"] { color: var(--foreground); }
+.followup-box { display: grid; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); }
+.followup-current { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.followup-current .spacer { flex: 1; }
+.quick-picks { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.quick-picks .input { width: auto; height: 30px; font-size: var(--text-sm); border-radius: var(--radius-sm); }
+.note { padding: var(--space-3) var(--space-4); border-radius: var(--radius); background: var(--muted); color: var(--muted-foreground); font-size: var(--text-sm); }
+.input-with-action { display: flex; gap: var(--space-2); }
+.drawer-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-5); border-top: 1px solid var(--border); font-size: var(--text-xs); color: var(--muted-foreground); }
+.scrim { display: none; }
+
+/* ===== Calques : menus, dialogues, palette, notifications ===== */
+.menu { position: fixed; z-index: 70; min-width: 210px; max-width: calc(100vw - 16px); padding: var(--space-1); background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); animation: pop 120ms var(--ease); }
+.menu-item { display: flex; align-items: center; gap: var(--space-2); width: 100%; min-height: 34px; padding: 6px 10px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--foreground); text-align: left; cursor: pointer; }
+.menu-item:hover, .menu-item:focus-visible { background: var(--accent); outline: none; }
+.menu-item.is-danger { color: var(--destructive); }
+.menu-item small { margin-left: auto; color: var(--subtle-foreground); }
+.menu-item svg.i { width: 16px; height: 16px; color: var(--muted-foreground); }
+.menu-sep { height: 1px; margin: var(--space-1) 0; background: var(--border); }
+.menu-label { padding: 6px 10px 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--subtle-foreground); }
+.overlay { position: fixed; inset: 0; z-index: 60; display: grid; place-items: start center; padding: 12vh var(--space-4) var(--space-4); background: var(--overlay); animation: fade 140ms var(--ease); }
+.dialog { width: min(460px, 100%); padding: var(--space-6); background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); animation: pop 160ms var(--ease); }
+.dialog h2 { font-size: var(--text-lg); }
+.dialog > p { margin: var(--space-2) 0 var(--space-5); color: var(--muted-foreground); }
+.dialog form { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+.option-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.option { position: relative; }
+.option input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.option span { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 var(--space-3); border: 1px solid var(--border-strong); border-radius: var(--radius-full); background: var(--card); font-size: var(--text-sm); font-weight: 600; color: var(--muted-foreground); }
+.option input:checked + span { background: var(--foreground); border-color: var(--foreground); color: var(--background); }
+.option input:focus-visible + span { outline: 2px solid var(--ring); outline-offset: 2px; }
+.palette { width: min(600px, 100%); overflow: hidden; background: var(--popover); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); animation: pop 160ms var(--ease); }
+.palette-input { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-4); border-bottom: 1px solid var(--border); }
+.palette-input svg.i { color: var(--muted-foreground); }
+.palette-input input { flex: 1; height: 54px; border: 0; background: transparent; font-size: var(--text-md); outline: none; }
+.palette-list { list-style: none; margin: 0; padding: var(--space-2); max-height: min(420px, 55vh); overflow-y: auto; }
+.palette-group { padding: 8px 10px 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--subtle-foreground); }
+.palette-item { display: flex; align-items: center; gap: var(--space-3); padding: 8px 10px; border-radius: var(--radius-sm); cursor: pointer; }
+.palette-item[aria-selected="true"] { background: var(--accent); }
+.palette-item .row-main { gap: 0; }
+.palette-item small { margin-left: auto; }
+.palette-empty { padding: var(--space-6); text-align: center; color: var(--muted-foreground); }
+.palette-foot { display: flex; gap: var(--space-4); padding: 8px var(--space-4); border-top: 1px solid var(--border); font-size: var(--text-xs); color: var(--muted-foreground); }
+.shortcuts { display: grid; grid-template-columns: 1fr auto; gap: 10px var(--space-6); margin: var(--space-4) 0 var(--space-2); font-size: var(--text-sm); }
+.shortcuts dd { margin: 0; display: flex; gap: 4px; justify-content: flex-end; }
+.toasts { position: fixed; z-index: 80; right: var(--space-5); bottom: var(--space-5); display: grid; gap: var(--space-2); width: min(400px, calc(100vw - 32px)); }
+.toast { display: flex; align-items: center; gap: var(--space-2); padding: 8px 8px 8px var(--space-4); background: var(--foreground); color: var(--background); border-radius: var(--radius); box-shadow: var(--shadow-lg); font-size: var(--text-sm); animation: rise 200ms var(--ease); }
+.toast > span { flex: 1; }
+.toast .btn { color: var(--background); font-weight: 700; }
+.toast .btn:hover { background: color-mix(in oklch, var(--background) 16%, transparent); }
+@keyframes pop { from { opacity: 0; transform: scale(0.97) translateY(-4px); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ===== Écrans larges : la fiche pousse le contenu au lieu de le masquer ===== */
+@media (min-width: 1280px) { body.has-drawer .main-wrap { margin-right: var(--drawer-w); } }
+@media (max-width: 1279px) { body.has-drawer .scrim { display: block; position: fixed; inset: 0; z-index: 35; background: var(--overlay); } }
+@media (max-width: 1100px) { .today-grid { grid-template-columns: 1fr; } .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ===== Téléphone ===== */
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .topbar { padding: 0 var(--space-4); }
+  .topbar .brand { display: flex; }
+  .search-trigger .kbd, .search-trigger span:first-of-type, .topbar .btn-primary span, .topbar .btn-primary .kbd { display: none; }
+  .search-trigger { flex: none; width: 38px; padding: 0; justify-content: center; }
+  .topbar .btn-primary { width: 38px; padding: 0; }
+  .view { padding: var(--space-5) var(--space-4) calc(88px + env(safe-area-inset-bottom)); }
+  .view-head h1 { font-size: var(--text-xl); }
+  .view-head .btn-primary { display: none; }
+  .kpis { gap: var(--space-3); }
+  .kpi { padding: var(--space-3) var(--space-4); }
+  .kpi-value { font-size: var(--text-2xl); }
+  .row-actions .btn-label { display: none; }
+  .board { grid-auto-columns: 84vw; scroll-snap-type: x mandatory; }
+  .column { scroll-snap-align: start; max-height: none; }
+  .deal .btn-icon { opacity: 1; }
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; }
+  .table tr { display: grid; grid-template-columns: 1fr auto; gap: 4px var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); }
+  .table td { padding: 0; border: 0; }
+  .table td[data-col="company"], .table td[data-col="created"] { grid-column: 1; }
+  .table td[data-col="created"] { display: none; }
+  .drawer { width: 100vw; border-left: 0; }
+  .bottom-nav { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px var(--space-2) calc(6px + env(safe-area-inset-bottom)); background: color-mix(in oklch, var(--surface) 92%, transparent); backdrop-filter: blur(10px); border-top: 1px solid var(--border); }
+  .bottom-nav a { position: relative; display: grid; justify-items: center; gap: 2px; padding: 6px; border-radius: var(--radius); color: var(--muted-foreground); font-size: 11px; font-weight: 600; text-decoration: none; }
+  .bottom-nav a[aria-current="page"] { color: var(--primary); }
+  .bottom-nav .count { position: absolute; top: 0; left: calc(50% + 6px); min-width: 18px; height: 18px; font-size: 10px; }
+  .toasts { left: 16px; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom)); width: auto; }
+  .overlay { padding-top: 6vh; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Barre latérale">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">P</span>Pipeline</div>
+    <nav aria-label="Navigation principale" id="side-nav"></nav>
+    <div class="sidebar-section">
+      <button class="btn btn-primary" type="button" data-action="new"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Nouveau contact<span class="kbd">N</span></button>
+      <div class="segmented" role="group" aria-label="Thème" id="theme-switch">
+        <button type="button" data-action="theme" data-value="light" aria-label="Clair" title="Clair"><svg class="i" aria-hidden="true"><use href="#i-sun"/></svg></button>
+        <button type="button" data-action="theme" data-value="dark" aria-label="Sombre" title="Sombre"><svg class="i" aria-hidden="true"><use href="#i-moon"/></svg></button>
+        <button type="button" data-action="theme" data-value="system" aria-label="Système" title="Système"><svg class="i" aria-hidden="true"><use href="#i-monitor"/></svg></button>
+      </div>
+      <button class="sidebar-link" type="button" data-action="help"><svg class="i" aria-hidden="true"><use href="#i-keyboard"/></svg>Raccourcis clavier <span class="kbd" style="margin-left:auto">?</span></button>
+      <button class="sidebar-link" type="button" data-action="reset"><svg class="i" aria-hidden="true"><use href="#i-refresh"/></svg>Réinitialiser les données</button>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">P</span>Pipeline</div>
+      <button class="search-trigger" type="button" data-action="palette" aria-label="Rechercher ou lancer une commande">
+        <svg class="i" aria-hidden="true"><use href="#i-search"/></svg><span>Rechercher un contact, une action…</span><span class="kbd" id="mod-key">⌘K</span>
+      </button>
+      <span class="topbar-spacer"></span>
+      <button class="btn btn-ghost btn-icon mobile-theme" type="button" data-action="cycle-theme" aria-label="Changer de thème" hidden><svg class="i" aria-hidden="true"><use href="#i-moon"/></svg></button>
+      <button class="btn btn-primary" type="button" data-action="new" aria-label="Nouveau contact"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg><span>Nouveau contact</span><span class="kbd">N</span></button>
+    </header>
+    <main id="view" class="view" tabindex="-1"></main>
+  </div>
+
+  <div class="scrim" data-action="close"></div>
+  <aside id="drawer" class="drawer" aria-labelledby="drawer-title" inert></aside>
+  <nav class="bottom-nav" aria-label="Navigation" id="bottom-nav"></nav>
+</div>
+<div id="layer"></div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<!-- Icônes (tracés inspirés de Lucide) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-today" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4a3 3 0 0 0 4 3M16 6h4a3 3 0 0 1-4 3M12 13v4M8 21h8M10 17h4v4h-4z"/></symbol>
+    <symbol id="i-handshake" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l4-4 3 2 4-3 7 5M3 12l5 5c1 1 2 1 3 0l1-1M21 12l-5 5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19zM12 10v4M12 17h.01"/></symbol>
+  </defs>
+</svg>
+
+<script>
+"use strict";
+/* =====================================================================
+   Pipeline · maquette cliquable (aucune dépendance)
+   Données en localStorage ; règles métier identiques à l'app :
+   nom requis, e-mail valide, pas de relance passée ni sur un contact clôturé,
+   clôture (Gagné / Perdu) → relance effacée, toute étape vers toute autre.
+   ===================================================================== */
+
+const STAGES = [
+  { id: "new", label: "Nouveau" },
+  { id: "contacted", label: "Contacté" },
+  { id: "meeting", label: "RDV" },
+  { id: "won", label: "Gagné" },
+  { id: "lost", label: "Perdu" },
+];
+const STAGE_LABEL = Object.fromEntries(STAGES.map((s) => [s.id, s.label]));
+const STAGE_IDS = STAGES.map((s) => s.id);
+const CLOSED = new Set(["won", "lost"]);
+const STORE_KEY = "pipeline-maquette-v1";
+const THEME_KEY = "pipeline-theme";
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+
+/* ---------- Dates (jour local, AAAA-MM-JJ) ---------- */
+const pad = (n) => String(n).padStart(2, "0");
+const isoOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => isoOf(new Date());
+const parseIso = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parseIso(s); d.setDate(d.getDate() + n); return isoOf(d); };
+const utc = (s) => { const [y, m, d] = s.split("-").map(Number); return Date.UTC(y, m - 1, d); };
+const daysBetween = (from, to) => Math.round((utc(to) - utc(from)) / 86400000);
+const nextMonday = () => { const d = new Date(); d.setDate(d.getDate() + (((8 - d.getDay()) % 7) || 7)); return isoOf(d); };
+const fmtDay = (s) => new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short" }).format(parseIso(s));
+const fmtLong = (d) => new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(d);
+const fmtFull = (d) => new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(d);
+
+function urgencyOf(date) {
+  if (!date) return null;
+  const diff = daysBetween(today(), date);
+  if (diff < 0) return "overdue";
+  if (diff === 0) return "today";
+  if (diff <= 7) return "soon";
+  return "later";
+}
+function relLabel(date) {
+  const diff = daysBetween(today(), date);
+  if (diff < -1) return `En retard · ${-diff} j`;
+  if (diff === -1) return "En retard · hier";
+  if (diff === 0) return "Aujourd’hui";
+  if (diff === 1) return "Demain";
+  if (diff <= 6) return `Dans ${diff} jours`;
+  return fmtDay(date);
+}
+function createdLabel(isoDateTime) {
+  const diff = daysBetween(isoOf(new Date(isoDateTime)), today());
+  if (diff <= 0) return "Aujourd’hui";
+  if (diff === 1) return "Hier";
+  if (diff < 30) return `Il y a ${diff} j`;
+  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" }).format(new Date(isoDateTime));
+}
+
+const QUICK = [
+  { key: "today", label: "Aujourd’hui", date: () => today() },
+  { key: "tomorrow", label: "Demain", date: () => addDays(today(), 1) },
+  { key: "3d", label: "Dans 3 jours", date: () => addDays(today(), 3) },
+  { key: "monday", label: "Lundi prochain", date: nextMonday },
+  { key: "2w", label: "Dans 2 semaines", date: () => addDays(today(), 14) },
+];
+const quick = (key) => QUICK.find((q) => q.key === key);
+
+/* ---------- Jeu de test (scripts/seed.mjs) ---------- */
+// [nom, étape, créé il y a N jours, entreprise, e-mail, téléphone, notes, relance dans N jours]
+const SEED = [
+  ["Léa Martin", "new", 1, "Studio Kao", null, null, "Recommandée par Paul.", null],
+  ["Hugo Bernard", "new", 2, null, "hugo.bernard@mail.fr", null, null, 0],
+  ["Rémi Fontaine", "new", 0, "Fontaine Paysages", null, "06 70 80 90 10", "Ajouté aujourd'hui, à appeler dans la journée.", 0],
+  ["Clara Vidal", "new", 5, null, null, null, null, -2],
+  ["Gaston Lebrun", "new", 90, null, null, null, "Carte de visite trouvée, jamais contacté.", -45],
+  ["Yasmine Benali", "new", 3, null, null, "07 12 12 12 12", null, null],
+  ["Zoé Leroy", "contacted", 12, "Durandal SA", "zoe.leroy@durandal.fr", "06 11 22 33 44", "Intéressée, attend le budget 2027.", -3],
+  ["Karim Haddad", "contacted", 9, "Haddad & Fils", null, "07 98 76 54 32", null, -1],
+  ["Inès Moreau", "contacted", 6, "Atelier Lumen", "ines@atelier-lumen.fr", null, "Rappeler après le salon.", 2],
+  ["Bruno Caron", "contacted", 7, "Atelier Lumen", "bruno@atelier-lumen.fr", null, "Même entreprise qu'Inès Moreau : se coordonner.", 1],
+  ["Thomas Petit", "contacted", 20, "Petit Conseil", "thomas@petitconseil.fr", "06 55 44 33 22", "Fiche complète, aucune relance prévue.", null],
+  ["Paul Martin", "contacted", 18, null, "paul.martin@mail.fr", null, "Homonyme partiel de Léa Martin.", 14],
+  ["Martine Roy", "contacted", 11, "Roy Immobilier", null, null, null, null],
+  ["Jean-Baptiste N'Diaye", "contacted", 60, "N'Diaye Import-Export", "jb.ndiaye@ndiaye-ie.com", "+33 6 45 67 89 01", "Contacté il y a deux mois, plus de nouvelles.", null],
+  ["Lucie Arnaud", "contacted", 35, "Arnaud Traiteur", null, null, "Perdue en octobre (budget gelé), rouverte : le budget est revenu.", 1],
+  ["Éloïse Durand", "meeting", 15, "Maison Durand", "eloise@maison-durand.fr", "06 12 34 56 78", "RDV fait, envoyer la proposition.", 0],
+  ["Marc Lefèvre", "meeting", 30, "Lefèvre Bâtiment", null, null, "Relance oubliée depuis longtemps.", -10],
+  ["Sophie Garnier", "meeting", 8, "Garnier Studio", "sophie@garnier.studio", null, null, 7],
+  ["Nathan Roux", "meeting", 4, null, null, null, "RDV prévu, pas encore de relance.", null],
+  ["Émile Zola", "meeting", 21, "Éditions Fasquelle", "emile@fasquelle.fr", null, null, 30],
+  ["Anne-Sophie de La Tour d'Auvergne", "meeting", 10, "Compagnie Générale des Établissements de Restauration du Grand Ouest", "anne-sophie@cgerc-go.fr", "+33 2 99 00 11 22", "Budget validé en comité.\nDécision finale le mois prochain.", -5],
+  ["Camille Faure", "won", 45, "Faure Design", "camille@faure.design", "06 01 02 03 04", "Contrat signé le mois dernier.", null],
+  ["Julien Blanc", "won", 60, "Blanc & Associés", null, null, null, null],
+  ["Océane Robin", "won", 1, "Robin Événements", "oceane@robin-evenements.fr", null, "Signé hier !", null],
+  ["Victor Hugues", "won", 120, null, null, null, null, null],
+  ["Chloé Mercier", "lost", 40, "Mercier Industrie", "chloe@mercier-ind.fr", null, "A choisi un concurrent.", null],
+  ["Antoine Girard", "lost", 25, null, null, null, "Pas de budget.", null],
+  ["Margaux Lambert", "lost", 3, "Lambert Optique", "margaux@lambert-optique.fr", "06 98 98 98 98", "Perdu cette semaine : délai trop court.", null],
+];
+
+function seedData() {
+  const now = Date.now();
+  const contacts = SEED.map(([name, stage, ago, company, email, phone, notes, follow], i) => ({
+    id: i + 1, name, stage, company, email, phone, notes,
+    createdAt: new Date(now - ago * 86400000 - i * 60000).toISOString(),
+    followUp: follow === null ? null : addDays(today(), follow),
+  }));
+  return { contacts, nextId: contacts.length + 1 };
+}
+
+/* ---------- État ---------- */
+let db = load();
+const ui = { view: "aujourdhui", q: "", stage: null, sort: { key: "created", dir: "desc" }, openId: null, selected: null };
+
+function load() {
+  try { const raw = localStorage.getItem(STORE_KEY); if (raw) return JSON.parse(raw); } catch {}
+  const seeded = seedData();
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(seeded)); } catch {}
+  return seeded;
+}
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(db)); } catch {} }
+const byId = (id) => db.contacts.find((c) => c.id === id);
+const clone = (c) => JSON.parse(JSON.stringify(c));
+
+/* ---------- Règles métier ---------- */
+const trimOrNull = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
+
+function addContact({ name, company, stage, followUp }) {
+  const clean = (name || "").trim();
+  if (!clean) return { ok: false, error: "Le nom est requis." };
+  const contact = {
+    id: db.nextId++, name: clean, company: trimOrNull(company), email: null, phone: null, notes: null,
+    stage: STAGE_IDS.includes(stage) ? stage : "new", createdAt: new Date().toISOString(), followUp: null,
+  };
+  if (followUp && !CLOSED.has(contact.stage) && followUp >= today()) contact.followUp = followUp;
+  db.contacts.push(contact);
+  save();
+  return { ok: true, contact };
+}
+function updateField(id, field, value) {
+  const c = byId(id);
+  if (!c) return { ok: false };
+  if (field === "name") {
+    if (!value.trim()) return { ok: false, error: "Le nom est requis." };
+    c.name = value.trim();
+  } else if (field === "email") {
+    const v = value.trim();
+    if (v && !EMAIL.test(v)) return { ok: false, error: "Adresse e-mail invalide." };
+    c.email = v || null;
+  } else if (field === "notes") {
+    c.notes = value.trim() ? value : null;
+  } else {
+    c[field] = trimOrNull(value);
+  }
+  save();
+  return { ok: true };
+}
+function setStage(id, stage) {
+  const c = byId(id);
+  if (!c || !STAGE_IDS.includes(stage) || c.stage === stage) return { ok: false };
+  const before = clone(c);
+  c.stage = stage;
+  const cleared = CLOSED.has(stage) && c.followUp !== null;
+  if (cleared) c.followUp = null;
+  save();
+  return { ok: true, before, cleared };
+}
+function setFollowUp(id, date) {
+  const c = byId(id);
+  if (!c) return { ok: false, error: "Contact introuvable." };
+  if (date !== null) {
+    if (CLOSED.has(c.stage)) return { ok: false, error: "Un contact clôturé ne peut pas avoir de relance." };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, error: "Date invalide." };
+    if (date < today()) return { ok: false, error: "La date de relance ne peut pas être passée." };
+  }
+  const before = clone(c);
+  c.followUp = date;
+  save();
+  return { ok: true, before };
+}
+function removeContact(id) {
+  const index = db.contacts.findIndex((c) => c.id === id);
+  if (index === -1) return null;
+  const [removed] = db.contacts.splice(index, 1);
+  save();
+  return { removed, index };
+}
+function restore(snapshot, index) {
+  const i = db.contacts.findIndex((c) => c.id === snapshot.id);
+  if (i === -1) db.contacts.splice(index ?? db.contacts.length, 0, snapshot);
+  else db.contacts[i] = snapshot;
+  save();
+}
+
+/* ---------- Sélecteurs ---------- */
+const normalize = (s) => (s || "").normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+const active = () => db.contacts.filter((c) => !CLOSED.has(c.stage));
+function dueGroups() {
+  const t = today(), week = addDays(t, 7);
+  const withF = active().filter((c) => c.followUp).sort((a, b) => a.followUp.localeCompare(b.followUp) || a.name.localeCompare(b.name, "fr"));
+  return {
+    overdue: withF.filter((c) => c.followUp < t),
+    today: withF.filter((c) => c.followUp === t),
+    week: withF.filter((c) => c.followUp > t && c.followUp <= week),
+  };
+}
+const dueCount = () => { const g = dueGroups(); return g.overdue.length + g.today.length; };
+const initials = (name) => name.split(/[\s-]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
+/* ---------- Rendu : utilitaires ---------- */
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+const icon = (name, cls = "i") => `<svg class="${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+const pill = (stage) => `<span class="pill" data-stage="${stage}">${STAGE_LABEL[stage]}</span>`;
+const avatar = (c, size = "") => `<span class="avatar ${size}" data-stage="${c.stage}" aria-hidden="true">${esc(initials(c.name))}</span>`;
+function chip(c) {
+  if (!c.followUp) return CLOSED.has(c.stage) ? "" : `<span class="chip chip-muted">Pas de relance</span>`;
+  const u = urgencyOf(c.followUp);
+  return `<span class="chip" data-urgency="${u}" title="${esc(fmtDay(c.followUp))}">${icon(u === "overdue" || u === "today" ? "clock" : "calendar")}${esc(relLabel(c.followUp))}</span>`;
+}
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+/* ---------- Navigation ---------- */
+const VIEWS = [
+  { id: "aujourdhui", label: "Aujourd’hui", icon: "today", key: "T" },
+  { id: "pipeline", label: "Pipeline", icon: "board", key: "P" },
+  { id: "contacts", label: "Contacts", icon: "users", key: "C" },
+];
+function renderNav() {
+  const due = dueCount();
+  const item = (v, cls) => {
+    const badge = v.id === "aujourdhui" && due ? `<span class="count is-alert" aria-label="${due} relances dues">${due}</span>` : "";
+    return `<a class="${cls}" href="#/${v.id}" ${ui.view === v.id ? 'aria-current="page"' : ""}>${icon(v.icon)}<span>${v.label}</span>${badge}${cls === "nav-item" ? `<span class="kbd">G ${v.key}</span>` : ""}</a>`;
+  };
+  $("#side-nav").innerHTML = VIEWS.map((v) => item(v, "nav-item")).join("");
+  $("#bottom-nav").innerHTML = VIEWS.map((v) => item(v, "")).join("");
+  document.title = `${VIEWS.find((v) => v.id === ui.view).label} · Pipeline${due ? ` (${due})` : ""}`;
+}
+
+/* ---------- Vue : Aujourd'hui ---------- */
+function taskRow(c) {
+  return `<li class="row-item ${ui.openId === c.id ? "is-selected" : ""}" data-open="${c.id}">
+    ${avatar(c)}
+    <div class="row-main">
+      <span class="row-title">${esc(c.name)}</span>
+      <span class="row-sub">${pill(c.stage)}${c.company ? `<span class="company">${esc(c.company)}</span>` : ""}</span>
+    </div>
+    ${chip(c)}
+    <div class="row-actions">
+      <button class="btn btn-outline btn-sm" type="button" data-action="done" data-id="${c.id}" aria-label="Relance faite pour ${esc(c.name)}">${icon("check")}<span class="btn-label">Fait</span></button>
+      <button class="btn btn-ghost btn-sm" type="button" data-action="snooze-menu" data-id="${c.id}" aria-haspopup="menu" aria-label="Reporter la relance de ${esc(c.name)}">${icon("clock")}<span class="btn-label">Reporter</span></button>
+    </div>
+  </li>`;
+}
+function taskSection(title, tone, list) {
+  if (!list.length) return "";
+  return `<section class="task-section" aria-label="${esc(title)}">
+    <h2 class="section-title"><span class="dot" style="--c:var(--${tone})"></span>${esc(title)}<span class="count">${list.length}</span></h2>
+    <ul class="list card">${list.map(taskRow).join("")}</ul>
+  </section>`;
+}
+function renderToday() {
+  const g = dueGroups();
+  const won = db.contacts.filter((c) => c.stage === "won").length;
+  const lost = db.contacts.filter((c) => c.stage === "lost").length;
+  const meetings = db.contacts.filter((c) => c.stage === "meeting");
+  const rate = won + lost ? Math.round((won / (won + lost)) * 100) : 0;
+  const oldest = g.overdue[0] ? -daysBetween(today(), g.overdue[0].followUp) : 0;
+  const noNext = active().filter((c) => !c.followUp).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const due = g.overdue.length + g.today.length;
+  const summary = due
+    ? `${due} relance${due > 1 ? "s" : ""} à faire${g.overdue.length ? `, dont ${g.overdue.length} en retard` : ""}.`
+    : "Rien d’urgent aujourd’hui : bon moment pour prospecter.";
+  const total = db.contacts.length || 1;
+
+  return `
+  <header class="view-head">
+    <div>
+      <p class="eyebrow">${esc(fmtLong(new Date()))}</p>
+      <h1>Bonjour</h1>
+      <p>${esc(summary)}</p>
+    </div>
+    <button class="btn btn-primary" type="button" data-action="new">${icon("plus")}Nouveau contact<span class="kbd">N</span></button>
+  </header>
+
+  <div class="kpis">
+    <div class="card kpi" data-tone="today"><span class="kpi-label">${icon("clock")}À relancer aujourd’hui</span><span class="kpi-value">${g.today.length}</span><span class="kpi-sub">${g.week.length} autre${g.week.length > 1 ? "s" : ""} cette semaine</span></div>
+    <div class="card kpi" data-tone="${g.overdue.length ? "overdue" : ""}"><span class="kpi-label">${icon("alert")}En retard</span><span class="kpi-value">${g.overdue.length}</span><span class="kpi-sub">${g.overdue.length ? `La plus ancienne : ${oldest} j` : "Aucun retard"}</span></div>
+    <button class="card kpi" type="button" data-action="goto" data-view="pipeline"><span class="kpi-label">${icon("handshake")}RDV en cours</span><span class="kpi-value">${meetings.length}</span><span class="kpi-sub">${meetings.filter((c) => c.followUp).length} avec une relance</span></button>
+    <div class="card kpi"><span class="kpi-label">${icon("trophy")}Taux de gain</span><span class="kpi-value">${rate} %</span><span class="kpi-sub">${won} gagné${won > 1 ? "s" : ""} · ${lost} perdu${lost > 1 ? "s" : ""}</span></div>
+  </div>
+
+  <div class="today-grid">
+    <div>
+      ${due + g.week.length === 0 ? `<div class="card empty"><div class="empty-art">${icon("check")}</div><strong>Tout est à jour</strong><span>Aucune relance en retard ni prévue cette semaine.</span><button class="btn btn-outline btn-sm" type="button" data-action="goto" data-view="pipeline">Voir le pipeline</button></div>` : ""}
+      ${taskSection("En retard", "overdue", g.overdue)}
+      ${taskSection("Aujourd’hui", "today", g.today)}
+      ${taskSection("Cette semaine", "upcoming", g.week)}
+    </div>
+    <aside>
+      <section class="card side-card" aria-labelledby="no-next">
+        <h2 id="no-next">Sans prochaine relance</h2>
+        <p>${noNext.length ? `${noNext.length} contact${noNext.length > 1 ? "s" : ""} actif${noNext.length > 1 ? "s" : ""} sans date : planifiez la suite.` : "Tous vos contacts actifs ont une relance."}</p>
+        <ul class="mini-list">${noNext.slice(0, 6).map((c) => `<li class="mini-row" data-open="${c.id}">${avatar(c, "avatar-sm")}<span class="row-title">${esc(c.name)}</span><button class="btn btn-ghost btn-sm" type="button" data-action="snooze-menu" data-id="${c.id}" aria-haspopup="menu" aria-label="Planifier une relance pour ${esc(c.name)}">Planifier</button></li>`).join("")}</ul>
+      </section>
+      <section class="card side-card" aria-labelledby="overview">
+        <h2 id="overview">Pipeline en bref</h2>
+        <p>${db.contacts.length} contacts au total.</p>
+        <div class="bar" role="img" aria-label="Répartition par étape">${STAGES.map((s) => { const n = db.contacts.filter((c) => c.stage === s.id).length; return n ? `<span style="--c:var(--stage-${s.id});width:${(n / total) * 100}%"></span>` : ""; }).join("")}</div>
+        <ul class="legend">${STAGES.map((s) => `<li><span class="dot" style="--c:var(--stage-${s.id})"></span>${s.label}<b>${db.contacts.filter((c) => c.stage === s.id).length}</b></li>`).join("")}</ul>
+        <button class="btn btn-outline btn-sm" type="button" data-action="goto" data-view="pipeline" style="margin-top:var(--space-4);width:100%">Ouvrir le pipeline${icon("arrow")}</button>
+      </section>
+    </aside>
+  </div>`;
+}
+
+/* ---------- Vue : Pipeline ---------- */
+function dealCard(c) {
+  return `<article class="deal" draggable="true" tabindex="0" data-id="${c.id}" data-open="${c.id}"
+      aria-label="${esc(c.name)}${c.company ? ", " + esc(c.company) : ""}. Entrée pour ouvrir, Alt + flèches pour déplacer.">
+    <div class="deal-head">
+      ${avatar(c, "avatar-sm")}
+      <div class="deal-who"><span class="deal-name">${esc(c.name)}</span>${c.company ? `<span class="deal-sub">${esc(c.company)}</span>` : ""}</div>
+      <button class="btn btn-ghost btn-sm btn-icon" type="button" data-action="card-menu" data-id="${c.id}" aria-haspopup="menu" aria-label="Actions pour ${esc(c.name)}">${icon("more")}</button>
+    </div>
+    ${CLOSED.has(c.stage) ? "" : `<div>${chip(c)}</div>`}
+  </article>`;
+}
+function renderPipeline() {
+  const byStage = (id) => db.contacts.filter((c) => c.stage === id).sort((a, b) => (a.followUp || "9999").localeCompare(b.followUp || "9999") || b.createdAt.localeCompare(a.createdAt));
+  return `
+  <header class="view-head">
+    <div><h1>Pipeline</h1><p>${active().length} contacts en cours · glissez une carte, ou ouvrez son menu ⋯ pour la déplacer.</p></div>
+    <button class="btn btn-primary" type="button" data-action="new">${icon("plus")}Nouveau contact<span class="kbd">N</span></button>
+  </header>
+  <div class="board">
+    ${STAGES.map((s) => {
+      const list = byStage(s.id);
+      return `<section class="column" data-stage="${s.id}" ${CLOSED.has(s.id) ? "data-closed" : ""} aria-labelledby="col-${s.id}">
+        <header class="column-head">
+          <span class="dot"></span><h2 id="col-${s.id}">${s.label}</h2><span class="count">${list.length}</span>
+          <button class="btn btn-ghost btn-sm btn-icon" type="button" data-action="new" data-stage="${s.id}" aria-label="Ajouter un contact dans ${s.label}">${icon("plus")}</button>
+        </header>
+        <div class="column-body" data-drop="${s.id}">
+          ${list.length ? list.map(dealCard).join("") : `<div class="column-empty">Aucun contact<br>Déposez une carte ici</div>`}
+        </div>
+      </section>`;
+    }).join("")}
+  </div>`;
+}
+
+/* ---------- Vue : Contacts ---------- */
+function filteredContacts() {
+  const needle = normalize(ui.q.trim());
+  const matchQ = (c) => !needle || normalize(c.name).includes(needle) || normalize(c.company).includes(needle) || normalize(c.email).includes(needle);
+  const base = db.contacts.filter(matchQ);
+  const list = base.filter((c) => !ui.stage || c.stage === ui.stage);
+  const { key, dir } = ui.sort;
+  const sign = dir === "asc" ? 1 : -1;
+  const cmp = {
+    name: (a, b) => a.name.localeCompare(b.name, "fr"),
+    company: (a, b) => (a.company ? (b.company ? a.company.localeCompare(b.company, "fr") : -1) : (b.company ? 1 : 0)),
+    stage: (a, b) => STAGE_IDS.indexOf(a.stage) - STAGE_IDS.indexOf(b.stage),
+    followUp: (a, b) => (a.followUp ? (b.followUp ? a.followUp.localeCompare(b.followUp) : -1) : (b.followUp ? 1 : 0)),
+    created: (a, b) => a.createdAt.localeCompare(b.createdAt),
+  }[key];
+  const nullsLast = key === "company" || key === "followUp";
+  list.sort((a, b) => {
+    const r = cmp(a, b);
+    if (nullsLast && ((key === "company" && (!a.company || !b.company)) || (key === "followUp" && (!a.followUp || !b.followUp)))) return r;
+    return r * sign;
+  });
+  return { base, list };
+}
+function renderContactsShell() {
+  return `
+  <header class="view-head">
+    <div><h1>Contacts</h1><p id="contacts-meta"></p></div>
+    <button class="btn btn-primary" type="button" data-action="new">${icon("plus")}Nouveau contact<span class="kbd">N</span></button>
+  </header>
+  <div class="toolbar">
+    <div class="search">${icon("search")}<input class="input" id="contact-search" type="search" placeholder="Nom, entreprise ou e-mail…" aria-label="Rechercher un contact" value="${esc(ui.q)}" autocomplete="off"></div>
+    <div class="filter-chips" id="filter-chips" role="group" aria-label="Filtrer par étape"></div>
+  </div>
+  <div id="contacts-results"></div>`;
+}
+function renderContactsResults() {
+  const { base, list } = filteredContacts();
+  const countFor = (id) => base.filter((c) => c.stage === id).length;
+  $("#filter-chips").innerHTML =
+    `<button class="filter-chip" type="button" data-action="filter-stage" data-value="" aria-pressed="${!ui.stage}">Toutes <small>${base.length}</small></button>` +
+    STAGES.map((s) => `<button class="filter-chip" type="button" data-action="filter-stage" data-value="${s.id}" aria-pressed="${ui.stage === s.id}" style="--c:var(--stage-${s.id})"><span class="dot"></span>${s.label} <small>${countFor(s.id)}</small></button>`).join("");
+  $("#contacts-meta").textContent = `${db.contacts.length} contacts · ${active().length} en cours`;
+
+  const filtered = ui.q.trim() || ui.stage;
+  if (!list.length) {
+    $("#contacts-results").innerHTML = db.contacts.length === 0
+      ? `<div class="card empty"><div class="empty-art">${icon("users")}</div><strong>Aucun contact pour l’instant</strong><span>Ajoutez votre premier prospect pour commencer.</span><button class="btn btn-primary btn-sm" type="button" data-action="new">${icon("plus")}Nouveau contact</button></div>`
+      : `<div class="card empty"><div class="empty-art">${icon("search")}</div><strong>Aucun résultat</strong><span>${ui.q.trim() ? `Personne ne correspond à « ${esc(ui.q.trim())} »` : "Aucun contact à cette étape"}${ui.stage ? ` (${STAGE_LABEL[ui.stage]})` : ""}.</span><button class="btn btn-outline btn-sm" type="button" data-action="clear-filters">Effacer les filtres</button></div>`;
+    return;
+  }
+  const th = (key, label) => {
+    const on = ui.sort.key === key;
+    return `<th scope="col" aria-sort="${on ? (ui.sort.dir === "asc" ? "ascending" : "descending") : "none"}"><button type="button" data-action="sort" data-key="${key}">${label}${icon(on ? (ui.sort.dir === "asc" ? "up" : "down") : "sort")}</button></th>`;
+  };
+  $("#contacts-results").innerHTML = `
+    ${filtered ? `<p class="results-meta">${list.length} résultat${list.length > 1 ? "s" : ""}</p>` : ""}
+    <div class="card table-card"><table class="table">
+      <thead><tr>${th("name", "Nom")}${th("company", "Entreprise")}${th("stage", "Étape")}${th("followUp", "Prochaine relance")}${th("created", "Ajouté")}</tr></thead>
+      <tbody>${list.map((c) => `<tr data-open="${c.id}" tabindex="0" class="${ui.openId === c.id ? "is-selected" : ""}" aria-label="Ouvrir ${esc(c.name)}">
+        <td data-col="name"><span class="cell-name">${avatar(c, "avatar-sm")}${esc(c.name)}</span></td>
+        <td data-col="company" class="cell-muted">${esc(c.company || "—")}</td>
+        <td data-col="stage">${pill(c.stage)}</td>
+        <td data-col="followUp">${chip(c) || '<span class="cell-muted">—</span>'}</td>
+        <td data-col="created" class="cell-muted">${esc(createdLabel(c.createdAt))}</td>
+      </tr>`).join("")}</tbody>
+    </table></div>`;
+}
+function syncContactsHash() {
+  const p = new URLSearchParams();
+  if (ui.q.trim()) p.set("q", ui.q.trim());
+  if (ui.stage) p.set("stage", ui.stage);
+  const hash = `#/contacts${p.toString() ? "?" + p : ""}`;
+  if (location.hash !== hash) history.replaceState(null, "", hash);
+}
+
+/* ---------- Rendu principal ---------- */
+let mounted = null;
+function renderView() {
+  const view = $("#view");
+  const focusSel = focusSelector();
+  if (ui.view === "contacts") {
+    if (mounted !== "contacts") { view.innerHTML = renderContactsShell(); mounted = "contacts"; }
+    renderContactsResults();
+  } else {
+    view.innerHTML = ui.view === "pipeline" ? renderPipeline() : renderToday();
+    mounted = ui.view;
+  }
+  renderNav();
+  restoreFocus(focusSel);
+}
+function focusSelector() {
+  const el = document.activeElement;
+  if (!el || el === document.body || !$("#view").contains(el)) return null;
+  if (el.id) return `#${el.id}`;
+  if (el.dataset.action) return `[data-action="${el.dataset.action}"]${el.dataset.id ? `[data-id="${el.dataset.id}"]` : ""}${el.dataset.value !== undefined ? `[data-value="${el.dataset.value}"]` : ""}${el.dataset.key ? `[data-key="${el.dataset.key}"]` : ""}`;
+  if (el.dataset.open) return `${el.tagName.toLowerCase()}[data-open="${el.dataset.open}"]`;
+  return null;
+}
+function restoreFocus(sel) {
+  if (!sel) return;
+  const el = $(sel, $("#view"));
+  if (el && document.activeElement !== el) el.focus({ preventScroll: true });
+}
+function refresh() { renderView(); if (ui.openId) renderDrawer(); }
+
+/* ---------- Fiche (panneau latéral) ---------- */
+function openDrawer(id) {
+  if (!byId(id)) return;
+  const wasOpen = ui.openId !== null;
+  ui.openId = id;
+  renderDrawer();
+  const d = $("#drawer");
+  d.classList.add("is-open");
+  d.removeAttribute("inert");
+  document.body.classList.add("has-drawer");
+  renderView();
+  if (!wasOpen) lastFocus = document.activeElement;
+  setTimeout(() => $("#drawer-close")?.focus(), 30);
+}
+let lastFocus = null;
+function closeDrawer() {
+  if (ui.openId === null) return;
+  const id = ui.openId;
+  flushField();
+  ui.openId = null;
+  const d = $("#drawer");
+  d.classList.remove("is-open");
+  d.setAttribute("inert", "");
+  document.body.classList.remove("has-drawer");
+  renderView();
+  const back = $(`[data-open="${id}"]`, $("#view"));
+  (back || lastFocus)?.focus?.({ preventScroll: true });
+}
+function renderDrawer() {
+  const c = byId(ui.openId);
+  if (!c) { closeDrawer(); return; }
+  const closed = CLOSED.has(c.stage);
+  const activeIndex = STAGE_IDS.indexOf(c.stage);
+  const step = (s, i) => `<button class="step ${!closed && i < activeIndex ? "is-done" : ""}" type="button" data-stage="${s.id}" data-action="set-stage" data-value="${s.id}" aria-pressed="${c.stage === s.id}">${s.label}</button>`;
+  const followUp = closed
+    ? `<div class="note">Contact ${c.stage === "won" ? "gagné" : "perdu"} : pas de relance. Pour le rouvrir, choisissez une étape en cours ci-dessus.</div>`
+    : `<div class="followup-box">
+        <div class="followup-current">
+          ${c.followUp ? `${chip(c)}<span class="cell-muted">${esc(fmtDay(c.followUp))}</span><span class="spacer"></span>
+            <button class="btn btn-outline btn-sm" type="button" data-action="done" data-id="${c.id}">${icon("check")}Fait</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-action="followup-clear">Retirer</button>`
+            : `<span class="cell-muted">Aucune relance planifiée.</span>`}
+        </div>
+        <div class="quick-picks" role="group" aria-label="Planifier la relance">
+          ${QUICK.map((q) => `<button class="btn btn-outline btn-sm" type="button" data-action="followup" data-value="${q.key}" ${c.followUp === q.date() ? 'aria-pressed="true"' : ""}>${q.label}</button>`).join("")}
+          <label class="sr-only" for="followup-date">Choisir une date</label>
+          <input class="input" id="followup-date" type="date" min="${today()}" value="${c.followUp || ""}">
+        </div>
+        <span class="error" id="followup-error" role="alert"></span>
+      </div>`;
+  $("#drawer").innerHTML = `
+    <div class="drawer-top">
+      <span class="saved" id="saved" aria-live="polite"></span>
+      <button class="btn btn-ghost btn-icon" type="button" data-action="drawer-menu" aria-haspopup="menu" aria-label="Plus d’actions">${icon("more")}</button>
+      <button class="btn btn-ghost btn-icon" id="drawer-close" type="button" data-action="close" aria-label="Fermer la fiche (Échap)">${icon("x")}</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-ident">
+        ${avatar(c, "avatar-lg")}
+        <input class="input input-ghost title-input" id="drawer-title" data-field="name" value="${esc(c.name)}" aria-label="Nom" autocomplete="off">
+        <input class="input input-ghost" data-field="company" value="${esc(c.company || "")}" placeholder="Ajouter une entreprise" aria-label="Entreprise" autocomplete="off">
+        <span></span><span class="error" id="error-name" role="alert"></span>
+      </div>
+      <section class="drawer-section" aria-labelledby="h-stage"><h3 id="h-stage">Étape</h3><div class="stepper" role="group" aria-labelledby="h-stage">${STAGES.map(step).join("")}</div></section>
+      <section class="drawer-section" aria-labelledby="h-follow"><h3 id="h-follow">Prochaine relance</h3>${followUp}</section>
+      <section class="drawer-section" aria-labelledby="h-contact">
+        <h3 id="h-contact">Coordonnées</h3>
+        <div class="field"><label for="f-email">E-mail</label>
+          <div class="input-with-action"><input class="input" id="f-email" type="email" data-field="email" value="${esc(c.email || "")}" placeholder="prenom@entreprise.fr" autocomplete="off" aria-describedby="error-email">
+          ${c.email ? `<a class="btn btn-outline btn-icon" href="mailto:${esc(c.email)}" aria-label="Écrire à ${esc(c.name)}">${icon("mail")}</a>` : ""}</div>
+          <span class="error" id="error-email" role="alert"></span></div>
+        <div class="field"><label for="f-phone">Téléphone</label>
+          <div class="input-with-action"><input class="input" id="f-phone" type="tel" data-field="phone" value="${esc(c.phone || "")}" placeholder="06 12 34 56 78" autocomplete="off">
+          ${c.phone ? `<a class="btn btn-outline btn-icon" href="tel:${esc(c.phone.replace(/\s/g, ""))}" aria-label="Appeler ${esc(c.name)}">${icon("phone")}</a>` : ""}</div></div>
+      </section>
+      <section class="drawer-section" aria-labelledby="h-notes"><h3 id="h-notes">Notes</h3>
+        <textarea class="input" data-field="notes" aria-labelledby="h-notes" placeholder="Contexte, besoins, prochain pas…">${esc(c.notes || "")}</textarea>
+        <span class="hint">Enregistré automatiquement.</span></section>
+    </div>
+    <div class="drawer-foot"><span>Ajouté le ${esc(fmtFull(new Date(c.createdAt)))}</span>
+      <button class="btn btn-danger-ghost btn-sm" type="button" data-action="delete" data-id="${c.id}">${icon("trash")}Supprimer</button></div>`;
+}
+
+/* Enregistrement automatique des champs */
+let fieldTimer = null, pendingField = null;
+function scheduleField(input) {
+  pendingField = input;
+  setSaved("…");
+  clearTimeout(fieldTimer);
+  fieldTimer = setTimeout(flushField, 450);
+}
+function flushField() {
+  clearTimeout(fieldTimer);
+  const input = pendingField;
+  pendingField = null;
+  if (!input || ui.openId === null) return;
+  const field = input.dataset.field;
+  const result = updateField(ui.openId, field, input.value);
+  const errEl = $(`#error-${field === "name" ? "name" : "email"}`);
+  if (field === "name" || field === "email") {
+    input.setAttribute("aria-invalid", String(!result.ok));
+    if (errEl) errEl.textContent = result.ok ? "" : result.error;
+  }
+  if (result.ok) {
+    setSaved("ok");
+    renderView();
+    if (field === "name") $(".drawer-ident .avatar").textContent = initials(byId(ui.openId).name);
+  } else setSaved("");
+}
+let savedTimer = null;
+function setSaved(state) {
+  const el = $("#saved");
+  if (!el) return;
+  clearTimeout(savedTimer);
+  el.innerHTML = state === "ok" ? `${icon("check")}Enregistré` : state === "…" ? "Enregistrement…" : "";
+  if (state === "ok") savedTimer = setTimeout(() => (el.innerHTML = ""), 2200);
+}
+
+/* ---------- Actions métier (avec notification et annulation) ---------- */
+function doneFollowUp(id) {
+  const c = byId(id);
+  if (!c || !c.followUp) return;
+  const r = setFollowUp(id, null);
+  refresh();
+  toast(`Relance faite · ${c.name}`, [
+    { label: "Annuler", run: () => { restore(r.before); refresh(); } },
+    { label: "Planifier la suite", run: () => openDrawer(id) },
+  ]);
+}
+function planFollowUp(id, date) {
+  const c = byId(id);
+  const r = setFollowUp(id, date);
+  if (!r.ok) {
+    const err = $("#followup-error");
+    if (err && ui.openId === id) err.textContent = r.error; else toast(r.error);
+    return false;
+  }
+  refresh();
+  toast(`Relance de ${c.name} : ${relLabel(date).toLowerCase()} (${fmtDay(date)})`, [{ label: "Annuler", run: () => { restore(r.before); refresh(); } }]);
+  return true;
+}
+function moveStage(id, stage, { focus } = {}) {
+  const c = byId(id);
+  const r = setStage(id, stage);
+  if (!r.ok) return;
+  refresh();
+  if (focus) $(`.deal[data-id="${id}"]`)?.focus();
+  toast(`${c.name} → ${STAGE_LABEL[stage]}${r.cleared ? " · relance effacée" : ""}`, [{ label: "Annuler", run: () => { restore(r.before); refresh(); } }]);
+}
+function deleteContact(id) {
+  const c = byId(id);
+  if (!c) return;
+  confirmDialog({
+    title: `Supprimer ${c.name} ?`,
+    text: "Sa fiche et ses notes seront supprimées. Vous pourrez annuler juste après.",
+    confirm: "Supprimer", danger: true,
+    onConfirm: () => {
+      if (ui.openId === id) closeDrawer();
+      const r = removeContact(id);
+      refresh();
+      toast(`${c.name} supprimé${c.name.endsWith("e") ? "(e)" : ""}`, [{ label: "Annuler", run: () => { restore(r.removed, r.index); refresh(); } }]);
+    },
+  });
+}
+
+/* ---------- Notifications ---------- */
+function toast(message, actions = []) {
+  const box = $("#toasts");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `<span>${esc(message)}</span>${actions.map((a, i) => `<button class="btn btn-sm" type="button" data-toast="${i}">${esc(a.label)}</button>`).join("")}<button class="btn btn-sm btn-icon" type="button" data-toast="x" aria-label="Fermer">${icon("x")}</button>`;
+  const close = () => { el.remove(); };
+  el.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-toast]");
+    if (!b) return;
+    if (b.dataset.toast !== "x") actions[+b.dataset.toast].run();
+    close();
+  });
+  box.appendChild(el);
+  while (box.children.length > 3) box.firstElementChild.remove();
+  setTimeout(close, 6000);
+}
+
+/* ---------- Menus contextuels ---------- */
+let menu = null;
+function openMenu(anchor, items) {
+  closeMenu();
+  const el = document.createElement("div");
+  el.className = "menu";
+  el.setAttribute("role", "menu");
+  el.innerHTML = items.map((it, i) => it === "sep" ? `<div class="menu-sep" role="separator"></div>`
+    : it.header ? `<div class="menu-label">${esc(it.header)}</div>`
+    : `<button class="menu-item ${it.danger ? "is-danger" : ""}" type="button" role="menuitem" data-index="${i}">${it.html || esc(it.label)}${it.hint ? `<small>${esc(it.hint)}</small>` : ""}</button>`).join("");
+  $("#layer").appendChild(el);
+  const r = anchor.getBoundingClientRect();
+  const w = el.offsetWidth, h = el.offsetHeight;
+  el.style.left = `${Math.max(8, Math.min(r.right - w, innerWidth - w - 8))}px`;
+  el.style.top = `${r.bottom + 6 + h > innerHeight - 8 ? Math.max(8, r.top - h - 6) : r.bottom + 6}px`;
+  anchor.setAttribute("aria-expanded", "true");
+  menu = { el, anchor };
+  el.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-index]");
+    if (!b) return;
+    const item = items[+b.dataset.index];
+    closeMenu(false);
+    item.run();
+  });
+  el.addEventListener("keydown", (e) => {
+    const all = $$(".menu-item", el);
+    const i = all.indexOf(document.activeElement);
+    if (e.key === "ArrowDown") { e.preventDefault(); all[(i + 1) % all.length].focus(); }
+    if (e.key === "ArrowUp") { e.preventDefault(); all[(i - 1 + all.length) % all.length].focus(); }
+    if (e.key === "Tab") closeMenu();
+  });
+  $(".menu-item", el)?.focus();
+}
+function closeMenu(restoreFocusToAnchor = true) {
+  if (!menu) return;
+  const { el, anchor } = menu;
+  menu = null;
+  el.remove();
+  anchor.setAttribute("aria-expanded", "false");
+  if (restoreFocusToAnchor && document.contains(anchor)) anchor.focus({ preventScroll: true });
+}
+function snoozeItems(id) {
+  const c = byId(id);
+  return [
+    { header: c.followUp ? "Reporter à" : "Relancer" },
+    ...QUICK.filter((q) => q.key !== "today" || !c.followUp || c.followUp < today()).map((q) => ({ label: q.label, hint: fmtDay(q.date()), run: () => planFollowUp(id, q.date()) })),
+    "sep",
+    { html: `${icon("calendar")}Choisir une date…`, run: () => dateDialog(id) },
+  ];
+}
+function cardItems(id) {
+  const c = byId(id);
+  return [
+    { header: "Déplacer vers" },
+    ...STAGES.filter((s) => s.id !== c.stage).map((s) => ({ html: pill(s.id), run: () => moveStage(id, s.id, { focus: true }) })),
+    "sep",
+    { html: `${icon("arrow")}Ouvrir la fiche`, run: () => openDrawer(id) },
+    ...(CLOSED.has(c.stage) ? [] : [{ html: `${icon("clock")}Planifier une relance…`, run: () => dateDialog(id) }]),
+    { html: `${icon("trash")}Supprimer…`, danger: true, run: () => deleteContact(id) },
+  ];
+}
+
+/* ---------- Dialogues ---------- */
+let modal = null;
+function openModal(html, { onClose, labelledby } = {}) {
+  closeModal();
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  overlay.innerHTML = html;
+  const box = overlay.firstElementChild;
+  box.setAttribute("role", "dialog");
+  box.setAttribute("aria-modal", "true");
+  if (labelledby) box.setAttribute("aria-labelledby", labelledby);
+  const previous = document.activeElement;
+  overlay.addEventListener("mousedown", (e) => { if (e.target === overlay) closeModal(); });
+  overlay.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab") return;
+    const f = $$('button:not([disabled]), input, textarea, select, [tabindex]:not([tabindex="-1"])', box).filter((x) => x.offsetParent !== null);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  $("#layer").appendChild(overlay);
+  modal = { overlay, onClose, previous };
+  return box;
+}
+function closeModal() {
+  if (!modal) return;
+  const { overlay, onClose, previous } = modal;
+  modal = null;
+  overlay.remove();
+  onClose?.();
+  if (previous && document.contains(previous)) previous.focus({ preventScroll: true });
+}
+function confirmDialog({ title, text, confirm, danger, onConfirm }) {
+  const box = openModal(`<div class="dialog"><h2 id="dlg-title">${esc(title)}</h2><p>${esc(text)}</p>
+    <div class="dialog-actions"><button class="btn btn-ghost" type="button" data-dlg="cancel">Annuler</button>
+    <button class="btn ${danger ? "btn-danger" : "btn-primary"}" type="button" data-dlg="ok">${esc(confirm)}</button></div></div>`, { labelledby: "dlg-title" });
+  box.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-dlg]");
+    if (!b) return;
+    const ok = b.dataset.dlg === "ok";
+    modal.previous = null;
+    closeModal();
+    if (ok) onConfirm();
+  });
+  $('[data-dlg="cancel"]', box).focus();
+}
+function dateDialog(id) {
+  const c = byId(id);
+  const box = openModal(`<div class="dialog"><h2 id="dlg-title">Relancer ${esc(c.name)}</h2>
+    <form novalidate><div class="field"><label for="dlg-date">Date de relance</label><input class="input" id="dlg-date" type="date" min="${today()}" value="${c.followUp || addDays(today(), 1)}" required><span class="error" id="dlg-error" role="alert"></span></div>
+    <div class="dialog-actions"><button class="btn btn-ghost" type="button" data-dlg="cancel">Annuler</button><button class="btn btn-primary" type="submit">Planifier</button></div></form></div>`, { labelledby: "dlg-title" });
+  $('[data-dlg="cancel"]', box).addEventListener("click", closeModal);
+  $("form", box).addEventListener("submit", (e) => {
+    e.preventDefault();
+    const value = $("#dlg-date", box).value;
+    const r = setFollowUp(id, value || "invalide");
+    if (!r.ok) { $("#dlg-error", box).textContent = r.error; $("#dlg-date", box).setAttribute("aria-invalid", "true"); return; }
+    restore(r.before); // on rejoue via planFollowUp pour la notification
+    closeModal();
+    planFollowUp(id, value);
+  });
+  $("#dlg-date", box).focus();
+}
+function quickAdd(stage = "new") {
+  const box = openModal(`<div class="dialog"><h2 id="dlg-title">Nouveau contact</h2>
+    <form novalidate>
+      <div class="field"><label for="qa-name">Nom</label><input class="input" id="qa-name" placeholder="Camille Martin" autocomplete="off" aria-describedby="qa-error"><span class="error" id="qa-error" role="alert"></span></div>
+      <div class="field"><label for="qa-company">Entreprise <span class="hint">(facultatif)</span></label><input class="input" id="qa-company" placeholder="Atelier Lumen" autocomplete="off"></div>
+      <fieldset class="field" style="border:0;padding:0;margin:0"><legend class="label" style="margin-bottom:6px">Étape</legend><div class="option-row">
+        ${STAGES.map((s) => `<label class="option"><input type="radio" name="qa-stage" value="${s.id}" ${s.id === stage ? "checked" : ""}><span>${s.label}</span></label>`).join("")}</div></fieldset>
+      <fieldset class="field" id="qa-follow" style="border:0;padding:0;margin:0"><legend class="label" style="margin-bottom:6px">Relance</legend><div class="option-row">
+        <label class="option"><input type="radio" name="qa-follow" value="" checked><span>Aucune</span></label>
+        ${QUICK.slice(0, 4).map((q) => `<label class="option"><input type="radio" name="qa-follow" value="${q.key}"><span>${q.label}</span></label>`).join("")}</div></fieldset>
+      <div class="dialog-actions"><button class="btn btn-ghost" type="button" data-dlg="cancel">Annuler</button><button class="btn btn-primary" type="submit">Ajouter<span class="kbd">↵</span></button></div>
+    </form></div>`, { labelledby: "dlg-title" });
+  const syncFollow = () => {
+    const closed = CLOSED.has($('input[name="qa-stage"]:checked', box).value);
+    $("#qa-follow", box).hidden = closed;
+  };
+  box.addEventListener("change", syncFollow);
+  syncFollow();
+  $('[data-dlg="cancel"]', box).addEventListener("click", closeModal);
+  $("form", box).addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("#qa-name", box).value;
+    const st = $('input[name="qa-stage"]:checked', box).value;
+    const fk = $('input[name="qa-follow"]:checked', box).value;
+    const r = addContact({ name, company: $("#qa-company", box).value, stage: st, followUp: fk && !CLOSED.has(st) ? quick(fk).date() : null });
+    if (!r.ok) { $("#qa-error", box).textContent = r.error; $("#qa-name", box).setAttribute("aria-invalid", "true"); $("#qa-name", box).focus(); return; }
+    closeModal();
+    refresh();
+    toast(`${r.contact.name} ajouté${r.contact.name.endsWith("e") ? "(e)" : ""}`, [{ label: "Ouvrir la fiche", run: () => openDrawer(r.contact.id) }]);
+  });
+  $("#qa-name", box).focus();
+}
+function helpDialog() {
+  const mod = isMac ? "⌘" : "Ctrl";
+  const rows = [
+    ["Rechercher, lancer une commande", [mod, "K"]], ["Nouveau contact", ["N"]], ["Aller à Aujourd’hui", ["G", "T"]],
+    ["Aller au Pipeline", ["G", "P"]], ["Aller aux Contacts", ["G", "C"]], ["Rechercher dans les contacts", ["/"]],
+    ["Déplacer une carte du pipeline", ["Alt", "←", "→"]], ["Ouvrir la fiche sélectionnée", ["Entrée"]], ["Fermer (fiche, fenêtre, menu)", ["Échap"]],
+  ];
+  const box = openModal(`<div class="dialog"><h2 id="dlg-title">Raccourcis clavier</h2>
+    <dl class="shortcuts">${rows.map(([l, keys]) => `<dt>${esc(l)}</dt><dd>${keys.map((k) => `<span class="kbd">${esc(k)}</span>`).join("")}</dd>`).join("")}</dl>
+    <div class="dialog-actions"><button class="btn btn-primary" type="button" data-dlg="cancel">Compris</button></div></div>`, { labelledby: "dlg-title" });
+  $('[data-dlg="cancel"]', box).addEventListener("click", closeModal);
+  $('[data-dlg="cancel"]', box).focus();
+}
+
+/* ---------- Palette de commandes ---------- */
+function paletteCommands() {
+  return [
+    { label: "Nouveau contact", hint: "N", icon: "plus", run: () => quickAdd() },
+    ...VIEWS.map((v) => ({ label: `Aller à ${v.label}`, hint: `G ${v.key}`, icon: v.icon, run: () => go(v.id) })),
+    { label: "Thème clair", icon: "sun", run: () => applyTheme("light") },
+    { label: "Thème sombre", icon: "moon", run: () => applyTheme("dark") },
+    { label: "Thème du système", icon: "monitor", run: () => applyTheme("system") },
+    { label: "Raccourcis clavier", hint: "?", icon: "keyboard", run: helpDialog },
+    { label: "Réinitialiser les données de démo", icon: "refresh", run: resetData },
+  ];
+}
+function openPalette() {
+  const box = openModal(`<div class="palette"><div class="palette-input">${icon("search")}<input id="pal-input" placeholder="Rechercher un contact ou une commande…" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="pal-list" aria-label="Rechercher"><span class="kbd">Échap</span></div>
+    <ul class="palette-list" id="pal-list" role="listbox"></ul>
+    <div class="palette-foot"><span><span class="kbd">↑</span> <span class="kbd">↓</span> naviguer</span><span><span class="kbd">↵</span> ouvrir</span></div></div>`);
+  const input = $("#pal-input", box), list = $("#pal-list", box);
+  let items = [], sel = 0;
+  const render = () => {
+    const q = normalize(input.value.trim());
+    const contacts = (q ? db.contacts.filter((c) => normalize(c.name).includes(q) || normalize(c.company).includes(q))
+      : [...dueGroups().overdue, ...dueGroups().today]).slice(0, 7)
+      .map((c) => ({ contact: c, run: () => openDrawer(c.id) }));
+    const commands = paletteCommands().filter((cmd) => !q || normalize(cmd.label).includes(q));
+    items = [...contacts, ...commands];
+    sel = Math.min(sel, Math.max(items.length - 1, 0));
+    if (!items.length) { list.innerHTML = `<li class="palette-empty">Aucun résultat pour « ${esc(input.value)} »</li>`; return; }
+    let html = "", i = 0;
+    if (contacts.length) html += `<li class="palette-group" role="presentation">${q ? "Contacts" : "À relancer"}</li>` + contacts.map((it) => {
+      const c = it.contact, idx = i++;
+      return `<li class="palette-item" role="option" id="pal-${idx}" data-i="${idx}" aria-selected="${idx === sel}">${avatar(c, "avatar-sm")}<span class="row-main"><span class="row-title">${esc(c.name)}</span><span class="row-sub">${esc(c.company || STAGE_LABEL[c.stage])}</span></span>${chip(c)}</li>`;
+    }).join("");
+    if (commands.length) html += `<li class="palette-group" role="presentation">Commandes</li>` + commands.map((cmd) => {
+      const idx = i++;
+      return `<li class="palette-item" role="option" id="pal-${idx}" data-i="${idx}" aria-selected="${idx === sel}">${icon(cmd.icon)}<span class="row-main"><span>${esc(cmd.label)}</span></span>${cmd.hint ? `<small><span class="kbd">${esc(cmd.hint)}</span></small>` : ""}</li>`;
+    }).join("");
+    list.innerHTML = html;
+    input.setAttribute("aria-activedescendant", `pal-${sel}`);
+    $(`#pal-${sel}`, list)?.scrollIntoView({ block: "nearest" });
+  };
+  const run = (i) => { const it = items[i]; if (!it) return; modal.previous = null; closeModal(); it.run(); };
+  input.addEventListener("input", () => { sel = 0; render(); });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); sel = (sel + 1) % Math.max(items.length, 1); render(); }
+    if (e.key === "ArrowUp") { e.preventDefault(); sel = (sel - 1 + items.length) % Math.max(items.length, 1); render(); }
+    if (e.key === "Enter") { e.preventDefault(); run(sel); }
+  });
+  list.addEventListener("mousemove", (e) => { const li = e.target.closest("[data-i]"); if (li && +li.dataset.i !== sel) { sel = +li.dataset.i; render(); } });
+  list.addEventListener("click", (e) => { const li = e.target.closest("[data-i]"); if (li) run(+li.dataset.i); });
+  render();
+  input.focus();
+}
+
+/* ---------- Thème ---------- */
+function applyTheme(choice) {
+  if (choice === "system") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", choice);
+  $$("#theme-switch [data-value]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.value === choice)));
+  try { localStorage.setItem(THEME_KEY, choice); } catch {}
+}
+function currentTheme() { try { return localStorage.getItem(THEME_KEY) || "system"; } catch { return "system"; } }
+
+function resetData() {
+  confirmDialog({
+    title: "Réinitialiser les données ?", text: "Les contacts de démonstration sont recréés, vos modifications dans la maquette sont perdues.",
+    confirm: "Réinitialiser", danger: true,
+    onConfirm: () => { closeDrawer(); db = seedData(); save(); refresh(); toast("Données de démonstration réinitialisées"); },
+  });
+}
+
+/* ---------- Routage (#/vue?filtres) ---------- */
+function go(view) { location.hash = `#/${view}`; }
+function route() {
+  const [path, query] = location.hash.replace(/^#\/?/, "").split("?");
+  ui.view = VIEWS.some((v) => v.id === path) ? path : "aujourdhui";
+  if (ui.view === "contacts") {
+    const p = new URLSearchParams(query || "");
+    ui.q = p.get("q") || "";
+    ui.stage = STAGE_IDS.includes(p.get("stage")) ? p.get("stage") : null;
+  }
+  mounted = null;
+  closeMenu(false);
+  renderView();
+  $("#view").focus({ preventScroll: true });
+  scrollTo({ top: 0 });
+}
+
+/* ---------- Événements ---------- */
+document.addEventListener("click", (e) => {
+  if (menu && !menu.el.contains(e.target) && !menu.anchor.contains(e.target)) closeMenu(false);
+  const el = e.target.closest("[data-action]");
+  if (el && !el.closest(".menu, .overlay, .toast")) { onAction(el.dataset.action, el); return; }
+  const open = e.target.closest("[data-open]");
+  if (open && !e.target.closest("a, button, input, textarea, select, label")) openDrawer(+open.dataset.open);
+});
+
+function onAction(action, el) {
+  const id = el.dataset.id ? +el.dataset.id : null;
+  switch (action) {
+    case "new": quickAdd(el.dataset.stage || "new"); break;
+    case "palette": openPalette(); break;
+    case "help": helpDialog(); break;
+    case "reset": resetData(); break;
+    case "theme": applyTheme(el.dataset.value); break;
+    case "cycle-theme": { const order = ["light", "dark", "system"]; applyTheme(order[(order.indexOf(currentTheme()) + 1) % 3]); break; }
+    case "goto": go(el.dataset.view); break;
+    case "close": closeDrawer(); break;
+    case "done": doneFollowUp(id); break;
+    case "snooze-menu": if (menu?.anchor === el) closeMenu(); else openMenu(el, snoozeItems(id)); break;
+    case "card-menu": if (menu?.anchor === el) closeMenu(); else openMenu(el, cardItems(id)); break;
+    case "drawer-menu": openMenu(el, [
+      { html: `${icon("check")}Relance faite`, run: () => doneFollowUp(ui.openId) },
+      { html: `${icon("calendar")}Choisir une date de relance…`, run: () => dateDialog(ui.openId) },
+      "sep",
+      { html: `${icon("trash")}Supprimer…`, danger: true, run: () => deleteContact(ui.openId) },
+    ].filter((it, i) => !(CLOSED.has(byId(ui.openId).stage) && i < 2) && !(i === 0 && !byId(ui.openId).followUp))); break;
+    case "set-stage": moveStage(ui.openId, el.dataset.value); break;
+    case "followup": planFollowUp(ui.openId, quick(el.dataset.value).date()); break;
+    case "followup-clear": { const r = setFollowUp(ui.openId, null); refresh(); toast("Relance retirée", [{ label: "Annuler", run: () => { restore(r.before); refresh(); } }]); break; }
+    case "delete": deleteContact(id); break;
+    case "filter-stage": ui.stage = el.dataset.value || null; syncContactsHash(); renderView(); break;
+    case "clear-filters": ui.q = ""; ui.stage = null; syncContactsHash(); mounted = null; renderView(); $("#contact-search")?.focus(); break;
+    case "sort": {
+      const key = el.dataset.key;
+      ui.sort = ui.sort.key === key ? { key, dir: ui.sort.dir === "asc" ? "desc" : "asc" } : { key, dir: key === "created" ? "desc" : "asc" };
+      renderView(); break;
+    }
+  }
+}
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "contact-search") { ui.q = e.target.value; syncContactsHash(); renderContactsResults(); return; }
+  if (e.target.dataset.field && e.target.closest("#drawer")) scheduleField(e.target);
+});
+document.addEventListener("change", (e) => {
+  if (e.target.id === "followup-date" && e.target.value) {
+    if (!planFollowUp(ui.openId, e.target.value)) e.target.value = byId(ui.openId)?.followUp || "";
+  }
+});
+document.addEventListener("focusout", (e) => { if (e.target.dataset?.field && pendingField === e.target) flushField(); });
+
+/* Glisser-déposer (Pipeline) */
+let dragId = null;
+document.addEventListener("dragstart", (e) => {
+  const card = e.target.closest?.(".deal");
+  if (!card) return;
+  dragId = +card.dataset.id;
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", String(dragId));
+  requestAnimationFrame(() => card.classList.add("is-dragging"));
+});
+document.addEventListener("dragend", () => { dragId = null; $$(".is-dragging, .is-over").forEach((el) => el.classList.remove("is-dragging", "is-over")); });
+document.addEventListener("dragover", (e) => {
+  const zone = e.target.closest?.("[data-drop]");
+  if (!zone || dragId === null) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  $$(".is-over").forEach((el) => el !== zone && el.classList.remove("is-over"));
+  zone.classList.add("is-over");
+});
+document.addEventListener("dragleave", (e) => {
+  const zone = e.target.closest?.("[data-drop]");
+  if (zone && !zone.contains(e.relatedTarget)) zone.classList.remove("is-over");
+});
+document.addEventListener("drop", (e) => {
+  const zone = e.target.closest?.("[data-drop]");
+  if (!zone || dragId === null) return;
+  e.preventDefault();
+  const id = dragId;
+  dragId = null;
+  zone.classList.remove("is-over");
+  moveStage(id, zone.dataset.drop);
+});
+
+/* Clavier */
+let gPending = 0;
+document.addEventListener("keydown", (e) => {
+  const typing = e.target.matches?.("input, textarea, select, [contenteditable]");
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); modal ? closeModal() : openPalette(); return; }
+  if (e.key === "Escape") {
+    if (menu) { e.preventDefault(); closeMenu(); return; }
+    if (modal) { e.preventDefault(); closeModal(); return; }
+    if (ui.openId !== null) { e.preventDefault(); closeDrawer(); return; }
+    if (typing) e.target.blur();
+    return;
+  }
+  if (modal || menu) return;
+  const target = e.target;
+  if (target.matches?.(".deal") && e.altKey && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+    e.preventDefault();
+    const c = byId(+target.dataset.id);
+    const next = STAGE_IDS[STAGE_IDS.indexOf(c.stage) + (e.key === "ArrowRight" ? 1 : -1)];
+    if (next) moveStage(c.id, next, { focus: true });
+    return;
+  }
+  if ((e.key === "Enter" || e.key === " ") && target.matches?.("[data-open]:not(button)") && !typing) { e.preventDefault(); openDrawer(+target.dataset.open); return; }
+  if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (Date.now() - gPending < 1200) {
+    gPending = 0;
+    const view = { t: "aujourdhui", p: "pipeline", c: "contacts" }[k];
+    if (view) { e.preventDefault(); go(view); }
+    return;
+  }
+  if (k === "g") { gPending = Date.now(); return; }
+  if (k === "n") { e.preventDefault(); quickAdd(); return; }
+  if (e.key === "?") { e.preventDefault(); helpDialog(); return; }
+  if (e.key === "/") {
+    e.preventDefault();
+    if (ui.view === "contacts") $("#contact-search")?.focus(); else openPalette();
+  }
+});
+
+/* ---------- Démarrage ---------- */
+$("#mod-key").textContent = isMac ? "⌘K" : "Ctrl K";
+$(".mobile-theme").hidden = !matchMedia("(max-width: 768px)").matches;
+matchMedia("(max-width: 768px)").addEventListener("change", (e) => ($(".mobile-theme").hidden = !e.matches));
+applyTheme(currentTheme());
+addEventListener("hashchange", route);
+addEventListener("storage", (e) => { if (e.key === STORE_KEY) { db = load(); refresh(); } });
+route();
+</script>
+</body>
+</html>

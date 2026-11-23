@@ -3,7 +3,7 @@
 // Couche présentation : sélecteur Clair / Sombre / Système (lot 8).
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useSyncExternalStore } from "react";
-import { applyTheme, readStoredTheme, selectTheme, THEME_KEY, type Theme, type ThemeStorage } from "@/components/theme/theme";
+import { applyTheme, isThemeStorageEvent, readStoredTheme, selectTheme, type Theme, type ThemeStorage } from "@/components/theme/theme";
 
 const OPTIONS: { theme: Theme; label: string; Icon: typeof SunIcon }[] = [
   { theme: "light", label: "Clair", Icon: SunIcon },
@@ -22,9 +22,9 @@ function storage(): ThemeStorage {
 
 const listeners = new Set<() => void>();
 function subscribe(onChange: () => void) {
-  // Un choix fait dans un autre onglet s'applique aussi ici.
+  // Un choix fait dans un autre onglet (ou un vidage du stockage) s'applique aussi ici.
   const onStorage = (event: StorageEvent) => {
-    if (event.key !== THEME_KEY) return;
+    if (!isThemeStorageEvent(event.key)) return;
     applyTheme(document.documentElement, readStoredTheme(storage()));
     onChange();
   };

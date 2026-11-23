@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   THEME_KEY,
   applyTheme,
+  isThemeStorageEvent,
   parseTheme,
   readStoredTheme,
   selectTheme,
@@ -106,5 +107,19 @@ describe("Choix du thème (lot 8)", () => {
       expect(() => runInitScript(brokenStorage)).not.toThrow();
       expect(runInitScript(brokenStorage)).toBeNull();
     });
+  });
+});
+
+describe("Synchronisation entre onglets (#17)", () => {
+  it("réagit au changement de la clé du thème", () => {
+    expect(isThemeStorageEvent(THEME_KEY)).toBe(true);
+  });
+
+  it("réagit au vidage du stockage (localStorage.clear() : clé null)", () => {
+    expect(isThemeStorageEvent(null)).toBe(true);
+  });
+
+  it("ignore les autres clés", () => {
+    expect(isThemeStorageEvent("autre-cle")).toBe(false);
   });
 });

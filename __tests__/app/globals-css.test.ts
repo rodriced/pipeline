@@ -78,3 +78,26 @@ describe("Thème Papier v2 (lot 8)", () => {
     },
   );
 });
+
+describe("Variante dark: compilée par Tailwind (#15)", () => {
+  /** Compile la variante `dark` de globals.css avec le vrai Tailwind, pour une classe dark:. */
+  async function compiled(candidate: string) {
+    const { compile } = await import("tailwindcss");
+    const variant = css.match(/@custom-variant dark \{[\s\S]*?\n\}/)?.[0];
+    expect(variant).toBeDefined();
+    const compiler = await compile(`@tailwind utilities;\n${variant}`);
+    return compiler.build([candidate]).replace(/\s+/g, " ");
+  }
+
+  it("branche « Sombre » choisie : [data-theme=dark]", async () => {
+    const out = await compiled("dark:hidden");
+    expect(out).toMatch(/\.dark\\:hidden:where\(\[data-theme="?dark"?\], \[data-theme="?dark"?\] \*\) \{ display: none; \}/);
+  });
+
+  it("branche « Système » : sous @media (prefers-color-scheme: dark), sauf si « Clair » est choisi", async () => {
+    const out = await compiled("dark:hidden");
+    expect(out).toMatch(
+      /@media \(prefers-color-scheme: dark\) \{ \.dark\\:hidden:where\(:root:not\(\[data-theme="?light"?\]\), :root:not\(\[data-theme="?light"?\]\) \*\) \{ display: none; \} \}/,
+    );
+  });
+});

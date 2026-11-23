@@ -27,3 +27,18 @@ describe("Choix de la base selon la configuration", () => {
     expect(() => tursoConfig({})).toThrow(/TURSO_DATABASE_URL/);
   });
 });
+
+describe("Sur Vercel, pas de repli silencieux sur SQLite (#26)", () => {
+  it("sans TURSO_DATABASE_URL : erreur explicite au lieu de SQLite", () => {
+    expect(() => repositoryKind({ VERCEL: "1" })).toThrow(/TURSO_DATABASE_URL manquante/);
+    expect(() => repositoryKind({ VERCEL: "1", TURSO_DATABASE_URL: "  " })).toThrow(/TURSO_DATABASE_URL manquante/);
+  });
+
+  it("avec TURSO_DATABASE_URL : Turso", () => {
+    expect(repositoryKind({ VERCEL: "1", TURSO_DATABASE_URL: "libsql://pipeline-exemple.turso.io" })).toBe("turso");
+  });
+
+  it("hors Vercel, SQLite local reste le défaut", () => {
+    expect(repositoryKind({ VERCEL: "" })).toBe("sqlite");
+  });
+});

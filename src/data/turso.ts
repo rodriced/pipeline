@@ -17,10 +17,39 @@ export function repositoryKind(env: Env = process.env): RepositoryKind {
   return "sqlite";
 }
 
+const PROTOCOLS = new Set(["libsql:", "https:", "wss:", "http:", "ws:"]);
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+/**
+ * URL et jeton Turso, contrôlés : vers un hôte distant, la connexion doit être chiffrée et le jeton présent.
+ * http/ws et l'absence de jeton ne sont admis qu'en local (turso dev). Les messages n'affichent ni l'URL ni le jeton.
+ */
 export function tursoConfig(env: Env = process.env): { url: string; authToken: string | undefined } {
   const url = env.TURSO_DATABASE_URL?.trim();
   if (!url) throw new Error("TURSO_DATABASE_URL manquante : impossible de se connecter à Turso.");
-  return { url, authToken: env.TURSO_AUTH_TOKEN?.trim() || undefined };
+  const authToken = env.TURSO_AUTH_TOKEN?.trim() || undefined;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error("TURSO_DATABASE_URL invalide : attendu libsql://<base>-<organisation>.turso.io.");
+  }
+  if (!PROTOCOLS.has(parsed.protocol)) {
+    throw new Error("TURSO_DATABASE_URL invalide : protocoles admis libsql, https, wss (http, ws en local).");
+  }
+
+  if (!LOCAL_HOSTS.has(parsed.hostname)) {
+    const unencrypted =
+      parsed.protocol === "http:" ||
+      parsed.protocol === "ws:" ||
+      (parsed.protocol === "libsql:" && parsed.searchParams.get("tls") === "0");
+    if (unencrypted) {
+      throw new Error("TURSO_DATABASE_URL non chiffrée : utiliser libsql://, https:// ou wss:// pour un hôte distant.");
+    }
+    if (!authToken) throw new Error("TURSO_AUTH_TOKEN manquant : obligatoire pour une base Turso distante.");
+  }
+  return { url, authToken };
 }
 
 let client: Client | undefined;

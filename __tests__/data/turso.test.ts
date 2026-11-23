@@ -42,3 +42,47 @@ describe("Sur Vercel, pas de repli silencieux sur SQLite (#26)", () => {
     expect(repositoryKind({ VERCEL: "" })).toBe("sqlite");
   });
 });
+
+describe("URL Turso contrôlée : jeton jamais envoyé sans TLS (#25)", () => {
+  const token = { TURSO_AUTH_TOKEN: "jeton" };
+
+  it("accepte les URL chiffrées vers un hôte distant (libsql, https, wss)", () => {
+    for (const url of ["libsql://db.turso.io", "https://db.turso.io", "wss://db.turso.io"]) {
+      expect(tursoConfig({ TURSO_DATABASE_URL: url, ...token }).url).toBe(url);
+    }
+  });
+
+  it("refuse une URL non chiffrée vers un hôte distant", () => {
+    for (const url of ["http://db.turso.io", "ws://db.turso.io", "libsql://db.turso.io:8080?tls=0"]) {
+      expect(() => tursoConfig({ TURSO_DATABASE_URL: url, ...token })).toThrow(/non chiffrée/);
+    }
+  });
+
+  it("exige un jeton pour un hôte distant", () => {
+    expect(() => tursoConfig({ TURSO_DATABASE_URL: "libsql://db.turso.io" })).toThrow(/TURSO_AUTH_TOKEN manquant/);
+    expect(() => tursoConfig({ TURSO_DATABASE_URL: "libsql://db.turso.io", TURSO_AUTH_TOKEN: " " })).toThrow(
+      /TURSO_AUTH_TOKEN manquant/,
+    );
+  });
+
+  it("autorise http, ws et l'absence de jeton en local (turso dev)", () => {
+    for (const url of ["http://127.0.0.1:8080", "http://localhost:8080", "ws://localhost:8080", "http://[::1]:8080"]) {
+      expect(tursoConfig({ TURSO_DATABASE_URL: url }).url).toBe(url);
+      expect(tursoConfig({ TURSO_DATABASE_URL: url, ...token }).authToken).toBe("jeton");
+    }
+  });
+
+  it("refuse une URL invalide ou d'un autre protocole, sans afficher l'URL ni le jeton", () => {
+    for (const url of ["db.turso.io", "file:./local.db", "ftp://db.turso.io"]) {
+      let message = "";
+      try {
+        tursoConfig({ TURSO_DATABASE_URL: url, TURSO_AUTH_TOKEN: "secret-jeton" });
+      } catch (error) {
+        message = (error as Error).message;
+      }
+      expect(message).toMatch(/TURSO_DATABASE_URL invalide/);
+      expect(message).not.toContain(url);
+      expect(message).not.toContain("secret-jeton");
+    }
+  });
+});

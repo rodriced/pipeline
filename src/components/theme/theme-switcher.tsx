@@ -3,7 +3,15 @@
 // Couche présentation : sélecteur Clair / Sombre / Système (lot 8).
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useSyncExternalStore } from "react";
-import { applyTheme, isThemeStorageEvent, readStoredTheme, selectTheme, type Theme, type ThemeStorage } from "@/components/theme/theme";
+import { Button } from "@/components/ui/button";
+import {
+  applyTheme,
+  isThemeStorageEvent,
+  readStoredTheme,
+  selectTheme,
+  type Theme,
+  type ThemeStorage,
+} from "@/components/theme/theme";
 
 const OPTIONS: { theme: Theme; label: string; Icon: typeof SunIcon }[] = [
   { theme: "light", label: "Clair", Icon: SunIcon },
@@ -49,17 +57,19 @@ export function ThemeSwitcher() {
   return (
     <div role="group" aria-label="Thème" className="inline-flex gap-0.5 rounded-lg bg-muted p-0.5">
       {OPTIONS.map(({ theme, label, Icon }) => (
-        <button
+        <Button
           key={theme}
           type="button"
+          variant="ghost"
+          size="icon-sm"
           aria-label={label}
           title={label}
           aria-pressed={current === theme}
           onClick={() => choose(theme)}
-          className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs"
+          className="text-muted-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs"
         >
           <Icon className="size-4" aria-hidden />
-        </button>
+        </Button>
       ))}
     </div>
   );

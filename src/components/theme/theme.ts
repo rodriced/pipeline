@@ -18,6 +18,9 @@ export function applyTheme(root: ThemeRoot, theme: Theme) {
   else root.setAttribute("data-theme", theme);
 }
 
+/** Événement `storage` venu d'un autre onglet qui concerne le thème : sa clé, ou un vidage complet (clé null). */
+export const isThemeStorageEvent = (key: string | null): boolean => key === null || key === THEME_KEY;
+
 export function readStoredTheme(storage: ThemeStorage): Theme {
   try {
     return parseTheme(storage.getItem(THEME_KEY));

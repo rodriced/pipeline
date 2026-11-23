@@ -18,9 +18,9 @@ Périmètre : `src/app` (routes, pages, layouts) et `src/components`.
 ## Design system « Papier »
 - N'utilise que les composants shadcn de `src/components/ui` (ajout : `pnpm dlx shadcn@latest add <composant>`) et les composants du projet construits dessus.
 - Aucune couleur en dur : pas de `#hex`, `rgb()`, `hsl()`, `oklch()`, ni de couleur de palette Tailwind (`bg-red-500`, `text-gray-700`, `bg-white`, `text-black`, `bg-[#…]`), ni de `style={{ color: … }}`.
-- Seulement les tokens du thème : `bg-background`, `text-foreground`, `bg-primary`, `text-muted-foreground`, `border-border`, `stage-*`, `today` / `today-foreground`, `primary-border`, `destructive-foreground`, `shadow-card`…
+- Seulement les tokens du thème (Papier v2) : ceux de shadcn (`bg-background`, `text-foreground`, `bg-primary`, `text-muted-foreground`, `border-border`, `ring`…) et ceux du projet : `stage-*` (étapes), `overdue` / `today` / `today-foreground` / `upcoming` (urgence des relances), `surface`, `subtle-foreground`, `border-strong`, `success`, `primary-hover`, `primary-soft`, `primary-border`, `destructive-foreground`, `overlay`, `shadow-card`.
 - Un besoin de couleur nouveau → ajouter un token dans `src/app/globals.css` (clair et sombre), pas une valeur locale.
-- Mode sombre : il suit `prefers-color-scheme` via les tokens, pas de classe `.dark`.
+- Thème clair / sombre / système (`src/components/theme/`) : le choix est posé en `data-theme` sur `<html>` ; sans choix, le sombre suit `prefers-color-scheme`. Pour du sombre, utiliser les tokens ou la variante `dark:` (qui suit déjà cette règle). Jamais de `@media (prefers-color-scheme: dark)` seul dans un composant (il casserait le choix « Clair »), ni de classe `.dark`.
 - Polices : `font-heading` (Fraunces) pour les titres, texte par défaut en Source Sans 3. Référence visuelle : `design-system.html`.
 
 ## Comment vérifier

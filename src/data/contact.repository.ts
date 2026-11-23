@@ -1,6 +1,9 @@
 // Couche données : seul endroit autorisé à parler à la base.
 // L'interface ContactRepository est le contrat stable ; seule l'implémentation change.
+import { SQL, toContact, type ContactRow } from "@/data/contact.sql";
+import { createLibsqlContactRepository } from "@/data/contact.repository.libsql";
 import { getDb, type Database } from "@/data/db";
+import { getTursoClient, repositoryKind } from "@/data/turso";
 
 export type Stage = "new" | "contacted" | "meeting" | "won" | "lost";
 
@@ -39,47 +42,15 @@ export interface ContactRepository {
   listWithFollowUpDueBy(date: string): Promise<Contact[]>;
 }
 
-type ContactRow = {
-  id: number;
-  name: string;
-  stage: string;
-  created_at: string;
-  company: string | null;
-  email: string | null;
-  phone: string | null;
-  notes: string | null;
-  next_follow_up: string | null;
-};
-
-const COLUMNS = "id, name, stage, created_at, company, email, phone, notes, next_follow_up";
-
-const toContact = (row: ContactRow): Contact => ({
-  id: Number(row.id),
-  name: row.name,
-  stage: row.stage as Stage,
-  createdAt: new Date(row.created_at),
-  company: row.company,
-  email: row.email,
-  phone: row.phone,
-  notes: row.notes,
-  nextFollowUp: row.next_follow_up,
-});
-
 export function createSqliteContactRepository(db: Database): ContactRepository {
-  const insert = db.prepare(
-    `INSERT INTO contacts (name, stage, created_at) VALUES (?, ?, ?) RETURNING ${COLUMNS}`,
-  );
-  const selectAll = db.prepare(`SELECT ${COLUMNS} FROM contacts ORDER BY created_at DESC, id DESC`);
-  const selectById = db.prepare(`SELECT ${COLUMNS} FROM contacts WHERE id = ?`);
-  const updateById = db.prepare(
-    `UPDATE contacts SET name = ?, company = ?, email = ?, phone = ?, notes = ? WHERE id = ? RETURNING ${COLUMNS}`,
-  );
-  const deleteById = db.prepare("DELETE FROM contacts WHERE id = ?");
-  const updateStageById = db.prepare(`UPDATE contacts SET stage = ? WHERE id = ? RETURNING ${COLUMNS}`);
-  const setFollowUpById = db.prepare(`UPDATE contacts SET next_follow_up = ? WHERE id = ? RETURNING ${COLUMNS}`);
-  const selectDueBy = db.prepare(
-    `SELECT ${COLUMNS} FROM contacts WHERE next_follow_up IS NOT NULL AND next_follow_up <= ? ORDER BY next_follow_up, id`,
-  );
+  const insert = db.prepare(SQL.insert);
+  const selectAll = db.prepare(SQL.selectAll);
+  const selectById = db.prepare(SQL.selectById);
+  const updateById = db.prepare(SQL.updateById);
+  const deleteById = db.prepare(SQL.deleteById);
+  const updateStageById = db.prepare(SQL.updateStageById);
+  const setFollowUpById = db.prepare(SQL.setFollowUpById);
+  const selectDueBy = db.prepare(SQL.selectDueBy);
 
   return {
     async create({ name, stage, createdAt }) {
@@ -113,17 +84,28 @@ export function createSqliteContactRepository(db: Database): ContactRepository {
   };
 }
 
-// Instance de l'app : la base n'est ouverte qu'au premier appel (pas à l'import).
-let appRepo: ContactRepository | undefined;
-const repo = () => (appRepo ??= createSqliteContactRepository(getDb()));
+// Instance de l'app : la base est choisie et ouverte au premier appel (pas à l'import).
+// Turso si TURSO_DATABASE_URL est définie (ex. sur Vercel), sinon SQLite local.
+let appRepo: Promise<ContactRepository> | undefined;
+function repo(): Promise<ContactRepository> {
+  appRepo ??= (
+    repositoryKind() === "turso"
+      ? getTursoClient().then(createLibsqlContactRepository)
+      : Promise.resolve().then(() => createSqliteContactRepository(getDb()))
+  ).catch((error: unknown) => {
+    appRepo = undefined; // nouvel essai au prochain appel
+    throw error;
+  });
+  return appRepo;
+}
 
 export const contactRepository: ContactRepository = {
-  create: (input) => repo().create(input),
-  listByMostRecent: () => repo().listByMostRecent(),
-  findById: (id) => repo().findById(id),
-  update: (id, fields) => repo().update(id, fields),
-  delete: (id) => repo().delete(id),
-  updateStage: (id, stage) => repo().updateStage(id, stage),
-  setFollowUp: (id, date) => repo().setFollowUp(id, date),
-  listWithFollowUpDueBy: (date) => repo().listWithFollowUpDueBy(date),
+  create: async (input) => (await repo()).create(input),
+  listByMostRecent: async () => (await repo()).listByMostRecent(),
+  findById: async (id) => (await repo()).findById(id),
+  update: async (id, fields) => (await repo()).update(id, fields),
+  delete: async (id) => (await repo()).delete(id),
+  updateStage: async (id, stage) => (await repo()).updateStage(id, stage),
+  setFollowUp: async (id, date) => (await repo()).setFollowUp(id, date),
+  listWithFollowUpDueBy: async (date) => (await repo()).listWithFollowUpDueBy(date),
 };
